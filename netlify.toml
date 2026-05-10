@@ -1,0 +1,28 @@
+[build]
+  functions = "api"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[functions."*"]
+  included_files = ["engine/**", "prompts/**"]
+
+# Python runtime for engine scripts
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
+[dev]
+  command = "echo 'No build command'"
+  port = 8888
+  targetPort = 3000
+
+# Environment variables (set real values in Netlify dashboard or .env)
+# ANTHROPIC_API_KEY      - Anthropic Claude API key
+# STRIPE_SECRET_KEY      - Stripe secret key (sk_live_... or sk_test_...)
+# STRIPE_WEBHOOK_SECRET  - Stripe webhook signing secret (whsec_...)
+# STRIPE_PRICE_ESENCIAL  - Stripe Price ID for plan Esencial
+# STRIPE_PRICE_COMPLETO  - Stripe Price ID for plan Completo
+# RESEND_API_KEY         - Resend email API key
+# REPORT_EMAIL_FROM      - Sender address for report emails
+# ISAAC_EMAIL            - Isaac's personal notification email

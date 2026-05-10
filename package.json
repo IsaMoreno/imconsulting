@@ -1,0 +1,17 @@
+{
+  "name": "imconsulting",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IM Consulting — astrological report platform",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "resend": "^4.0.0",
+    "stripe": "^17.0.0"
+  },
+  "scripts": {
+    "dev": "netlify dev"
+  }
+}
