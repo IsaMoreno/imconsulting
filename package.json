@@ -8,6 +8,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "html2pdf.js": "^0.14.0",
+    "puppeteer-core": "^25.0.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "resend": "^4.0.0",
     "stripe": "^17.0.0"
   },
