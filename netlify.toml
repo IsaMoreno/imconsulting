@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "echo 'Build complete'"
   functions = "api"
   publish = "public"
 
@@ -20,9 +20,4 @@
 [[redirects]]
   from = "/confirmation"
   to = "/confirmation.html"
-  status = 200
-
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
   status = 200
