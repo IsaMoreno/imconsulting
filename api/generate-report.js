@@ -1,11 +1,20 @@
 'use strict';
-
 const fs         = require('fs');
 const path       = require('path');
 const Anthropic  = require('@anthropic-ai/sdk');
 
+// ── Importar módulos de optimización ──────────────────────────────────────────
+const { auditarBloque }        = require('./audit-bloque');
+const { obtenerDelCaché, guardarEnCaché } = require('./cache-bloques');
+const { registrarConsumo }     = require('./track-tokens');
+
 // ── Paths ─────────────────────────────────────────────────────────────────────
 const PROMPTS_DIR = path.join(__dirname, '..', 'prompts');
+
+// ── Anthropic client ──────────────────────────────────────────────────────────
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 // ── Block catalogue ───────────────────────────────────────────────────────────
 const BLOQUES_META = {
@@ -43,67 +52,74 @@ const SECUENCIA_111 = [
   'B2.1','B2.2','B2.3','B2.4','B2.5','B2.6',
 ];
 
-// Blocks that receive eventos_cruzados when present
 const BLOQUES_CON_EVENTOS = new Set(['B12', 'B2.5', 'B2.6']);
 
 // ── Prompt loaders ────────────────────────────────────────────────────────────
 function loadCapaA() {
-  const raw = fs.readFileSync(path.join(PROMPTS_DIR, '00_CORE.md'), 'utf8');
-  const cut = raw.indexOf('## CAPA B');
-  return (cut !== -1 ? raw.slice(0, cut) : raw).trim();
-}
-
-// Returns { B1: "Regel Ha'Tzura — Lo interno se refleja...", ... }
-function buildZoharIndex() {
-  const raw = fs.readFileSync(path.join(PROMPTS_DIR, '01_ZOHAR.md'), 'utf8');
-  const index = {};
-  for (const line of raw.split('\n')) {
-    if (!line.startsWith('| B')) continue;
-    const cells = line.split('|').map(c => c.trim()).filter(Boolean);
-    if (cells.length < 3) continue;
-    const m = cells[0].match(/^(B[\d.]+)/);
-    if (m) index[m[1]] = `${cells[1]} — ${cells[2]}`;
+  try {
+    return fs.readFileSync(
+      path.join(PROMPTS_DIR, '00_CORE.md'),
+      'utf8',
+    ).split('## CAPA B')[0];
+  } catch {
+    return 'Default system prompt (Capa A not found)';
   }
-  return index;
 }
 
-// Returns { aries: "impulso que sirve...", acuario: "disciplina que brilla...", ... }
-function buildKabbalahIndex() {
-  const raw = fs.readFileSync(path.join(PROMPTS_DIR, '02_KABBALAH.md'), 'utf8');
-  const index = {};
-  for (const line of raw.split('\n')) {
-    if (!line.startsWith('|')) continue;
-    const cells = line.split('|').map(c => c.trim()).filter(Boolean);
-    if (cells.length < 6 || cells[0].startsWith('-') || cells[0] === 'Signo') continue;
-    index[cells[0].toLowerCase()] = cells[5]; // Traducción operativa
+function loadZohar() {
+  try {
+    return fs.readFileSync(
+      path.join(PROMPTS_DIR, '01_ZOHAR.md'),
+      'utf8',
+    );
+  } catch {
+    return '';
   }
-  return index;
 }
 
-// ── Module-level initialisation (reused across warm starts) ──────────────────
-const CAPA_A  = loadCapaA();
-const ZOHAR   = buildZoharIndex();
-const KABBALAH = buildKabbalahIndex();
+function loadKabbalah() {
+  try {
+    return fs.readFileSync(
+      path.join(PROMPTS_DIR, '02_KABBALAH.md'),
+      'utf8',
+    );
+  } catch {
+    return '';
+  }
+}
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
-});
+const CAPA_A      = loadCapaA();
+const ZOHAR_DATA  = loadZohar();
+const KABBAH_DATA = loadKabbalah();
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+function extractZoharRow(bloque) {
+  const regex = new RegExp(`^\\|\\s*${bloque}\\s*\\|(.+?)\\|`, 'm');
+  const match = ZOHAR_DATA.match(regex);
+  return match ? match[1].trim() : '(Zohar row not found)';
+}
+
+function extractKabbRow(signo) {
+  const regex = new RegExp(`^\\|\\s*${signo}\\s*\\|(.+?)\\|`, 'm');
+  const match = KABBAH_DATA.match(regex);
+  return match ? match[1].trim() : '(Kabbalah row not found)';
+}
+
+// ── Build user message for Claude ─────────────────────────────────────────────
 function buildUserMessage(codigo, cliente, dataset) {
-  const signoSolar = dataset.resumen?.signo_solar ?? '';
-  const zoharRow   = ZOHAR[codigo] ?? '';
-  const kabbRow    = KABBALAH[signoSolar.toLowerCase()] ?? '';
+  const signoSolar = dataset.signo_solar || 'Desconocido';
+  const zoharRow   = extractZoharRow(codigo);
+  const kabbRow    = extractKabbRow(signoSolar);
 
   let msg =
-    `Cliente: ${cliente.nombre}${cliente.edad ? `, ${cliente.edad} años` : ''}.` +
-    `\nContexto declarado: ${cliente.contexto ?? ''}` +
+    `Cliente: ${cliente.nombre}\n` +
     `\n\nDataset:\n${JSON.stringify(dataset, null, 2)}` +
     `\n\nPrincipio activo (Zohar): ${zoharRow}` +
-    `\nTraducción kabbalística (signo solar — ${signoSolar}): ${kabbRow}`;
+    `\n\nTraducción kabbalística (signo solar — ${signoSolar}): ${kabbRow}`;
 
   if (BLOQUES_CON_EVENTOS.has(codigo) && cliente.eventos_cruzados?.length) {
     msg += `\n\nEventos cruzados:\n${JSON.stringify(cliente.eventos_cruzados, null, 2)}`;
@@ -113,17 +129,33 @@ function buildUserMessage(codigo, cliente, dataset) {
   return msg;
 }
 
-// ── Single block call — up to 3 attempts, 3s between retries ─────────────────
+// ── Single block call — con optimización: caché + auditoría + tracking ────────
 async function callBloque(codigo, cliente, dataset) {
+  // 1. INTENTAR CACHÉ
+  const delCaché = obtenerDelCaché(codigo, dataset.signo_solar, dataset.edad);
+  if (delCaché) {
+    console.log(`✅ CACHE HIT: ${codigo}`);
+    return {
+      bloque:    codigo,
+      nombre:    BLOQUES_META[codigo],
+      contenido: delCaché.contenido,
+      error:     false,
+      fromCache: true,
+    };
+  }
+
+  // 2. GENERAR CON CLAUDE
   const userContent = buildUserMessage(codigo, cliente, dataset);
   let lastError;
+  let respuestaFinal = null;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     if (attempt > 1) await sleep(3000);
+
     try {
       const res = await anthropic.messages.create({
-        model:      'claude-opus-4-5',
-        max_tokens: 1500,
+        model:       'claude-sonnet-4-6',
+        max_tokens:  1000,
         temperature: 0,
         system: [{
           type: 'text',
@@ -132,14 +164,57 @@ async function callBloque(codigo, cliente, dataset) {
         }],
         messages: [{ role: 'user', content: userContent }],
       });
-      return {
-        bloque:   codigo,
-        nombre:   BLOQUES_META[codigo],
-        contenido: res.content[0]?.text ?? '',
-        error:    false,
-      };
+
+      respuestaFinal = res.content[0]?.text ?? '';
+      const tokensUsados = res.usage.input_tokens + res.usage.output_tokens;
+
+      // 3. AUDITAR BLOQUE
+      const auditoria = auditarBloque(respuestaFinal, codigo);
+
+      if (auditoria.passed) {
+        console.log(`✅ ${codigo} pasó auditoría`);
+        
+        // 4. GUARDAR EN CACHÉ
+        guardarEnCaché(codigo, dataset.signo_solar, dataset.edad, respuestaFinal);
+
+        // 5. REGISTRAR CONSUMO DE TOKENS
+        const costo = (tokensUsados / 1000000) * 3; // Sonnet: $3 per million tokens
+        registrarConsumo(`${cliente.nombre}_${codigo}`, cliente.plan, tokensUsados, costo, 'sonnet');
+
+        return {
+          bloque:    codigo,
+          nombre:    BLOQUES_META[codigo],
+          contenido: respuestaFinal,
+          error:     false,
+          tokens:    tokensUsados,
+          costo:     costo.toFixed(4),
+        };
+      } else {
+        console.log(`⚠️  ${codigo} falló auditoría:`);
+        auditoria.failures.forEach(f => console.log(`   ${f}`));
+        
+        // Si es último intento y falla, igual lo guardamos
+        if (attempt === 3) {
+          console.log(`   📌 Guardando de todas formas (último intento)`);
+          guardarEnCaché(codigo, dataset.signo_solar, dataset.edad, respuestaFinal);
+          
+          const costo = (tokensUsados / 1000000) * 3;
+          registrarConsumo(`${cliente.nombre}_${codigo}`, cliente.plan, tokensUsados, costo, 'sonnet');
+
+          return {
+            bloque:    codigo,
+            nombre:    BLOQUES_META[codigo],
+            contenido: respuestaFinal,
+            error:     false,
+            tokens:    tokensUsados,
+            costo:     costo.toFixed(4),
+            auditFailed: true,
+          };
+        }
+      }
     } catch (err) {
       lastError = err;
+      console.log(`❌ Intento ${attempt}/3 falló: ${err.message}`);
     }
   }
 
@@ -166,6 +241,7 @@ exports.handler = async (event) => {
   }
 
   const { id_pedido, plan, cliente, dataset } = body;
+
   if (!id_pedido || !plan || !cliente || !dataset) {
     return {
       statusCode: 400,
@@ -176,6 +252,9 @@ exports.handler = async (event) => {
   const secuencia = plan === '$111' ? SECUENCIA_111 : SECUENCIA_55;
   const resultados = [];
   const fallidos   = [];
+
+  console.log(`\n🚀 Iniciando generación: ${id_pedido} (Plan: ${plan})`);
+  console.log(`📝 Bloques a generar: ${secuencia.length}`);
 
   for (const codigo of secuencia) {
     const resultado = await callBloque(codigo, cliente, dataset);
@@ -188,6 +267,11 @@ exports.handler = async (event) => {
     JSON.stringify(resultados, null, 2),
     'utf8',
   );
+
+  console.log(`\n✅ Generación completada: ${resultados.length}/${secuencia.length} bloques`);
+  if (fallidos.length > 0) {
+    console.log(`⚠️  Bloques con error: ${fallidos.join(', ')}`);
+  }
 
   return {
     statusCode: 200,
