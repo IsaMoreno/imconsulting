@@ -118,7 +118,7 @@ exports.handler = async (event) => {
 
     // 5. INYECTAR TEMPLATE
     console.log('\n💉 Inyectando variables en template...');
-    const templatePath = path.join(process.cwd(), 'templates', 'reporte-maestro-2026.html');
+    const templatePath = path.join(__dirname, '..', '..', 'templates', 'reporte-maestro-2026.html');
     const injector = new TemplateInjector(templatePath);
     const htmlRendered = injector.render(dataset, { plan });
     console.log(`✅ Template inyectado`);
