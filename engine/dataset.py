@@ -1,9 +1,7 @@
 """
 dataset.py — motor principal del sistema IM Consulting.
-
 Orquesta astro.py + matriz.py + numerology.py y produce el JSON completo
 que alimenta generate-report.js para la generación de bloques.
-
 Uso directo:
     python engine/dataset.py
 """
@@ -19,8 +17,10 @@ from astro import compute_astro
 from matriz import compute_matriz
 from numerology import compute_numerology
 
-# ── Coordenadas de ciudades frecuentes ───────────────────────────────────────
+# ── IMPORTAR COMPRESIÓN ──────────────────────────────────────────────────────
+from compress_dataset import comprimir_dataset, analizar_compresion
 
+# ── Coordenadas de ciudades frecuentes ───────────────────────────────────────
 CITIES = {
     "hermosillo": {
         "lat": 29.0729673, "lng": -110.9559192,
@@ -44,9 +44,7 @@ CITIES = {
     },
 }
 
-
 # ── Función principal ────────────────────────────────────────────────────────
-
 def build_dataset(
     name: str,
     day: int, month: int, year: int,
@@ -54,6 +52,7 @@ def build_dataset(
     lat: float, lng: float, tz_str: str,
     ciudad: str = "", estado: str = "", pais: str = "",
     current_year: int | None = None,
+    comprimir: bool = True,
 ) -> dict:
     if current_year is None:
         current_year = datetime.date.today().year
@@ -61,10 +60,9 @@ def build_dataset(
     astro       = compute_astro(name, year, month, day, hour, minute, lat, lng, tz_str)
     matriz      = compute_matriz(day, month, year, current_year)
     numerologia = compute_numerology(name, day, month, year)
-
     lugar = ", ".join(p for p in [ciudad, estado, pais] if p)
 
-    return {
+    dataset = {
         "meta": {
             "generado": datetime.datetime.now().isoformat(timespec="seconds"),
             "año_referencia": current_year,
@@ -78,7 +76,6 @@ def build_dataset(
         "astro":       astro,
         "numerologia": numerologia,
         "matriz":      matriz,
-        # ── Resumen plano para lookup rápido desde generate-report.js ──
         "resumen": {
             "signo_solar":          astro["planets"]["sun"]["sign"],
             "ascendente":           astro["ascendant"]["sign"],
@@ -96,17 +93,35 @@ def build_dataset(
         },
     }
 
+    if comprimir:
+        dataset_original_size = len(json.dumps(dataset).encode("utf-8"))
+        dataset = comprimir_dataset(dataset)
+        dataset_comprimido_size = len(json.dumps(dataset).encode("utf-8"))
+        
+        ahorro = dataset_original_size - dataset_comprimido_size
+        porcentaje = (ahorro / dataset_original_size * 100) if dataset_original_size > 0 else 0
+        
+        print("[COMPRESION] Antes: {} bytes, Despues: {} bytes, Ahorro: {} bytes ({:.1f}%)".format(
+            dataset_original_size, dataset_comprimido_size, ahorro, porcentaje
+        ))
+        
+        dataset["_compresion"] = {
+            "aplicada": True,
+            "tamaño_antes": dataset_original_size,
+            "tamaño_despues": dataset_comprimido_size,
+            "ahorro_bytes": ahorro,
+            "ahorro_porcentaje": round(porcentaje, 1),
+        }
 
-# ── Ejecución directa con datos de muestra ──────────────────────────────────
+    return dataset
 
 if __name__ == "__main__":
     geo = CITIES["hermosillo"]
-
     dataset = build_dataset(
         name="Isaac Moreno",
         day=11, month=2, year=1994,
         hour=1, minute=5,
         **geo,
+        comprimir=True,
     )
-
     print(json.dumps(dataset, ensure_ascii=False, indent=2))
