@@ -1,6 +1,7 @@
 [build]
-  functions = "api"
-  publish = "."
+command = "echo 'No build needed'"
+functions = "api"
+publish = "."
 
 [functions]
   node_bundler = "esbuild"
@@ -13,9 +14,7 @@
   package = "@netlify/plugin-functions-install-core"
 
 [dev]
-  command = "echo 'No build command'"
-  port = 8888
-  targetPort = 3000
+functions = "api"
 
 # Environment variables (set real values in Netlify dashboard or .env)
 # ANTHROPIC_API_KEY      - Anthropic Claude API key
