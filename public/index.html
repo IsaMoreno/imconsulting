@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IM Consulting — Ingeniería Humana de Alto Rendimiento</title>
+  <meta name="description" content="No es coaching. No es bienestar. Es Ingeniería Humana: auditoría, reprogramación y ejecución de tu sistema operativo personal para alcanzar rendimiento de élite." />
+  <meta property="og:title" content="IM Consulting — Ingeniería Humana" />
+  <meta property="og:description" content="Sistema de diagnóstico para profesionales, fundadores y líderes que sienten que algo interno no escala." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://imconsulting.netlify.app/" />
+  <meta name="theme-color" content="#1A1A1A" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    :root {
+      --ink: #1A1A1A;
+      --ink-2: #3D3D3D;
+      --ink-3: #777;
+      --sand: #C8B89A;
+      --sand-2: #DDD0BF;
+      --sand-3: #F3EDE4;
+      --sand-4: #FAF7F3;
+      --white: #FFFFFF;
+      --border: #E8E0D5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Display Font */
+    .display {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+
+    /* Typography */
+    .serif { font-family: 'Cormorant Garamond', serif; }
+    .label {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sand);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 32px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #333;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-sand {
+      background: var(--sand);
+      color: var(--white);
+    }
+    .btn-sand:hover {
+      background: #b5a48a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(200, 184, 154, 0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+    }
+    .btn-outline:hover {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .btn-lg {
+      padding: 18px 40px;
+      font-size: 1rem;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled {
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+    }
+    .nav-logo span {
+      color: var(--sand);
+    }
+
+    .nav-menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-menu-btn:hover {
+      border-color: var(--sand-2);
+      background: var(--sand-4);
+    }
+
+    /* Menu Panel */
+    .menu-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      background: rgba(26, 26, 26, 0.6);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .menu-panel.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(480px, 100vw);
+      height: 100dvh;
+      background: var(--white);
+      padding: 80px 36px 40px;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+      overflow-y: auto;
+    }
+    .menu-panel.open .menu-drawer {
+      transform: translateX(0);
+    }
+
+    .menu-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .menu-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .menu-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 22px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .menu-card:hover {
+      border-color: var(--sand-2);
+      background: var(--sand-4);
+      transform: translateX(-3px);
+    }
+
+    .mc-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sand);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .mc-title {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .mc-desc {
+      font-size: 0.78rem;
+      color: var(--ink-3);
+      line-height: 1.5;
+    }
+
+    /* Fade In */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Sections */
+    section {
+      padding: 96px 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 160px 0 120px;
+      background: var(--white);
+    }
+
+    .hero-content {
+      max-width: 720px;
+    }
+
+    .hero-headline {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      line-height: 1;
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+
+    .hero-subheadline {
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: var(--ink-2);
+      margin-bottom: 32px;
+      max-width: 600px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    /* Problem Section */
+    .problem-section {
+      background: var(--sand-4);
+      padding: 96px 0;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .problem-card {
+      padding: 32px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: all 0.3s;
+    }
+    .problem-card:hover {
+      border-color: var(--sand);
+      box-shadow: 0 8px 24px rgba(200, 184, 154, 0.1);
+    }
+
+    .problem-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+
+    .problem-card-text {
+      font-size: 0.95rem;
+      color: var(--ink-2);
+      line-height: 1.7;
+    }
+
+    /* Features Section */
+    .features-section {
+      background: var(--white);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-top: 56px;
+    }
+
+    .feature-item {
+      text-align: center;
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--sand-4);
+      border: 2px solid var(--sand-2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 2rem;
+    }
+
+    .feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .feature-desc {
+      font-size: 0.95rem;
+      color: var(--ink-3);
+      line-height: 1.65;
+    }
+
+    /* Process Section */
+    .process-section {
+      background: var(--sand-4);
+    }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .step-card {
+      background: var(--white);
+      padding: 40px 32px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      position: relative;
+      padding-left: 80px;
+    }
+
+    .step-number {
+      position: absolute;
+      left: 32px;
+      top: 32px;
+      width: 40px;
+      height: 40px;
+      background: var(--sand);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--ink-3);
+      line-height: 1.6;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      background: var(--white);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .price-card {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 48px 40px;
+      background: var(--white);
+      transition: all 0.3s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .price-card:hover {
+      border-color: var(--sand);
+      box-shadow: 0 12px 40px rgba(200, 184, 154, 0.15);
+      transform: translateY(-4px);
+    }
+
+    .price-card.featured {
+      border-color: var(--sand);
+      background: var(--sand-4);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      left: 24px;
+      background: var(--sand);
+      color: var(--white);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .price-label {
+      font-size: 0.85rem;
+      color: var(--sand);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .price-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem;
+      font-weight: 300;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .price-amount sup {
+      font-size: 1.5rem;
+      vertical-align: super;
+    }
+
+    .price-currency {
+      font-size: 0.9rem;
+      color: var(--ink-3);
+      margin-bottom: 24px;
+    }
+
+    .price-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .price-features li {
+      padding: 12px 0;
+      font-size: 0.95rem;
+      color: var(--ink-2);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .price-features li:before {
+      content: "✓";
+      color: var(--sand);
+      font-weight: 600;
+      min-width: 16px;
+    }
+
+    .price-btn {
+      width: 100%;
+    }
+
+    .price-note {
+      font-size: 0.85rem;
+      color: var(--ink-3);
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: var(--ink);
+      color: var(--white);
+      padding: 120px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200, 184, 154, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-headline {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .cta-subheadline {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 32px;
+      max-width: 500px;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+      text-align: center;
+      color: var(--ink-3);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 120px 0 80px;
+      }
+
+      .hero-headline {
+        font-size: 2rem;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+      }
+
+      section {
+        padding: 64px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ NAVBAR ═══════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">I<span>.</span>M<span>.</span> Consulting</a>
+    <button id="menuBtn" class="nav-menu-btn" aria-label="Abrir menú">
+      Menú
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <line x1="5" y1="6" x2="19" y2="6"></line>
+        <line x1="5" y1="18" x2="19" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════ MENU PANEL ═══════ -->
+<div id="menuPanel" class="menu-panel">
+  <div class="menu-drawer">
+    <div class="menu-eyebrow">Navegación</div>
+    <div class="menu-cards">
+      <a href="#problema" class="menu-card">
+        <div class="mc-label">¿Para quién?</div>
+        <div class="mc-title">El perfil de cliente</div>
+        <div class="mc-desc">A quién está dirigido este sistema y por qué</div>
+      </a>
+      <a href="#proceso" class="menu-card">
+        <div class="mc-label">Metodología</div>
+        <div class="mc-title">El proceso</div>
+        <div class="mc-desc">Cómo funciona y qué incluye cada fase</div>
+      </a>
+      <a href="#pricing" class="menu-card">
+        <div class="mc-label">Planes</div>
+        <div class="mc-title">Inversión</div>
+        <div class="mc-desc">Transparente y sin sorpresas ocultas</div>
+      </a>
+      <a href="checkout.html" class="menu-card menu-card-cta">
+        <div class="mc-label">Comenzar</div>
+        <div class="mc-title">Checkout</div>
+        <div class="mc-desc">Acceso directo al formulario de datos</div>
+      </a>
+    </div>
+    <div class="menu-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink-3);">
+      © 2026 I.M. Consulting<br>Hermosillo, Sonora, México
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content fade-in">
+      <div class="label">Ingeniería Humana</div>
+      <h1 class="display hero-headline">
+        No es coaching.<br>
+        Es auditoría de tu sistema operativo.
+      </h1>
+      <p class="hero-subheadline">
+        El autoconocimiento no es un refugio emocional. Es la tecnología de diagnóstico más avanzada para el profesional de alto rendimiento que siente que algo interno no escala.
+      </p>
+      <div class="hero-cta fade-in" style="transition-delay: 0.1s;">
+        <a href="checkout.html" class="btn btn-sand btn-lg">Comenzar diagnóstico</a>
+        <a href="#problema" class="btn btn-outline btn-lg">Conoce el proceso</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PROBLEMA ═══════ -->
+<section id="problema" class="problem-section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="label" style="text-align: center;">¿Por qué estás aquí?</div>
+      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center; max-width: 800px; margin: 0 auto 16px;">
+        El rendimiento sin alineación es insostenible.
+      </h2>
+      <p style="text-align: center; color: var(--ink-2); max-width: 600px; margin: 0 auto 48px; font-size: 1.1rem;">
+        Lograste resultados visibles. Pero hay una brecha entre lo que produces y lo que realmente eres capaz de ser.
+      </p>
+    </div>
+
+    <div class="problem-grid fade-in" style="transition-delay: 0.15s;">
+      <div class="problem-card">
+        <div class="problem-card-title">El techo invisible</div>
+        <p class="problem-card-text">
+          Tu éxito está limitado por un fallo sistémico que no ves. No es un problema de disciplina o estrategia. Es una configuración de origen que frena tu ejecución.
+        </p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-title">La identidad fusionada</div>
+        <p class="problem-card-text">
+          Tu identidad está atrapada en tus logros. Cuando desciendes la presión, desapareces. El siguiente nivel requiere que seas antes de que hagas.
+        </p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-title">El sabotaje encubierto</div>
+        <p class="problem-card-text">
+          Tomas decisiones que frenan tu propio crecimiento sin entender por qué. No es falta de voluntad. Es un protocolo de protección que opera sin tu consentimiento consciente.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ QUÉ ES ═══════ -->
+<section class="features-section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="label" style="text-align: center;">Sistema integrado</div>
+      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center; max-width: 800px; margin: 0 auto;">
+        Tres sistemas de diagnóstico, uno solo reporte.
+      </h2>
+    </div>
+
+    <div class="features-grid fade-in" style="transition-delay: 0.15s;">
+      <div class="feature-item">
+        <div class="feature-icon">🪐</div>
+        <div class="feature-title">Carta Astral</div>
+        <div class="feature-desc">
+          Tu carta natal como sistema operativo: planetas, casas, aspectos. Cómo está configurado tu hardware psicológico desde el origen.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔢</div>
+        <div class="feature-title">Numerología</div>
+        <div class="feature-desc">
+          Los patrones numéricos de tu nombre y fecha: camino de vida, número de expresión, del alma. Tu configuración operativa en código.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">✦</div>
+        <div class="feature-title">Matriz del Destino</div>
+        <div class="feature-desc">
+          Los arcanos que rigen tu evolución: puntos de poder, linajes, canales de abundancia. Tu secuencia de transformación hasta los 80 años.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PROCESO ═══════ -->
+<section id="proceso" class="process-section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="label" style="text-align: center;">Metodología</div>
+      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center;">
+        Cuatro fases de diagnóstico.
+      </h2>
+    </div>
+
+    <div class="process-steps fade-in" style="transition-delay: 0.15s;">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-title">Recopilación</div>
+        <p class="step-desc">
+          Datos precisos: nombre, fecha, hora y lugar de nacimiento. Sin estos parámetros, no hay diagnóstico posible.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-title">Análisis</div>
+        <p class="step-desc">
+          Integramos datos astrológicos, numerológicos y arcánicos. Generamos tu perfil técnico de configuración.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-title">Síntesis</div>
+        <p class="step-desc">
+          Transformamos datos en lenguaje ejecutable. Cada párrafo es un instrumento diagnóstico, no decoración.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-title">Entrega</div>
+        <p class="step-desc">
+          Reporte PDF completo que es tu documento de referencia permanente. Nunca envejece. Se aplica por vida.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PRICING ═══════ -->
+<section id="pricing" class="pricing-section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="label" style="text-align: center;">Inversión</div>
+      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center;">
+        Sin sorpresas ocultas.
+      </h2>
+    </div>
+
+    <div class="pricing-grid fade-in" style="transition-delay: 0.15s;">
+      <!-- Plan Esencial -->
+      <div class="price-card">
+        <div class="price-label">Plan Esencial</div>
+        <div class="price-amount"><sup>$</sup>55</div>
+        <div class="price-currency">USD · Pago único</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>14 bloques de diagnóstico</li>
+          <li>Perfil astrológico completo</li>
+          <li>Numerología aplicada</li>
+          <li>Matriz del Destino (resumen)</li>
+          <li>Reporte PDF personalizado</li>
+        </ul>
+        <a href="checkout.html" class="btn btn-primary btn-lg price-btn">Seleccionar plan</a>
+        <p class="price-note">Ideal para comenzar</p>
+      </div>
+
+      <!-- Plan Completo -->
+      <div class="price-card featured">
+        <div class="price-badge">Recomendado</div>
+        <div class="price-label">Plan Completo</div>
+        <div class="price-amount"><sup>$</sup>111</div>
+        <div class="price-currency">USD · Pago único</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>20 bloques de diagnóstico</li>
+          <li>Análisis de profundidad radical</li>
+          <li>Matriz completa + cronología</li>
+          <li>Patrones de relaciones y dinero</li>
+          <li>Plan de acción personalizado</li>
+          <li>Reporte PDF de 80+ páginas</li>
+        </ul>
+        <a href="checkout.html" class="btn btn-sand btn-lg price-btn">Comenzar análisis</a>
+        <p class="price-note">Análisis integral</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CTA FINAL ═══════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content fade-in">
+      <h2 class="display cta-headline">
+        El autoconocimiento no es un lujo.<br>
+        Es una estrategia.
+      </h2>
+      <p class="cta-subheadline">
+        Comienza ahora. 20 minutos de recopilación. Un reporte que será tu referencia por vida.
+      </p>
+      <a href="checkout.html" class="btn btn-sand btn-lg">Acceder al diagnóstico</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer>
+  <div class="container">
+    <p>© 2026 I.M. Consulting — Ingeniería Humana de Alto Rendimiento · Hermosillo, Sonora, México</p>
+  </div>
+</footer>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Menu toggle
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+
+  function openMenu() {
+    menuPanel.classList.add('open');
+    menuBtn.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    menuPanel.classList.remove('open');
+    menuBtn.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  menuBtn.addEventListener('click', () => {
+    menuPanel.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  // Close on panel click
+  menuPanel.addEventListener('click', (e) => {
+    if (e.target === menuPanel) closeMenu();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  // Fade-in on scroll
+  const fadeEls = document.querySelectorAll('.fade-in');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  fadeEls.forEach(el => io.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      const top = target.getBoundingClientRect().top + window.scrollY - 76;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>

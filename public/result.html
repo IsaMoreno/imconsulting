@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte en generación — IM Consulting</title>
+  <meta name="description" content="Tu reporte personalizado se está generando. En poco tiempo recibirás un email con tu análisis completo." />
+  <meta name="theme-color" content="#1A1A1A" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --ink: #1A1A1A;
+      --ink-2: #3D3D3D;
+      --ink-3: #777;
+      --sand: #C8B89A;
+      --sand-2: #DDD0BF;
+      --sand-3: #F3EDE4;
+      --sand-4: #FAF7F3;
+      --white: #FFFFFF;
+      --border: #E8E0D5;
+      --success: #10B981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .display {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 80px 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 32px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #333;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-sand {
+      background: var(--sand);
+      color: var(--white);
+    }
+    .btn-sand:hover {
+      background: #b5a48a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(200, 184, 154, 0.35);
+    }
+
+    .btn-lg {
+      padding: 18px 40px;
+      font-size: 1rem;
+    }
+
+    .label {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sand);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      transition: box-shadow 0.3s;
+      height: 64px;
+    }
+    nav.scrolled {
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+    }
+    .nav-logo span {
+      color: var(--sand);
+    }
+
+    /* Content */
+    section {
+      padding-top: 120px;
+    }
+
+    .status-icon {
+      width: 120px;
+      height: 120px;
+      background: var(--sand-4);
+      border: 2px solid var(--sand);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      font-size: 3.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+    }
+
+    .status-icon.success {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.05);
+      animation: none;
+    }
+
+    .content-box {
+      text-align: center;
+      background: var(--sand-4);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 56px 40px;
+    }
+
+    .content-box h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+
+    .content-box p {
+      font-size: 1.05rem;
+      color: var(--ink-2);
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+
+    .status-list {
+      list-style: none;
+      margin: 32px 0;
+      text-align: left;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 24px;
+      display: inline-block;
+      min-width: 300px;
+    }
+
+    .status-list li {
+      padding: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--ink-2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .status-list li:last-child {
+      border-bottom: none;
+    }
+
+    .status-icon-check {
+      width: 24px;
+      height: 24px;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .status-icon-loading {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--sand-3);
+      border-top-color: var(--sand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .download-section {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--ink-3);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      section {
+        padding-bottom: 180px;
+      }
+
+      .content-box {
+        padding: 40px 24px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .cta-buttons a,
+      .cta-buttons button {
+        width: 100%;
+      }
+
+      .status-list {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ NAVBAR ═══════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">I<span>.</span>M<span>.</span> Consulting</a>
+  </div>
+</nav>
+
+<!-- ═══════ SECTION: LOADING ═══════ -->
+<section id="loading-state" style="display: flex;">
+  <div class="container">
+    <div class="content-box">
+      <div class="status-icon">⏳</div>
+      <h1>Tu reporte se está generando</h1>
+      <p>Esto toma aproximadamente 2-5 minutos. No cierres esta página.</p>
+      
+      <ul class="status-list">
+        <li>
+          <div class="status-icon-check">✓</div>
+          <span>Pago confirmado</span>
+        </li>
+        <li>
+          <div class="status-icon-loading"></div>
+          <span>Generando análisis astrológico</span>
+        </li>
+        <li>
+          <div class="status-icon-loading"></div>
+          <span>Procesando matriz del destino</span>
+        </li>
+        <li>
+          <div class="status-icon-loading"></div>
+          <span>Compilando reporte PDF</span>
+        </li>
+        <li>
+          <div class="status-icon-loading"></div>
+          <span>Enviando email</span>
+        </li>
+      </ul>
+
+      <p style="margin-top: 32px; font-size: 0.95rem; color: var(--ink-3);">
+        ID de pedido: <strong id="order-id">cargando...</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION: SUCCESS ═══════ -->
+<section id="success-state" style="display: none; flex-direction: column; justify-content: center;">
+  <div class="container">
+    <div class="content-box">
+      <div class="status-icon success">✓</div>
+      <h1>¡Reporte completado!</h1>
+      <p>Tu análisis personalizado está listo. Hemos enviado un email a tu dirección de correo con el enlace de descarga.</p>
+      
+      <div class="download-section">
+        <p style="margin-bottom: 16px;">Descarga tu reporte directamente:</p>
+        <button id="download-btn" class="btn btn-sand btn-lg download-btn" style="display: none;">
+          📥 Descargar PDF
+        </button>
+        <p style="font-size: 0.85rem; color: var(--ink-3); margin-top: 16px;">
+          (si la descarga automática no funciona)
+        </p>
+      </div>
+
+      <div class="cta-buttons" style="margin-top: 32px;">
+        <a href="index.html" class="btn btn-outline btn-lg" style="border: 1.5px solid var(--ink); color: var(--ink);">Volver al inicio</a>
+      </div>
+
+      <p style="margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink-3);">
+        Si no recibiste el email, revisa tu carpeta de spam. El reporte también está disponible en tu cuenta (próximamente).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION: ERROR ═══════ -->
+<section id="error-state" style="display: none;">
+  <div class="container">
+    <div class="content-box">
+      <div class="status-icon" style="border-color: #EF4444; background: rgba(239, 68, 68, 0.05); font-size: 2.5rem;">⚠️</div>
+      <h1>Hubo un problema al generar tu reporte</h1>
+      <p>Esto puede deberse a datos incompletos o un error temporal. Por favor, intenta nuevamente o contacta con soporte.</p>
+
+      <div class="cta-buttons" style="margin-top: 40px;">
+        <button id="retry-btn" class="btn btn-sand btn-lg">Reintentar</button>
+        <a href="https://wa.me/526627003532?text=Tuve%20un%20problema%20al%20generar%20mi%20reporte.%20ID%3A%20" id="contact-btn" class="btn btn-outline btn-lg" style="border: 1.5px solid var(--ink); color: var(--ink);" target="_blank">Contactar soporte</a>
+      </div>
+
+      <p id="error-details" style="margin-top: 24px; padding: 16px; background: var(--white); border-radius: 8px; font-size: 0.85rem; color: var(--ink-3); text-align: left; border: 1px solid var(--border);"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer>
+  <div class="container">
+    <p>© 2026 I.M. Consulting — Ingeniería Humana de Alto Rendimiento</p>
+  </div>
+</footer>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+  // Get URL parameters
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order_id');
+  const status = params.get('status');
+  const errorMsg = params.get('error');
+
+  const loadingState = document.getElementById('loading-state');
+  const successState = document.getElementById('success-state');
+  const errorState = document.getElementById('error-state');
+  const orderIdEl = document.getElementById('order-id');
+  const downloadBtn = document.getElementById('download-btn');
+  const retryBtn = document.getElementById('retry-btn');
+  const contactBtn = document.getElementById('contact-btn');
+  const errorDetails = document.getElementById('error-details');
+
+  // Display order ID
+  if (orderId) {
+    orderIdEl.textContent = orderId;
+  }
+
+  // Handle different states
+  if (status === 'success') {
+    // Show success state
+    loadingState.style.display = 'none';
+    successState.style.display = 'flex';
+    downloadBtn.style.display = 'inline-flex';
+
+    // Set up download button
+    downloadBtn.addEventListener('click', () => {
+      if (orderId) {
+        // Trigger download from server
+        window.location.href = `/api/download-report?id=${orderId}`;
+      }
+    });
+
+    // Auto-check for PDF every 5 seconds and show success
+    // This will be updated once backend provides actual webhook
+  } else if (status === 'error') {
+    // Show error state
+    loadingState.style.display = 'none';
+    errorState.style.display = 'flex';
+    if (errorMsg) {
+      errorDetails.textContent = `Error: ${decodeURIComponent(errorMsg)}`;
+    }
+
+    // Retry button
+    retryBtn.addEventListener('click', () => {
+      if (orderId) {
+        // Redirect to checkout to retry
+        window.location.href = `/api/check-status?id=${orderId}`;
+      }
+    });
+
+    // Contact button
+    contactBtn.href += orderId;
+  } else {
+    // Default: show loading and poll for status
+    if (orderId) {
+      // Poll for status every 10 seconds
+      const pollInterval = setInterval(() => {
+        fetch(`/api/check-status?id=${orderId}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'completed') {
+              clearInterval(pollInterval);
+              window.location.href = `?order_id=${orderId}&status=success`;
+            } else if (data.status === 'error') {
+              clearInterval(pollInterval);
+              window.location.href = `?order_id=${orderId}&status=error&error=${encodeURIComponent(data.error)}`;
+            }
+          })
+          .catch(err => console.error('Status check failed:', err));
+      }, 10000);
+    }
+  }
+
+  // Navbar scroll effect (minimal)
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>
