@@ -120,16 +120,48 @@ exports.handler = async (event, context) => {
     
     let bloques;
     
-    // TEMPORAL: Bloques simulados para testing (sin llamar a Claude)
-    const numBloques = plan === 'esencial' ? 14 : 20;
-    bloques = [];
-    for (let i = 1; i <= numBloques; i++) {
-      bloques.push({
-        numero: i,
-        nombre: `Bloque ${i}`,
-        bloque: `B${i}`,
-        contenido: `Contenido simulado del bloque ${i}. Este es un reporte de prueba.`
+    // Llamar a generate-report.js para generar bloques reales
+    try {
+      const generateReportModule = require('./generate-report');
+      
+      const reportPayload = {
+        id_pedido,
+        plan: plan === 'esencial' ? '$55' : '$111',
+        cliente: {
+          nombre: cliente.nombre,
+          email: cliente.email,
+          edad: cliente.edad,
+          plan: plan,
+          eventos_cruzados: cliente.eventos_cruzados || []
+        },
+        dataset: datasetCompleto
+      };
+      
+      console.log(`[${id_pedido}] 📤 Llamando a generate-report.js...`);
+      
+      const reportResponse = await generateReportModule.handler({
+        httpMethod: 'POST',
+        body: JSON.stringify(reportPayload)
       });
+      
+      const reportBody = JSON.parse(reportResponse.body);
+      bloques = reportBody.bloques || [];
+      
+      console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados por Claude`);
+    } catch (error) {
+      console.error(`[${id_pedido}] ❌ Error en generate-report:`, error.message);
+      // Fallback: generar bloques simulados si falla Claude
+      const numBloques = plan === 'esencial' ? 14 : 20;
+      bloques = [];
+      for (let i = 1; i <= numBloques; i++) {
+        bloques.push({
+          numero: i,
+          nombre: `Bloque ${i} (SIMULADO - error en Claude)`,
+          bloque: `B${i}`,
+          contenido: `Contenido simulado del bloque ${i}. Error en Claude: ${error.message}`
+        });
+      }
+      console.log(`[${id_pedido}] ⚠️ Usando bloques simulados como fallback`);
     }
     
     console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados exitosamente`);
