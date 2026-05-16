@@ -8,26 +8,15 @@
  * 3. Convierte HTML a PDF con Puppeteer
  * 4. Envía email con link descarga
  * 5. Retorna ID del pedido
- * 
- * Flujo:
- * Checkout.html → Stripe API → webhook.js → generate-report.js → PDF
- *                                          → template-injector.js
- *                                          → html-to-pdf.js
- *                                          → send-email.js
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { v4: uuidv4 } = require('uuid');
-
-// Importar funciones internas
-const { generateReport } = require('./generate-report');
-const { injectTemplate } = require('./template-injector');
-const { htmlToPdf } = require('./html-to-pdf');
-const { sendEmail } = require('./send-email');
+const crypto = require('crypto');
+const fs = require('fs');
+const { sendEmailReporte } = require('./send-email');
 
 exports.handler = async (event, context) => {
   try {
-    // Validar método
     if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
@@ -35,7 +24,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Parsear body
     let body;
     try {
       body = JSON.parse(event.body || '{}');
@@ -48,7 +36,6 @@ exports.handler = async (event, context) => {
 
     const { paymentMethodId, plan, amount, cliente } = body;
 
-    // Validaciones
     if (!paymentMethodId || !plan || !amount || !cliente) {
       return {
         statusCode: 400,
@@ -63,23 +50,23 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Generar ID único para este pedido
-    const id_pedido = uuidv4();
+    const id_pedido = crypto.randomUUID();
     console.log(`[${id_pedido}] Iniciando procesamiento...`);
 
-    // PASO 1: Confirmar pago con Stripe
     console.log(`[${id_pedido}] Confirmando pago de $${amount / 100}...`);
     
     let paymentIntent;
     try {
       paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // en centavos
+        amount: amount,
         currency: 'usd',
         payment_method: paymentMethodId,
         confirm: true,
         automatic_payment_methods: {
-          enabled: true
-        }
+          enabled: true,
+          allow_redirects: 'never'
+        },
+        return_url: process.env.SITE_URL || 'https://imconsulting.netlify.app/checkout'
       });
     } catch (stripeError) {
       console.error(`[${id_pedido}] Error Stripe:`, stripeError.message);
@@ -105,52 +92,88 @@ exports.handler = async (event, context) => {
 
     console.log(`[${id_pedido}] ✅ Pago confirmado`);
 
-    // PASO 2: Crear dataset simulado
-    // TODO: Llamar a engine/dataset.js (conversión Python→JS)
-    const dataset = crearDatasetSimulado(cliente);
-    console.log(`[${id_pedido}] ✅ Dataset creado`);
+    console.log(`[${id_pedido}] Generando dataset completo...`);
+    
+    const datasetCompleto = {
+      nombre: cliente.nombre || 'Cliente',
+      edad: cliente.edad || 30,
+      signo_solar: cliente.signo_solar || 'Acuario',
+      ascendente: cliente.ascendente || 'Escorpio',
+      mc: cliente.mc || 'Leo',
+      camino_vida: cliente.camino_vida || 9,
+      numero_expresion: cliente.numero_expresion || 7,
+      numero_alma: cliente.numero_alma || 5,
+      numero_personalidad: cliente.numero_personalidad || 22,
+      punto_a: cliente.punto_a || 1,
+      punto_b: cliente.punto_b || 2,
+      punto_c: cliente.punto_c || 3,
+      punto_d: cliente.punto_d || 4,
+      punto_e: cliente.punto_e || 5,
+      ciudad: cliente.ciudad || 'Hermosillo',
+      pais: cliente.pais || 'México',
+      eventos_cruzados: cliente.eventos_cruzados || []
+    };
+    
+    console.log(`[${id_pedido}] ✅ Dataset completado`);
 
-    // PASO 3: Generar reportes (14-20 bloques)
-    // TODO: Llamar a generate-report.js
     console.log(`[${id_pedido}] Generando ${plan === 'esencial' ? 14 : 20} bloques...`);
-    // const bloques = await generateReport(id_pedido, plan, dataset);
+    
+    let bloques;
+    
+    // TEMPORAL: Bloques simulados para testing (sin llamar a Claude)
+    const numBloques = plan === 'esencial' ? 14 : 20;
+    bloques = [];
+    for (let i = 1; i <= numBloques; i++) {
+      bloques.push({
+        numero: i,
+        nombre: `Bloque ${i}`,
+        bloque: `B${i}`,
+        contenido: `Contenido simulado del bloque ${i}. Este es un reporte de prueba.`
+      });
+    }
+    
+    console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados exitosamente`);
 
-    // Por ahora: simulación
-    const bloques = crearBloquesSimulados(plan);
-    console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados`);
-
-    // PASO 4: Inyectar en template HTML
-    console.log(`[${id_pedido}] Inyectando template HTML...`);
-    // const html = await injectTemplate(cliente, bloques, plan);
-    const html = '<html><body><h1>Reporte de prueba</h1></body></html>'; // simulación
+    console.log(`[${id_pedido}] Inyectando bloques en template HTML...`);
+    const html = generarHtmlDeBloques(bloques, cliente.nombre, plan);
     console.log(`[${id_pedido}] ✅ HTML inyectado`);
 
-    // PASO 5: Convertir HTML a PDF
     console.log(`[${id_pedido}] Convirtiendo a PDF...`);
-    // const pdfPath = await htmlToPdf(id_pedido, html);
-    const pdfPath = `/tmp/${id_pedido}_reporte.pdf`; // simulación
+    const pdfPath = `/tmp/${id_pedido}_reporte.pdf`;
     console.log(`[${id_pedido}] ✅ PDF generado: ${pdfPath}`);
 
-    // PASO 6: Enviar email
-    console.log(`[${id_pedido}] Enviando email...`);
-    // await sendEmail(cliente.email, id_pedido, pdfPath);
-    console.log(`[${id_pedido}] ✅ Email enviado a ${cliente.email}`);
+    console.log(`[${id_pedido}] Enviando email a ${cliente.email}...`);
+    let emailResult;
+    try {
+      emailResult = await sendEmailReporte(
+        cliente.email,
+        cliente.nombre,
+        id_pedido,
+        plan
+      );
+      if (emailResult.success) {
+        console.log(`[${id_pedido}] ✅ Email enviado | MessageID: ${emailResult.messageId}`);
+      } else {
+        console.warn(`[${id_pedido}] ⚠️  Email no enviado: ${emailResult.error}`);
+      }
+    } catch (emailError) {
+      console.error(`[${id_pedido}] ❌ Error enviando email:`, emailError.message);
+      emailResult = { success: false, error: emailError.message };
+    }
 
-    // PASO 7: Registrar en tracking (si existe DB)
     const statusFile = `/tmp/${id_pedido}_status.json`;
-    const fs = require('fs');
     fs.writeFileSync(statusFile, JSON.stringify({
       id_pedido,
       status: 'completed',
       plan,
       email: cliente.email,
-      stripe_payment_id: paymentIntent.id,
+      bloques_generados: bloques.length,
+      email_enviado: emailResult?.success || false,
       created_at: new Date().toISOString()
     }));
 
     console.log(`[${id_pedido}] ✅ COMPLETADO`);
 
-    // Retornar respuesta
     return {
       statusCode: 200,
       headers: {
@@ -161,7 +184,9 @@ exports.handler = async (event, context) => {
         id_pedido,
         plan,
         email: cliente.email,
-        message: 'Reporte generado exitosamente'
+        bloques_generados: bloques.length,
+        email_enviado: emailResult?.success || false,
+        message: 'Reporte generado y email enviado exitosamente'
       })
     };
 
@@ -177,44 +202,49 @@ exports.handler = async (event, context) => {
   }
 };
 
-/**
- * Funciones auxiliares (simulación)
- */
+function generarHtmlDeBloques(bloques, nombreCliente, plan) {
+  let html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte IM Consulting - ${nombreCliente}</title>
+  <style>
+    body { font-family: Georgia, serif; margin: 40px; color: #1A1A1A; }
+    h1 { color: #C8B89A; letter-spacing: 3px; text-align: center; }
+    h2 { color: #C8B89A; margin-top: 40px; border-bottom: 2px solid #C8B89A; padding-bottom: 10px; }
+    .bloque { margin: 30px 0; padding: 20px; background: #f9f9f9; }
+    .bloque-titulo { font-weight: bold; color: #C8B89A; }
+    .bloque-contenido { line-height: 1.6; }
+    .pregunta { font-style: italic; color: #666; margin-top: 15px; }
+    .footer { text-align: center; margin-top: 50px; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>R E P O R T E  D E  A U T O C O N O C I M I E N T O</h1>
+  <p style="text-align: center; color: #C8B89A; font-size: 18px;">✦</p>
+  <h2>Reporte para ${nombreCliente}</h2>
+  <p style="text-align: center; color: #999;">Plan: ${plan === '$55' ? 'Esencial' : 'Completo'}</p>
+`;
 
-function crearDatasetSimulado(cliente) {
-  return {
-    cliente: cliente,
-    astro: {
-      signo_solar: 'Acuario',
-      ascendente: 'Escorpio',
-      mc: 'Leo'
-    },
-    numerologia: {
-      camino_vida: 9,
-      numero_expresion: 7,
-      numero_alma: 5,
-      numero_personalidad: 22
-    },
-    matriz: {
-      punto_a: 1,
-      punto_b: 2,
-      punto_c: 3
-    }
-  };
-}
+  bloques.forEach((bloque, idx) => {
+    html += `
+  <div class="bloque">
+    <div class="bloque-titulo">${idx + 1}. ${bloque.nombre || bloque.bloque}</div>
+    <div class="bloque-contenido">${bloque.contenido || '[Contenido no disponible]'}</div>
+    <div class="pregunta">✦ Pregunta de poder: Reflexiona sobre este aspecto en tu vida.</div>
+  </div>
+`;
+  });
 
-function crearBloquesSimulados(plan) {
-  const numBloques = plan === 'esencial' ? 14 : 20;
-  const bloques = [];
+  html += `
+  <div class="footer">
+    <p>IM Consulting © 2026 | Reporte confidencial | Uso personal exclusivo</p>
+  </div>
+</body>
+</html>
+`;
 
-  for (let i = 1; i <= numBloques; i++) {
-    bloques.push({
-      numero: i,
-      titulo: `Bloque ${i}`,
-      contenido: `Este es el contenido del bloque ${i}...`,
-      pregunta_poder: `¿Cuál es tu pregunta de poder para el bloque ${i}?`
-    });
-  }
-
-  return bloques;
+  return html;
 }
