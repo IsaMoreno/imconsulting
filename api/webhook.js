@@ -118,10 +118,13 @@ exports.handler = async (event) => {
 
     // 5. INYECTAR TEMPLATE
     console.log('\n💉 Inyectando variables en template...');
-    const templatePath = path.join(__dirname, '..', '..', 'templates', 'reporte-maestro-2026.html');
+    // En Netlify, templates está en la raíz
+    let templatePath = '/var/task/templates/reporte-maestro-2026.html';
+    if (!fs.existsSync(templatePath)) {
+      templatePath = path.join(__dirname, '..', '..', 'templates', 'reporte-maestro-2026.html');
+    }
     const injector = new TemplateInjector(templatePath);
-    const htmlRendered = injector.render(dataset, { plan });
-    console.log(`✅ Template inyectado`);
+    const htmlRendered = injector.render(dataset, { plan });    console.log(`✅ Template inyectado`);
 
     // 6. CONVERTIR A PDF
     console.log('\n📑 Convirtiendo HTML a PDF...');
