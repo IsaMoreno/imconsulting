@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación — IM Consulting</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+
+        .logo-accent {
+            color: #C8B89A;
+        }
+
+        /* States */
+        .state {
+            display: none;
+        }
+
+        .state.active {
+            display: block;
+        }
+
+        /* Success state */
+        .icon-success {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Loading state */
+        .icon-loading {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #f9f9f7;
+            border: 3px solid #e0e0e0;
+            border-top-color: #C8B89A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .order-id {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #999;
+            background: #f9f9f7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+            word-break: break-all;
+        }
+
+        .details-box {
+            background: #f9f9f7;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .detail-value {
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #C8B89A;
+            animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0%, 100% {
+                width: 20%;
+            }
+            50% {
+                width: 80%;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-direction: column;
+        }
+
+        a, button {
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.15);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1565c0;
+        }
+
+        .message.error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+        }
+
+        .message.success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            font-size: 12px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            background: #ddd;
+        }
+
+        .step.active .step-dot {
+            background: #C8B89A;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .step.completed .step-dot {
+            background: #22c55e;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(200, 184, 154, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .step-label {
+            color: #999;
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: #C8B89A;
+            font-weight: 500;
+        }
+
+        .step.completed .step-label {
+            color: #22c55e;
+        }
+
+        .checkmark {
+            display: none;
+        }
+
+        .step.completed .checkmark {
+            display: inline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card {
+                padding: 32px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Header -->
+            <div class="logo">I<span class="logo-accent">.</span>M<span class="logo-accent">.</span></div>
+
+            <!-- Processing state -->
+            <div id="processingState" class="state active">
+                <div class="icon-loading"></div>
+                <h1 class="title">Generando tu reporte...</h1>
+                <p class="subtitle">
+                    Tu pago ha sido procesado exitosamente. Estamos generando tu reporte personalizado.
+                </p>
+
+                <div class="steps">
+                    <div class="step completed">
+                        <div class="step-dot"><span class="checkmark">✓</span></div>
+                        <div class="step-label">Pago confirmado</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-dot">2</div>
+                        <div class="step-label">Generando</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-dot">3</div>
+                        <div class="step-label">Listo para descargar</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+
+                <p class="status-text">ID del pedido:</p>
+                <div id="orderId" class="order-id">Cargando...</div>
+
+                <div class="message info">
+                    <strong>Esto puede tomar 2-3 minutos.</strong> No cierre esta página. Te avisaremos cuando tu reporte esté listo.
+                </div>
+            </div>
+
+            <!-- Success state -->
+            <div id="successState" class="state">
+                <div class="icon-success">✓</div>
+                <h1 class="title">¡Tu reporte está listo!</h1>
+                <p class="subtitle">
+                    Hemos completado tu análisis personalizado. Descárgalo ahora y explora tus insights.
+                </p>
+
+                <div class="steps">
+                    <div class="step completed">
+                        <div class="step-dot"><span class="checkmark">✓</span></div>
+                        <div class="step-label">Pago</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-dot"><span class="checkmark">✓</span></div>
+                        <div class="step-label">Generado</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-dot"><span class="checkmark">✓</span></div>
+                        <div class="step-label">Listo</div>
+                    </div>
+                </div>
+
+                <div class="details-box">
+                    <div class="detail-row">
+                        <span class="detail-label">Correo:</span>
+                        <span class="detail-value" id="successEmail">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Plan:</span>
+                        <span class="detail-value" id="successPlan">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Fecha de generación:</span>
+                        <span class="detail-value" id="successDate">-</span>
+                    </div>
+                </div>
+
+                <div class="message success">
+                    También hemos enviado un email a tu correo con el link de descarga y instrucciones de uso.
+                </div>
+
+                <div class="button-group">
+                    <a href="#" id="downloadLink" class="btn-primary">Descargar reporte</a>
+                    <a href="/" class="btn-secondary">Ir a inicio</a>
+                </div>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorState" class="state">
+                <div style="font-size: 48px; margin-bottom: 24px;">⚠️</div>
+                <h1 class="title">Error procesando tu reporte</h1>
+                <p class="subtitle">
+                    Hubo un problema generando tu reporte. Por favor, contacta a soporte.
+                </p>
+
+                <div class="message error" id="errorMessage">
+                    Intenta nuevamente o contacta a support@imconsulting.me
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="location.reload()">Reintentar</button>
+                    <a href="mailto:support@imconsulting.me" class="btn-secondary">Contactar soporte</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://imconsulting.netlify.app/.netlify/functions/check-status';
+        const POLLING_INTERVAL = 3000; // 3 segundos
+        const MAX_POLLING_TIME = 300000; // 5 minutos
+
+        let pollingStartTime = Date.now();
+        let orderId = null;
+
+        // Obtener ID del pedido de la URL
+        function getOrderIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Mostrar estado
+        function setState(state) {
+            document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+            document.getElementById(state + 'State').classList.add('active');
+        }
+
+        // Polling para verificar si el reporte está listo
+        async function checkReportStatus() {
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id_pedido: orderId })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.status === 'completed') {
+                    // Reporte listo
+                    showSuccess(data);
+                    return true;
+                } else if (data.status === 'error') {
+                    // Error
+                    showError(data.error);
+                    return true;
+                }
+
+                // Aún procesando
+                return false;
+
+            } catch (error) {
+                console.error('Error checking status:', error);
+                return false;
+            }
+        }
+
+        // Mostrar éxito
+        function showSuccess(data) {
+            document.getElementById('successEmail').textContent = data.email || '-';
+            document.getElementById('successPlan').textContent = data.plan === 'esencial' ? 'Plan Esencial' : 'Plan Completo';
+            document.getElementById('successDate').textContent = new Date().toLocaleDateString('es-MX');
+            
+            // Link descarga
+            if (data.pdf_url) {
+                document.getElementById('downloadLink').href = data.pdf_url;
+            }
+
+            setState('success');
+        }
+
+        // Mostrar error
+        function showError(error) {
+            document.getElementById('errorMessage').textContent = error || 'Hubo un error procesando tu reporte.';
+            setState('error');
+        }
+
+        // Iniciar polling
+        async function startPolling() {
+            orderId = getOrderIdFromUrl();
+            
+            if (!orderId) {
+                showError('ID de pedido no encontrado');
+                return;
+            }
+
+            document.getElementById('orderId').textContent = orderId;
+
+            // Polling loop
+            while (Date.now() - pollingStartTime < MAX_POLLING_TIME) {
+                const isComplete = await checkReportStatus();
+                
+                if (isComplete) {
+                    break;
+                }
+
+                // Esperar antes de siguiente polling
+                await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
+            }
+
+            // Si se acabó el tiempo
+            if (Date.now() - pollingStartTime >= MAX_POLLING_TIME) {
+                showError('El tiempo de espera se agotó. Por favor, intenta nuevamente o contacta a soporte.');
+            }
+        }
+
+        // Iniciar cuando carga la página
+        window.addEventListener('load', startPolling);
+    </script>
+</body>
+</html>

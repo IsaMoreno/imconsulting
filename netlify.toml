@@ -1,7 +1,7 @@
 [build]
-command = "echo 'No build needed'"
-functions = "api"
-publish = "."
+  command = "npm run build"
+  functions = "api"
+  publish = "public"
 
 [functions]
   node_bundler = "esbuild"
@@ -9,19 +9,20 @@ publish = "."
 [functions."*"]
   included_files = ["engine/**", "prompts/**"]
 
-# Python runtime for engine scripts
-[[plugins]]
-  package = "@netlify/plugin-functions-install-core"
-
 [dev]
-functions = "api"
+  functions = "api"
 
-# Environment variables (set real values in Netlify dashboard or .env)
-# ANTHROPIC_API_KEY      - Anthropic Claude API key
-# STRIPE_SECRET_KEY      - Stripe secret key (sk_live_... or sk_test_...)
-# STRIPE_WEBHOOK_SECRET  - Stripe webhook signing secret (whsec_...)
-# STRIPE_PRICE_ESENCIAL  - Stripe Price ID for plan Esencial
-# STRIPE_PRICE_COMPLETO  - Stripe Price ID for plan Completo
-# RESEND_API_KEY         - Resend email API key
-# REPORT_EMAIL_FROM      - Sender address for report emails
-# ISAAC_EMAIL            - Isaac's personal notification email
+[[redirects]]
+  from = "/checkout"
+  to = "/checkout.html"
+  status = 200
+
+[[redirects]]
+  from = "/confirmation"
+  to = "/confirmation.html"
+  status = 200
+
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
