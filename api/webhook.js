@@ -118,11 +118,9 @@ exports.handler = async (event) => {
 
     // 5. INYECTAR TEMPLATE
     console.log('\n💉 Inyectando variables en template...');
-    // En Netlify, templates está en la raíz
-    let templatePath = '/var/task/templates/reporte-maestro-2026.html';
-    if (!fs.existsSync(templatePath)) {
-      templatePath = path.join(__dirname, '..', '..', 'templates', 'reporte-maestro-2026.html');
-    }
+    const templatePath = path.join(__dirname, '..', '..', 'templates', 'reporte-maestro-2026.html');
+    console.log('📁 Template path:', templatePath);
+    console.log('📁 Exists:', fs.existsSync(templatePath));
     const injector = new TemplateInjector(templatePath);
     const htmlRendered = injector.render(dataset, { plan });    console.log(`✅ Template inyectado`);
 
