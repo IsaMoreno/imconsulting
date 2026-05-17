@@ -55,10 +55,10 @@
       overflow-x: hidden;
       transition: background 0.3s, color 0.3s;
     }
-    
+
     .display { font-family: 'Cormorant Garamond', serif; font-weight: 300; line-height: 1.05; }
     a { text-decoration: none; color: inherit; }
-    
+
     .label {
       display: inline-block;
       font-size: 0.68rem;
@@ -699,6 +699,7 @@
       line-height: 1.7;
     }
 
+    /* === PRICING === */
     .pricing-section {
       background: var(--bg);
     }
@@ -767,7 +768,7 @@
       font-size: 0.8rem;
       color: var(--ink-3);
       letter-spacing: 0.06em;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     .price-card.featured .price-currency {
@@ -784,9 +785,63 @@
       background: rgba(255, 255, 255, 0.08);
     }
 
+    /* === OPCIÓN A: Nuevos estilos para plan-descriptor y plan-audience === */
+    .plan-descriptor {
+      font-size: 0.92rem;
+      color: var(--ink-3);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+
+    .price-card.featured .plan-descriptor {
+      color: rgba(240, 234, 216, 0.5);
+    }
+
+    .plan-descriptor strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .price-card.featured .plan-descriptor strong {
+      color: #F0EAD8;
+    }
+
+    .plan-audience {
+      background: var(--sand-4);
+      border-left: 2px solid var(--sand);
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+
+    .price-card.featured .plan-audience {
+      background: rgba(200, 184, 154, 0.06);
+      border-left-color: var(--sand);
+    }
+
+    .plan-audience-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sand);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .plan-audience-text {
+      font-size: 0.88rem;
+      color: var(--ink-3);
+      line-height: 1.65;
+    }
+
+    .price-card.featured .plan-audience-text {
+      color: rgba(240, 234, 216, 0.45);
+    }
+    /* === FIN estilos Opción A === */
+
     .price-features {
       list-style: none;
-      margin-bottom: 48px;
+      margin-bottom: 32px;
       flex: 1;
     }
 
@@ -812,6 +867,7 @@
       flex-shrink: 0;
     }
 
+    /* === CTA SECTION === */
     .cta-section {
       background: var(--bg-alt);
       padding: 160px 0;
@@ -935,6 +991,7 @@
 </head>
 <body>
 
+<!-- NAV -->
 <nav id="navbar">
   <div class="container">
     <div class="nav-inner">
@@ -981,6 +1038,7 @@
   </div>
 </nav>
 
+<!-- MOBILE MENU -->
 <div id="menuOverlay" class="menu-overlay">
   <div class="menu-drawer">
     <a href="#problema" class="drawer-item">Diagnóstico</a>
@@ -993,6 +1051,7 @@
   </div>
 </div>
 
+<!-- HERO -->
 <section class="hero">
   <div class="hero-left container" style="padding-right: 0; max-width: none; width: auto;">
     <div class="hero-eyebrow">
@@ -1000,9 +1059,9 @@
       <span class="eyebrow-text">Ingeniería Humana</span>
     </div>
     <h1 class="display hero-headline">
-      Tu sistema operativo<br/>tiene <em>fallos</em><br/>que no ves.
+      Tu arquitectura interna<br/>determina más de <em>tu vida</em><br/>de lo que imaginas.
     </h1>
-    <p class="hero-sub">No es coaching. Es auditoría. Seis sistemas de diagnóstico integrados para mapear los patrones que limitan tu ejecución de alto nivel.</p>
+    <p class="hero-sub">No es coaching. Es diagnóstico estructural. Seis sistemas integrados para mapear patrones, identidad y fricciones internas que condicionan tu dirección personal.</p>
     <div class="hero-actions">
       <a href="checkout.html" class="btn btn-sand btn-lg">Comenzar diagnóstico</a>
       <a href="#sistema" class="btn btn-ghost btn-lg">Ver el sistema</a>
@@ -1030,7 +1089,6 @@
       </button>
     </div>
 
-    <!-- SLIDES AQUI (demasiado grande para incluir en este script, pero están en el HTML original) -->
     <div class="slide active" data-index="0">
       <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="110" r="100" stroke="#C8B89A" stroke-width="1" opacity=".25"/><circle cx="110" cy="110" r="70" stroke="#C8B89A" stroke-width="1" opacity=".4"/><circle cx="110" cy="110" r="40" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><line x1="110" y1="10" x2="110" y2="210" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="10" y1="110" x2="210" y2="110" stroke="#C8B89A" stroke-width=".5" opacity=".2"/></svg></div>
       <div class="slide-tag">Motor 01</div>
@@ -1038,34 +1096,34 @@
       <p class="slide-desc">Tu hardware psicológico de origen. Planetas, casas y aspectos.</p>
     </div>
     <div class="slide" data-index="1">
-      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><rect x="20" y="20" width="180" height="180" stroke="#C8B89A" stroke-width=".5" opacity=".15" rx="2"/></svg></div>
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><rect x="20" y="20" width="180" height="180" stroke="#C8B89A" stroke-width=".5" opacity=".15" rx="2"/><rect x="55" y="55" width="110" height="110" stroke="#C8B89A" stroke-width="1" opacity=".35" rx="1"/><rect x="85" y="85" width="50" height="50" stroke="#C8B89A" stroke-width="1.5" opacity=".7" rx="1"/><line x1="110" y1="20" x2="110" y2="200" stroke="#C8B89A" stroke-width=".5" opacity=".15"/><line x1="20" y1="110" x2="200" y2="110" stroke="#C8B89A" stroke-width=".5" opacity=".15"/></svg></div>
       <div class="slide-tag">Motor 02</div>
       <div class="slide-title">Numerología</div>
       <p class="slide-desc">Camino de vida, expresión, alma, personalidad.</p>
     </div>
     <div class="slide" data-index="2">
-      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><polygon points="110,10 200,110 110,210 20,110" stroke="#C8B89A" stroke-width="1" opacity=".3"/></svg></div>
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><polygon points="110,10 200,110 110,210 20,110" stroke="#C8B89A" stroke-width="1" opacity=".3"/><polygon points="110,35 175,110 110,185 45,110" stroke="#C8B89A" stroke-width="1" opacity=".5"/><polygon points="110,65 150,110 110,155 70,110" stroke="#C8B89A" stroke-width="1.5" opacity=".8"/><circle cx="110" cy="110" r="6" fill="#C8B89A" opacity=".4"/></svg></div>
       <div class="slide-tag">Motor 03</div>
       <div class="slide-title">Matriz del Destino</div>
       <p class="slide-desc">Los arcanos que rigen tu evolución por década.</p>
     </div>
     <div class="slide" data-index="3">
-      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="30" r="10" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/></svg></div>
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="30" r="10" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/><circle cx="70" cy="75" r="8" stroke="#C8B89A" stroke-width="1.2" opacity=".7"/><circle cx="150" cy="75" r="8" stroke="#C8B89A" stroke-width="1.2" opacity=".7"/><circle cx="45" cy="130" r="8" stroke="#C8B89A" stroke-width="1" opacity=".55"/><circle cx="110" cy="130" r="8" stroke="#C8B89A" stroke-width="1" opacity=".55"/><circle cx="175" cy="130" r="8" stroke="#C8B89A" stroke-width="1" opacity=".55"/><line x1="110" y1="40" x2="70" y2="67" stroke="#C8B89A" stroke-width=".5" opacity=".3"/><line x1="110" y1="40" x2="150" y2="67" stroke="#C8B89A" stroke-width=".5" opacity=".3"/><line x1="70" y1="83" x2="45" y2="122" stroke="#C8B89A" stroke-width=".5" opacity=".3"/><line x1="70" y1="83" x2="110" y2="122" stroke="#C8B89A" stroke-width=".5" opacity=".3"/><line x1="150" y1="83" x2="110" y2="122" stroke="#C8B89A" stroke-width=".5" opacity=".3"/><line x1="150" y1="83" x2="175" y2="122" stroke="#C8B89A" stroke-width=".5" opacity=".3"/></svg></div>
       <div class="slide-tag">Motor 04</div>
       <div class="slide-title">Kabbalah</div>
       <p class="slide-desc">El árbol de la vida como mapa de atributos.</p>
     </div>
     <div class="slide" data-index="4">
-      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><path d="M80,10 C95,35 75,55 90,80" stroke="#C8B89A" stroke-width="2" opacity=".7"/></svg></div>
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><path d="M80,10 C95,35 75,55 90,80 C105,105 85,125 100,150 C115,175 95,195 110,210" stroke="#C8B89A" stroke-width="2" opacity=".7" fill="none"/><path d="M140,10 C125,35 145,55 130,80 C115,105 135,125 120,150 C105,175 125,195 110,210" stroke="#C8B89A" stroke-width="2" opacity=".4" fill="none"/><ellipse cx="110" cy="110" rx="30" ry="100" stroke="#C8B89A" stroke-width=".5" opacity=".2"/></svg></div>
       <div class="slide-tag">Motor 05</div>
       <div class="slide-title">Descodificación Biológica</div>
       <p class="slide-desc">Los conflictos emocionales expresados en el cuerpo.</p>
     </div>
     <div class="slide" data-index="5">
-      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="30" r="10" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/></svg></div>
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="110" r="80" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><path d="M50,110 Q80,70 110,110 Q140,150 170,110" stroke="#C8B89A" stroke-width="1.5" opacity=".6" fill="none"/><path d="M50,90 Q80,50 110,90 Q140,130 170,90" stroke="#C8B89A" stroke-width="1" opacity=".3" fill="none"/><path d="M50,130 Q80,90 110,130 Q140,170 170,130" stroke="#C8B89A" stroke-width="1" opacity=".3" fill="none"/></svg></div>
       <div class="slide-tag">Motor 06</div>
       <div class="slide-title">PNL</div>
-      <p class="slide-desc">Programación neurolingüística aplicada.</p>
+      <p class="slide-desc">Programación neurolingüística aplicada a patrones de decisión.</p>
     </div>
 
     <div class="slide-nav" id="slideNav">
@@ -1079,11 +1137,12 @@
   </div>
 </section>
 
+<!-- PROBLEMA -->
 <section id="problema" class="problema-section">
   <div class="container">
     <div class="reveal">
       <div class="label" style="color: rgba(200, 184, 154, 0.6);">Diagnóstico</div>
-      <h2 class="display" style="font-size: clamp(2rem, 4vw, 3rem); color: #F0EAD8; max-width: 600px;">Tres patrones que frenan al high performer.</h2>
+      <h2 class="display" style="font-size: clamp(2rem, 4vw, 3rem); color: #F0EAD8; max-width: 600px;">Tres estructuras invisibles que condicionan tu vida.</h2>
     </div>
     <div class="problema-grid reveal reveal-d1">
       <div class="problema-card">
@@ -1094,7 +1153,7 @@
       <div class="problema-card">
         <div class="problema-num">02</div>
         <div class="problema-title">La identidad fusionada</div>
-        <p class="problema-text">Cuando el negocio va bien, tú vas bien. Cuando baja la presión, desapareces. Eso no es resiliencia. Es un fallo en la estructura del yo.</p>
+        <p class="problema-text">Cuando el entorno colapsa, tú colapsas con él. Tu sistema operativo confunde quién eres con lo que produces. Esa fusión es el primer fallo sistémico.</p>
       </div>
       <div class="problema-card">
         <div class="problema-num">03</div>
@@ -1105,6 +1164,7 @@
   </div>
 </section>
 
+<!-- SISTEMA -->
 <section id="sistema" class="sistema-section">
   <div class="container">
     <div class="sistema-header reveal">
@@ -1115,16 +1175,41 @@
       <p class="sistema-desc">Cada motor opera de forma independiente. La síntesis genera el diagnóstico preciso. No interpretamos. Mapeamos la arquitectura de tu configuración de origen.</p>
     </div>
     <div class="sistema-grid reveal reveal-d1">
-      <div class="sistema-item"><div class="sistema-icon">⬡</div><div class="sistema-title">Carta Astral</div><p class="sistema-text">Tu hardware psicológico de origen. Planetas, casas, aspectos.</p></div>
-      <div class="sistema-item"><div class="sistema-icon">◈</div><div class="sistema-title">Numerología</div><p class="sistema-text">Los patrones numéricos de nombre y fecha. Camino de vida, expresión, alma.</p></div>
-      <div class="sistema-item"><div class="sistema-icon">◎</div><div class="sistema-title">Matriz del Destino</div><p class="sistema-text">Los arcanos que rigen tu evolución por década.</p></div>
-      <div class="sistema-item"><div class="sistema-icon">✦</div><div class="sistema-title">Kabbalah</div><p class="sistema-text">El árbol de la vida como mapa de atributos.</p></div>
-      <div class="sistema-item"><div class="sistema-icon">⬘</div><div class="sistema-title">Descodificación Biológica</div><p class="sistema-text">Los conflictos emocionales sin resolver se expresan en el cuerpo.</p></div>
-      <div class="sistema-item"><div class="sistema-icon">◉</div><div class="sistema-title">PNL</div><p class="sistema-text">Programación neurolingüística aplicada.</p></div>
+      <div class="sistema-item">
+        <div class="sistema-icon">⬡</div>
+        <div class="sistema-title">Arquitectura astral</div>
+        <p class="sistema-text">Tu hardware psicológico de origen. Planetas, casas, aspectos.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">◈</div>
+        <div class="sistema-title">Numerología</div>
+        <p class="sistema-text">Los patrones numéricos de nombre y fecha. Dirección, expresión e identidad estructural.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">◎</div>
+        <div class="sistema-title">Matriz Arquetípica</div>
+        <p class="sistema-text">Patrones arquetípicos que organizan ciclos y etapas de evolución.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">✦</div>
+        <div class="sistema-title">Kabbalah</div>
+        <p class="sistema-text">El Árbol de la Vida como modelo de conciencia, polaridad y evolución humana.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">⬘</div>
+        <div class="sistema-title">Descodificación Biológica</div>
+        <p class="sistema-text">Análisis de patrones emocionales y su relación con respuestas físicas y conductuales.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">◉</div>
+        <div class="sistema-title">PNL</div>
+        <p class="sistema-text">Análisis y ajuste de patrones mentales que condicionan percepción, decisión y ejecución.</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- PROCESO -->
 <section id="proceso" class="proceso-section">
   <div class="container">
     <div class="reveal">
@@ -1132,54 +1217,110 @@
       <h2 class="display" style="font-size: clamp(2rem, 4vw, 3rem);">Cuatro fases. Sin ambigüedad.</h2>
     </div>
     <div class="proceso-steps reveal reveal-d1">
-      <div class="proceso-step"><div class="step-dot">01</div><div class="step-title">Recopilación</div><p class="step-text">Nombre, fecha, hora y lugar de nacimiento exactos.</p></div>
-      <div class="proceso-step"><div class="step-dot">02</div><div class="step-title">Análisis</div><p class="step-text">Los seis motores procesan los datos en paralelo.</p></div>
-      <div class="proceso-step"><div class="step-dot">03</div><div class="step-title">Síntesis</div><p class="step-text">Transformamos datos en lenguaje ejecutable.</p></div>
-      <div class="proceso-step"><div class="step-dot">04</div><div class="step-title">Entrega</div><p class="step-text">Reporte PDF en menos de 2 minutos.</p></div>
+      <div class="proceso-step">
+        <div class="step-dot">01</div>
+        <div class="step-title">Recopilación</div>
+        <p class="step-text">Nombre, fecha, hora y lugar de nacimiento exactos.</p>
+      </div>
+      <div class="proceso-step">
+        <div class="step-dot">02</div>
+        <div class="step-title">Análisis</div>
+        <p class="step-text">Los seis motores procesan los datos en paralelo.</p>
+      </div>
+      <div class="proceso-step">
+        <div class="step-dot">03</div>
+        <div class="step-title">Síntesis</div>
+        <p class="step-text">Transformamos datos en lenguaje ejecutable.</p>
+      </div>
+      <div class="proceso-step">
+        <div class="step-dot">04</div>
+        <div class="step-title">Entrega</div>
+        <p class="step-text">Diagnóstico integral en menos de 2 horas desde el pago.</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- PRICING — OPCIÓN A APLICADA -->
 <section id="pricing" class="pricing-section">
   <div class="container">
     <div class="reveal">
       <div class="label">Inversión</div>
-      <h2 class="display" style="font-size: clamp(2rem, 4vw, 3rem);">Dos niveles de diagnóstico.</h2>
+      <h2 class="display" style="font-size: clamp(2rem, 4vw, 3rem);">Dos caminos.<br/>Dos preguntas.</h2>
     </div>
+
     <div class="pricing-grid reveal reveal-d1">
+
+      <!-- PLAN 1: AUDITORÍA EJECUTIVA -->
       <div class="price-card">
-        <div class="price-label-top">Plan Esencial</div>
+        <div class="price-label-top">Auditoría Ejecutiva</div>
         <div class="price-amount"><sup>$</sup>55</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
+
+        <div class="plan-descriptor">
+          Para quien pregunta: <strong>"¿Qué está roto?"</strong><br><br>
+          14 diagnósticos técnicos que mapean cómo opera tu sistema hoy y dónde está el primer punto de fricción.
+        </div>
+
         <ul class="price-features">
-          <li>14 bloques de diagnóstico</li>
-          <li>6 sistemas integrados</li>
-          <li>Perfil astrológico completo</li>
-          <li>Numerología + Kabbalah aplicada</li>
-          <li>Reporte PDF personalizado</li>
+          <li>Perfil astrológico ejecutivo</li>
+          <li>Matriz del Destino + ciclos vitales</li>
+          <li>14 diagnósticos de patrones sistémicos</li>
+          <li>Identificación de limitaciones reales</li>
+          <li>Preguntas incómodas (sin respuestas fáciles)</li>
+          <li>PDF 75 páginas · Diseño profesional</li>
+          <li>Entrega: 2 horas desde pago</li>
         </ul>
-        <a href="checkout.html" class="btn btn-dark btn-lg" style="width: 100%;">Seleccionar plan</a>
+
+        <div class="plan-audience">
+          <div class="plan-audience-label">Para ti si:</div>
+          <div class="plan-audience-text">
+            Tienes logros visibles pero algo no alinea. Necesitas ver exactamente dónde está el problema antes de invertir en cambiar.
+          </div>
+        </div>
+
+        <a href="checkout.html" class="btn btn-dark btn-lg" style="width: 100%;">Elegir Auditoría</a>
       </div>
+
+      <!-- PLAN 2: ARQUITECTURA OPERATIVA -->
       <div class="price-card featured">
-        <div class="price-label-top">Plan Completo — Recomendado</div>
+        <div class="price-label-top">Arquitectura Operativa</div>
         <div class="price-amount"><sup>$</sup>111</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
+
+        <div class="plan-descriptor">
+          Para quien sabe: <strong>"El problema es sistémico. Necesito cambiar."</strong><br><br>
+          20 diagnósticos + protocolo de intervención + sesión privada + comunidad de 90 días.
+        </div>
+
         <ul class="price-features">
-          <li>20 bloques de diagnóstico</li>
-          <li>6 sistemas integrados</li>
-          <li>Análisis de profundidad radical</li>
-          <li>Matriz completa + cronología</li>
-          <li>Descodificación biológica + PNL</li>
-          <li>Reporte PDF de 80+ páginas</li>
+          <li>Todo de Auditoría Ejecutiva +</li>
+          <li>6 diagnósticos adicionales de intervención</li>
+          <li>Análisis dedicado: relaciones y dinero</li>
+          <li>Protocolo de acción (plan 90 días)</li>
+          <li>Plan de verificación de cambio real</li>
+          <li>Sesión privada 45 min con Isaac</li>
+          <li>Comunidad privada (90 días de acceso)</li>
+          <li>PDF 120+ páginas + grabación de sesión</li>
         </ul>
-        <a href="checkout.html" class="btn btn-sand btn-lg" style="width: 100%;">Comenzar análisis</a>
+
+        <div class="plan-audience">
+          <div class="plan-audience-label">Para ti si:</div>
+          <div class="plan-audience-text">
+            Sabes que el fallo es interno. Intentaste soluciones superficiales. Necesitas intervención técnica real y validación en el proceso.
+          </div>
+        </div>
+
+        <a href="checkout.html" class="btn btn-sand btn-lg" style="width: 100%;">Elegir Arquitectura</a>
       </div>
+
     </div>
   </div>
 </section>
 
+<!-- CTA FINAL -->
 <section class="cta-section">
   <div class="container reveal">
     <div class="label" style="color: rgba(200, 184, 154, 0.5);">¿Listo para el diagnóstico?</div>
@@ -1192,6 +1333,7 @@
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
   <div class="container">
     <div class="footer-inner">
@@ -1369,7 +1511,6 @@ startAuto();
 
   scene.add(meshMain, meshInner);
 
-  // Rings
   [[2.1, 0.004, Math.PI / 3, 0], [1.75, 0.003, Math.PI / 2, Math.PI / 4]].forEach(([r, t, rx, ry]) => {
     const m = new THREE.Mesh(
       new THREE.TorusGeometry(r, t, 2, 80),
@@ -1380,7 +1521,6 @@ startAuto();
     scene.add(m);
   });
 
-  // Lines
   const lm = new THREE.LineBasicMaterial({ color: 0xC8B89A, transparent: true, opacity: 0.2 });
   [[-2.5, 0, 0, 2.5, 0, 0], [0, -2.5, 0, 0, 2.5, 0], [0, 0, -2.5, 0, 0, 2.5]].forEach(([x1, y1, z1, x2, y2, z2]) => {
     const g = new THREE.BufferGeometry().setFromPoints([
@@ -1390,7 +1530,6 @@ startAuto();
     scene.add(new THREE.Line(g, lm));
   });
 
-  // Particles
   const ptPos = new Float32Array(60 * 3);
   for (let i = 0; i < 60; i++) {
     const r = 2.4 + Math.random() * 1.2;
@@ -1410,7 +1549,6 @@ startAuto();
     opacity: 0.4
   })));
 
-  // Resize
   const resize = () => {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -1422,14 +1560,12 @@ startAuto();
   resize();
   new ResizeObserver(resize).observe(canvas);
 
-  // Mouse parallax
   let mx = 0, my = 0;
   document.addEventListener('mousemove', e => {
     mx = (e.clientX / innerWidth - 0.5) * 0.35;
     my = (e.clientY / innerHeight - 0.5) * 0.35;
   }, { passive: true });
 
-  // Animate
   const clock = new THREE.Clock();
   (function animate() {
     requestAnimationFrame(animate);
