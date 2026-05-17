@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IM Consulting — Ingeniería Humana de Alto Rendimiento</title>
-  <meta name="description" content="No es coaching. No es bienestar. Es Ingeniería Humana: auditoría, reprogramación y ejecución de tu sistema operativo personal." />
+  <meta name="description" content="No es coaching. Es Ingeniería Humana: auditoría, reprogramación y ejecución de tu sistema operativo personal." />
   <meta property="og:title" content="IM Consulting — Ingeniería Humana" />
   <meta property="og:description" content="Sistema de diagnóstico para profesionales, fundadores y líderes que sienten que algo interno no escala." />
   <meta property="og:type" content="website" />
@@ -12,625 +12,425 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
   <style>
-    :root {
-      --ink:    #1A1A1A;
-      --ink-2:  #3D3D3D;
-      --ink-3:  #888;
-      --sand:   #C8B89A;
-      --sand-2: #DDD0BF;
-      --sand-3: #F3EDE4;
-      --sand-4: #FAF7F3;
-      --white:  #FFFFFF;
-      --border: #E8E0D5;
+    :root{--ink:#1A1A1A;--ink-2:#3D3D3D;--ink-3:#888;--sand:#C8B89A;--sand-2:#DDD0BF;--sand-3:#F3EDE4;--sand-4:#FAF7F3;--white:#FFFFFF;--border:#E8E0D5;--bg:#FFFFFF;--bg-2:#FAF7F3;--bg-alt:#1A1A1A}
+    [data-theme="dark"]{--ink:#F0EAD8;--ink-2:#C8BBAA;--ink-3:#7A6F62;--white:#111008;--border:#2A2520;--bg:#111008;--bg-2:#181510;--bg-alt:#0A0906;--sand-4:#1A1710;--sand-3:#221E14}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+    .display{font-family:'Cormorant Garamond',serif;font-weight:300;line-height:1.05}
+    a{text-decoration:none;color:inherit}
+    .label{display:inline-block;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);font-weight:600;margin-bottom:20px}
+    .container{width:100%;max-width:1100px;margin:0 auto;padding:0 48px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 30px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.06em;cursor:pointer;border:none;transition:all .3s cubic-bezier(.25,.1,.25,1);text-decoration:none}
+    .btn-dark{background:var(--ink);color:var(--bg)}
+    .btn-dark:hover{opacity:.85;transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.2)}
+    .btn-sand{background:var(--sand);color:#fff}
+    .btn-sand:hover{background:#b5a488;transform:translateY(-2px);box-shadow:0 16px 40px rgba(200,184,154,.4)}
+    .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--border)}
+    .btn-ghost:hover{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+    .btn-lg{padding:17px 36px;font-size:.92rem}
+    nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s,background .3s}
+    [data-theme="dark"] nav{background:rgba(17,16,8,.92)}
+    nav.scrolled{border-color:var(--border);box-shadow:0 1px 24px rgba(0,0,0,.08)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+    .nav-logo{display:flex;align-items:center;gap:12px}
+    .nav-logo-svg{width:44px;height:44px;flex-shrink:0;color:var(--ink)}
+    .nav-links{display:flex;align-items:center;gap:36px;list-style:none}
+    .nav-links a{font-size:.83rem;color:var(--ink-3);letter-spacing:.04em;transition:color .2s}
+    .nav-links a:hover{color:var(--sand)}
+    .nav-right{display:flex;align-items:center;gap:16px}
+    .theme-toggle{background:none;border:1px solid var(--border);border-radius:3px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--ink-3)}
+    .theme-toggle:hover{border-color:var(--sand);color:var(--sand)}
+    [data-theme="light"] .icon-moon{display:none}
+    [data-theme="dark"] .icon-sun{display:none}
+    .nav-mobile-btn{display:none;background:none;border:none;cursor:pointer;padding:4px;color:var(--ink)}
+    .menu-overlay{display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);opacity:0;transition:opacity .3s;pointer-events:none}
+    .menu-overlay.open{opacity:1;pointer-events:all}
+    .menu-drawer{position:absolute;top:0;right:0;width:min(360px,90vw);height:100dvh;background:var(--bg);padding:80px 32px 40px;transform:translateX(100%);transition:transform .35s cubic-bezier(.25,.1,.25,1);display:flex;flex-direction:column;gap:0}
+    .menu-overlay.open .menu-drawer{transform:translateX(0)}
+    .drawer-item{padding:20px 0;border-bottom:1px solid var(--border);font-size:1.5rem;font-family:'Cormorant Garamond',serif;font-weight:300;color:var(--ink);display:block;transition:color .2s}
+    .drawer-item:hover{color:var(--sand)}
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding-top:68px;overflow:hidden}
+    .hero-left{padding:80px 0;position:relative;z-index:2}
+    .hero-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:32px;opacity:0;animation:fadeUp .8s cubic-bezier(.25,.1,.25,1) .2s forwards}
+    .eyebrow-line{width:32px;height:1px;background:var(--sand);flex-shrink:0}
+    .eyebrow-text{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--sand);font-weight:600}
+    .hero-headline{font-size:clamp(2.6rem,4.5vw,4rem);line-height:1.0;color:var(--ink);margin-bottom:28px;opacity:0;animation:fadeUp .8s cubic-bezier(.25,.1,.25,1) .35s forwards}
+    .hero-headline em{font-style:italic;color:var(--sand)}
+    .hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.8;max-width:460px;margin-bottom:48px;font-weight:300;opacity:0;animation:fadeUp .8s cubic-bezier(.25,.1,.25,1) .5s forwards}
+    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;opacity:0;animation:fadeUp .8s cubic-bezier(.25,.1,.25,1) .65s forwards}
+    .hero-stats{display:flex;gap:40px;margin-top:56px;padding-top:40px;border-top:1px solid var(--border);opacity:0;animation:fadeUp .8s cubic-bezier(.25,.1,.25,1) .8s forwards}
+    .stat-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--ink);line-height:1;margin-bottom:4px}
+    .stat-num em{color:var(--sand);font-style:normal}
+    .stat-label{font-size:.75rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+    .hero-right{position:relative;height:100%;min-height:600px;display:flex;align-items:center;justify-content:center}
+    #hero-canvas{position:absolute;inset:0;width:100%;height:100%}
+    .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px 80px 0;opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.25,.1,.25,1),transform .6s cubic-bezier(.25,.1,.25,1);pointer-events:none}
+    .slide.active{opacity:1;transform:translateY(0);pointer-events:all}
+    .slide-visual{width:200px;height:200px;margin-bottom:24px;flex-shrink:0}
+    .slide-visual svg{width:100%;height:100%}
+    .slide-tag{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);font-weight:600;margin-bottom:8px;text-align:center}
+    .slide-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--ink);text-align:center;margin-bottom:10px;line-height:1.2}
+    .slide-desc{font-size:.83rem;color:var(--ink-3);text-align:center;line-height:1.7;max-width:280px}
+    .slide-nav{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:20}
+    .slide-dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .3s;border:none;padding:0}
+    .slide-dot.active{background:var(--sand);transform:scale(1.4)}
+    .slide-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 8px;z-index:20;pointer-events:none}
+    .slide-arrow{width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:all;transition:all .2s;color:var(--ink-3)}
+    .slide-arrow:hover{border-color:var(--sand);color:var(--sand)}
+    section{padding:112px 0}
+    .problema-section{background:var(--bg-alt);color:#F0EAD8}
+    [data-theme="dark"] .problema-section{background:#0A0906}
+    .problema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);margin-top:72px}
+    .problema-card{padding:48px 40px;background:var(--bg-alt);transition:background .3s}
+    [data-theme="dark"] .problema-card{background:#0A0906}
+    .problema-card:hover{background:#242018}
+    .problema-num{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:rgba(200,184,154,.18);line-height:1;margin-bottom:24px}
+    .problema-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;color:#F0EAD8;margin-bottom:16px;line-height:1.3}
+    .problema-text{font-size:.9rem;color:rgba(240,234,216,.45);line-height:1.75}
+    .sistema-section{background:var(--bg)}
+    .sistema-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:80px}
+    .sistema-desc{font-size:1rem;color:var(--ink-3);line-height:1.8;font-weight:300}
+    .sistema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border)}
+    .sistema-item{background:var(--bg);padding:48px 40px;transition:background .25s}
+    .sistema-item:hover{background:var(--sand-4)}
+    .sistema-icon{width:44px;height:44px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;font-size:1.1rem}
+    .sistema-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin-bottom:14px;color:var(--ink)}
+    .sistema-text{font-size:.88rem;color:var(--ink-3);line-height:1.75}
+    .proceso-section{background:var(--bg-2)}
+    .proceso-steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:72px;position:relative}
+    .proceso-steps::before{content:'';position:absolute;top:20px;left:20px;right:20px;height:1px;background:var(--sand-2);z-index:0}
+    .proceso-step{padding:0 32px 0 0;position:relative;z-index:1}
+    .step-dot{width:40px;height:40px;border-radius:50%;background:var(--bg);border:1px solid var(--sand);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:600;color:var(--sand);margin-bottom:28px;letter-spacing:.04em}
+    .step-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;margin-bottom:12px;color:var(--ink)}
+    .step-text{font-size:.86rem;color:var(--ink-3);line-height:1.7}
+    .pricing-section{background:var(--bg)}
+    .pricing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--border);margin-top:72px}
+    .price-card{background:var(--bg);padding:56px 48px;position:relative;transition:background .25s;display:flex;flex-direction:column}
+    .price-card:hover{background:var(--sand-4)}
+    .price-card.featured{background:var(--bg-alt)}
+    [data-theme="dark"] .price-card.featured{background:#0A0906}
+    .price-card.featured:hover{background:#1e1b13}
+    .price-label-top{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--sand);font-weight:600;margin-bottom:16px}
+    .price-amount{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:300;line-height:1;color:var(--ink);margin-bottom:8px}
+    .price-card.featured .price-amount{color:#F0EAD8}
+    .price-amount sup{font-size:1.6rem;vertical-align:super}
+    .price-currency{font-size:.8rem;color:var(--ink-3);letter-spacing:.06em;margin-bottom:40px}
+    .price-card.featured .price-currency{color:rgba(240,234,216,.4)}
+    .price-divider{height:1px;background:var(--border);margin-bottom:32px}
+    .price-card.featured .price-divider{background:rgba(255,255,255,.08)}
+    .price-features{list-style:none;margin-bottom:48px;flex:1}
+    .price-features li{padding:12px 0;font-size:.9rem;color:var(--ink-2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+    .price-card.featured .price-features li{color:rgba(240,234,216,.65);border-color:rgba(255,255,255,.07)}
+    .price-features li::before{content:'—';color:var(--sand);font-weight:300;flex-shrink:0}
+    .cta-section{background:var(--bg-alt);padding:160px 0;text-align:center;position:relative;overflow:hidden}
+    [data-theme="dark"] .cta-section{background:#0A0906}
+    .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 50%,rgba(200,184,154,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 50%,rgba(200,184,154,.04) 0%,transparent 60%)}
+    .cta-headline{font-size:clamp(2.5rem,6vw,4rem);color:#F0EAD8;margin-bottom:24px;position:relative;z-index:1}
+    .cta-sub{font-size:1rem;color:rgba(240,234,216,.4);margin-bottom:48px;position:relative;z-index:1;font-weight:300}
+    .cta-actions{display:flex;gap:16px;justify-content:center;position:relative;z-index:1;flex-wrap:wrap}
+    footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 0}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between}
+    .footer-logo-svg{width:36px;height:36px;opacity:.5;color:var(--ink)}
+    .footer-copy{font-size:.82rem;color:var(--ink-3)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.25,.1,.25,1),transform .8s cubic-bezier(.25,.1,.25,1)}
+    .reveal.visible{opacity:1;transform:none}
+    .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
+    @media(max-width:960px){
+      .hero{grid-template-columns:1fr;min-height:auto;padding-bottom:60px}
+      .hero-right{min-height:420px;width:100%}
+      .slide{padding:40px 24px 80px}
+      .problema-grid{grid-template-columns:1fr}
+      .sistema-header{grid-template-columns:1fr;gap:32px}
+      .sistema-grid{grid-template-columns:1fr 1fr}
+      .proceso-steps{grid-template-columns:1fr 1fr;gap:40px}
+      .proceso-steps::before{display:none}
+      .pricing-grid{grid-template-columns:1fr}
+      .nav-links,.nav-right .btn-dark{display:none}
+      .nav-mobile-btn{display:flex}
+      .menu-overlay{display:block}
+      .footer-inner{flex-direction:column;gap:12px;text-align:center}
+      .container{padding:0 24px}
+      .hero-left{padding:40px 0}
+      .hero-stats{gap:24px}
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--white);
-      color: var(--ink);
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    .display { font-family: 'Cormorant Garamond', serif; font-weight: 300; line-height: 1.05; }
-    a { text-decoration: none; color: inherit; }
-    .label {
-      display: inline-block;
-      font-size: 0.68rem; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--sand);
-      font-weight: 600; margin-bottom: 20px;
-    }
-    .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 30px; border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem; font-weight: 500;
-      letter-spacing: 0.06em; cursor: pointer; border: none;
-      transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-      text-decoration: none;
-    }
-    .btn-dark { background: var(--ink); color: var(--white); }
-    .btn-dark:hover { background: #2d2d2d; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
-    .btn-sand { background: var(--sand); color: var(--white); }
-    .btn-sand:hover { background: #b5a488; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(200,184,154,0.4); }
-    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid rgba(26,26,26,0.25); }
-    .btn-ghost:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
-    .btn-lg { padding: 17px 36px; font-size: 0.92rem; }
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    nav.scrolled { border-color: var(--border); box-shadow: 0 1px 24px rgba(0,0,0,0.06); }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.1em; }
-    .nav-logo em { color: var(--sand); font-style: normal; }
-    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
-    .nav-links a { font-size: 0.85rem; color: var(--ink-3); letter-spacing: 0.04em; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--ink); }
-    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
-    .menu-overlay {
-      display: none; position: fixed; inset: 0; z-index: 280;
-      background: rgba(26,26,26,0.5); backdrop-filter: blur(4px);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .menu-overlay.open { opacity: 1; }
-    .menu-drawer {
-      position: absolute; top: 0; right: 0;
-      width: min(360px, 90vw); height: 100dvh;
-      background: var(--white); padding: 80px 32px 40px;
-      transform: translateX(100%);
-      transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-      display: flex; flex-direction: column; gap: 0;
-    }
-    .menu-overlay.open .menu-drawer { transform: translateX(0); }
-    .drawer-item {
-      padding: 20px 0; border-bottom: 1px solid var(--border);
-      font-size: 1.5rem; font-family: 'Cormorant Garamond', serif;
-      font-weight: 300; color: var(--ink); cursor: pointer; transition: color 0.2s;
-      display: block;
-    }
-    .drawer-item:hover { color: var(--sand); }
-    .hero {
-      min-height: 100vh; display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center; position: relative;
-      overflow: hidden; padding-top: 64px;
-    }
-    .hero-left { padding: 80px 0; position: relative; z-index: 2; }
-    .hero-eyebrow {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
-      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.2s forwards;
-    }
-    .eyebrow-line { width: 32px; height: 1px; background: var(--sand); }
-    .eyebrow-text { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--sand); font-weight: 600; }
-    .hero-headline {
-      font-size: clamp(2.8rem, 5vw, 4.2rem); line-height: 1.0;
-      color: var(--ink); margin-bottom: 28px;
-      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.35s forwards;
-    }
-    .hero-headline em { font-style: italic; color: var(--sand); }
-    .hero-sub {
-      font-size: 1.05rem; color: var(--ink-3); line-height: 1.75;
-      max-width: 460px; margin-bottom: 48px; font-weight: 300;
-      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.5s forwards;
-    }
-    .hero-actions {
-      display: flex; gap: 16px; flex-wrap: wrap;
-      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.65s forwards;
-    }
-    .hero-stat-row {
-      display: flex; gap: 40px; margin-top: 64px;
-      padding-top: 40px; border-top: 1px solid var(--border);
-      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.8s forwards;
-    }
-    .hero-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--ink); line-height: 1; margin-bottom: 4px; }
-    .hero-stat-num em { color: var(--sand); font-style: normal; }
-    .hero-stat-label { font-size: 0.78rem; color: var(--ink-3); letter-spacing: 0.06em; }
-    .hero-right { position: relative; height: 100%; min-height: 600px; }
-    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-    section { padding: 112px 0; }
-    .problema-section { background: var(--ink); color: var(--white); }
-    .problema-grid {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 1px; background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.08); margin-top: 72px;
-    }
-    .problema-card { padding: 48px 40px; background: var(--ink); transition: background 0.3s; }
-    .problema-card:hover { background: #222; }
-    .problema-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: rgba(200,184,154,0.2); line-height: 1; margin-bottom: 24px; }
-    .problema-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; color: var(--white); margin-bottom: 16px; line-height: 1.3; }
-    .problema-text { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.75; }
-    .sistema-section { background: var(--white); }
-    .sistema-header { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; }
-    .sistema-desc { font-size: 1rem; color: var(--ink-3); line-height: 1.8; font-weight: 300; }
-    .sistema-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); }
-    .sistema-item { background: var(--white); padding: 48px 40px; transition: background 0.25s; }
-    .sistema-item:hover { background: var(--sand-4); }
-    .sistema-icon { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; font-size: 1.1rem; }
-    .sistema-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 14px; color: var(--ink); }
-    .sistema-text { font-size: 0.88rem; color: var(--ink-3); line-height: 1.75; }
-    .proceso-section { background: var(--sand-4); }
-    .proceso-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 72px; position: relative; }
-    .proceso-steps::before { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; height: 1px; background: var(--sand-2); z-index: 0; }
-    .proceso-step { padding: 0 32px 0 0; position: relative; z-index: 1; }
-    .step-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 1px solid var(--sand); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--sand); margin-bottom: 28px; letter-spacing: 0.04em; }
-    .step-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 12px; color: var(--ink); }
-    .step-text { font-size: 0.86rem; color: var(--ink-3); line-height: 1.7; }
-    .pricing-section { background: var(--white); }
-    .pricing-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; background: var(--border); margin-top: 72px; }
-    .price-card { background: var(--white); padding: 56px 48px; position: relative; transition: background 0.25s; display: flex; flex-direction: column; }
-    .price-card:hover { background: var(--sand-4); }
-    .price-card.featured { background: var(--ink); }
-    .price-card.featured:hover { background: #222; }
-    .price-label-top { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sand); font-weight: 600; margin-bottom: 16px; }
-    .price-amount { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; line-height: 1; color: var(--ink); margin-bottom: 8px; }
-    .price-card.featured .price-amount { color: var(--white); }
-    .price-amount sup { font-size: 1.6rem; vertical-align: super; }
-    .price-currency { font-size: 0.8rem; color: var(--ink-3); letter-spacing: 0.06em; margin-bottom: 40px; }
-    .price-card.featured .price-currency { color: rgba(255,255,255,0.4); }
-    .price-divider { height: 1px; background: var(--border); margin-bottom: 32px; }
-    .price-card.featured .price-divider { background: rgba(255,255,255,0.1); }
-    .price-features { list-style: none; margin-bottom: 48px; flex: 1; }
-    .price-features li { padding: 12px 0; font-size: 0.9rem; color: var(--ink-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-    .price-card.featured .price-features li { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.08); }
-    .price-features li::before { content: '—'; color: var(--sand); font-weight: 300; flex-shrink: 0; }
-    .cta-section { background: var(--ink); padding: 160px 0; text-align: center; position: relative; overflow: hidden; }
-    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 20% 50%, rgba(200,184,154,0.04) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 50%, rgba(200,184,154,0.04) 0%, transparent 60%); }
-    .cta-headline { font-size: clamp(2.5rem, 6vw, 4rem); color: var(--white); margin-bottom: 24px; position: relative; z-index: 1; }
-    .cta-sub { font-size: 1rem; color: rgba(255,255,255,0.4); margin-bottom: 48px; position: relative; z-index: 1; font-weight: 300; letter-spacing: 0.02em; }
-    .cta-actions { display: flex; gap: 16px; justify-content: center; position: relative; z-index: 1; }
-    footer { background: var(--white); border-top: 1px solid var(--border); padding: 40px 0; }
-    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
-    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-3); }
-    .footer-logo em { color: var(--sand); font-style: normal; }
-    .footer-copy { font-size: 0.82rem; color: var(--ink-3); }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.8s cubic-bezier(0.25,0.1,0.25,1), transform 0.8s cubic-bezier(0.25,0.1,0.25,1); }
-    .reveal.visible { opacity: 1; transform: none; }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; min-height: auto; padding: 100px 0 60px; }
-      .hero-right { display: none; }
-      .hero-left { padding: 40px 0; }
-      .problema-grid { grid-template-columns: 1fr; }
-      .sistema-header { grid-template-columns: 1fr; gap: 32px; }
-      .sistema-grid { grid-template-columns: 1fr; }
-      .proceso-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
-      .proceso-steps::before { display: none; }
-      .pricing-grid { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
-      .nav-mobile-btn { display: flex; }
-      .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
-      .menu-overlay { display: block; pointer-events: none; }
-      .menu-overlay.open { pointer-events: all; }
-    }
-    @media (max-width: 600px) {
-      .proceso-steps { grid-template-columns: 1fr; }
-      .hero-stat-row { gap: 24px; }
-      section { padding: 80px 0; }
-      .container { padding: 0 20px; }
+    @media(max-width:600px){
+      .proceso-steps{grid-template-columns:1fr}
+      .sistema-grid{grid-template-columns:1fr}
+      section{padding:80px 0}
+      .price-card{padding:40px 28px}
+      .problema-card{padding:36px 28px}
     }
   </style>
 </head>
 <body>
 
-<!-- ═══ NAV ═══ -->
 <nav id="navbar">
   <div class="container">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">I<em>.</em>M<em>.</em> Consulting</a>
+      <a href="#" class="nav-logo">
+        <svg class="nav-logo-svg" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="220 56" stroke-dashoffset="-14"/>
+          <text x="50" y="46" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="28" font-weight="600" fill="currentColor" letter-spacing="2">I.M.</text>
+          <text x="50" y="62" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="9" fill="currentColor" letter-spacing="4">CONSULTING</text>
+        </svg>
+      </a>
       <ul class="nav-links">
         <li><a href="#problema">Diagnóstico</a></li>
         <li><a href="#sistema">Sistema</a></li>
         <li><a href="#proceso">Proceso</a></li>
         <li><a href="#pricing">Planes</a></li>
       </ul>
-      <a href="checkout.html" class="btn btn-dark" style="margin-left:8px;">Comenzar</a>
-      <button class="nav-mobile-btn" id="menuBtn" aria-label="Menú">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <line x1="4" y1="7" x2="20" y2="7"/>
-          <line x1="4" y1="12" x2="20" y2="12"/>
-          <line x1="4" y1="17" x2="20" y2="17"/>
-        </svg>
-      </button>
+      <div class="nav-right">
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="checkout.html" class="btn btn-dark">Comenzar</a>
+        <button class="nav-mobile-btn" id="menuBtn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- ═══ MENU MOBILE ═══ -->
 <div id="menuOverlay" class="menu-overlay">
   <div class="menu-drawer">
     <a href="#problema" class="drawer-item">Diagnóstico</a>
-    <a href="#sistema" class="drawer-item">Sistema</a>
-    <a href="#proceso" class="drawer-item">Proceso</a>
-    <a href="#pricing" class="drawer-item">Planes</a>
-    <div style="margin-top:32px;">
-      <a href="checkout.html" class="btn btn-dark btn-lg" style="width:100%;justify-content:center;">Comenzar diagnóstico</a>
+    <a href="#sistema"  class="drawer-item">Sistema</a>
+    <a href="#proceso"  class="drawer-item">Proceso</a>
+    <a href="#pricing"  class="drawer-item">Planes</a>
+    <div style="margin-top:32px">
+      <a href="checkout.html" class="btn btn-sand btn-lg" style="width:100%">Comenzar diagnóstico</a>
     </div>
   </div>
 </div>
 
-<!-- ═══ HERO ═══ -->
 <section class="hero">
-  <div class="hero-left container" style="padding-right: 0;">
+  <div class="hero-left container" style="padding-right:0;max-width:none;width:auto">
     <div class="hero-eyebrow">
       <span class="eyebrow-line"></span>
       <span class="eyebrow-text">Ingeniería Humana</span>
     </div>
     <h1 class="display hero-headline">
-      Tu sistema operativo<br>
-      tiene <em>fallos</em><br>
-      que no ves.
+      Tu sistema operativo<br>tiene <em>fallos</em><br>que no ves.
     </h1>
-    <p class="hero-sub">
-      No es coaching. Es auditoría. Integramos carta natal, numerología y Matriz del Destino para diagnosticar los patrones que limitan tu ejecución de alto nivel.
-    </p>
+    <p class="hero-sub">No es coaching. Es auditoría. Seis sistemas de diagnóstico integrados para mapear los patrones que limitan tu ejecución de alto nivel.</p>
     <div class="hero-actions">
       <a href="checkout.html" class="btn btn-sand btn-lg">Comenzar diagnóstico</a>
       <a href="#sistema" class="btn btn-ghost btn-lg">Ver el sistema</a>
     </div>
-    <div class="hero-stat-row">
-      <div>
-        <div class="hero-stat-num">20<em>+</em></div>
-        <div class="hero-stat-label">Bloques de análisis</div>
-      </div>
-      <div>
-        <div class="hero-stat-num">3</div>
-        <div class="hero-stat-label">Sistemas integrados</div>
-      </div>
-      <div>
-        <div class="hero-stat-num">&lt;2<em>min</em></div>
-        <div class="hero-stat-label">Tiempo de entrega</div>
-      </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">6</div><div class="stat-label">Sistemas integrados</div></div>
+      <div><div class="stat-num">20<em>+</em></div><div class="stat-label">Bloques de análisis</div></div>
+      <div><div class="stat-num">&lt;2<em>min</em></div><div class="stat-label">Tiempo de entrega</div></div>
     </div>
   </div>
+
   <div class="hero-right">
     <canvas id="hero-canvas"></canvas>
+
+    <div class="slide-arrows">
+      <button class="slide-arrow" id="prevSlide" aria-label="Anterior"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="slide-arrow" id="nextSlide" aria-label="Siguiente"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+
+    <div class="slide active" data-index="0">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="110" r="100" stroke="#C8B89A" stroke-width="1" opacity=".25"/><circle cx="110" cy="110" r="70" stroke="#C8B89A" stroke-width="1" opacity=".4"/><circle cx="110" cy="110" r="40" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><line x1="110" y1="10" x2="110" y2="210" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="10" y1="110" x2="210" y2="110" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="39.6" y1="39.6" x2="180.4" y2="180.4" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="180.4" y1="39.6" x2="39.6" y2="180.4" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="57.7" y1="17" x2="162.3" y2="203" stroke="#C8B89A" stroke-width=".5" opacity=".12"/><line x1="162.3" y1="17" x2="57.7" y2="203" stroke="#C8B89A" stroke-width=".5" opacity=".12"/><line x1="17" y1="57.7" x2="203" y2="162.3" stroke="#C8B89A" stroke-width=".5" opacity=".12"/><line x1="203" y1="57.7" x2="17" y2="162.3" stroke="#C8B89A" stroke-width=".5" opacity=".12"/><line x1="110" y1="10" x2="184" y2="161" stroke="#C8B89A" stroke-width="1.2" opacity=".7"/><line x1="184" y1="161" x2="36" y2="161" stroke="#C8B89A" stroke-width="1.2" opacity=".5"/><line x1="36" y1="161" x2="110" y2="10" stroke="#C8B89A" stroke-width="1.2" opacity=".5"/><circle cx="110" cy="12" r="5" fill="#C8B89A"/><circle cx="184" cy="161" r="4" fill="#C8B89A" opacity=".8"/><circle cx="36" cy="161" r="4" fill="#C8B89A" opacity=".7"/><circle cx="185" cy="65" r="3" fill="#C8B89A" opacity=".5"/><circle cx="30" cy="80" r="3" fill="#C8B89A" opacity=".5"/><line x1="10" y1="110" x2="210" y2="110" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/><line x1="110" y1="10" x2="110" y2="210" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/><circle cx="110" cy="110" r="4" fill="#C8B89A"/></svg></div>
+      <div class="slide-tag">Motor 01</div>
+      <div class="slide-title">Carta Astral</div>
+      <p class="slide-desc">Tu hardware psicológico de origen. Planetas, casas y aspectos mapean tu configuración base antes de cualquier intervención.</p>
+    </div>
+
+    <div class="slide" data-index="1">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><rect x="20" y="20" width="180" height="180" stroke="#C8B89A" stroke-width=".5" opacity=".15" rx="2"/><line x1="56" y1="20" x2="56" y2="200" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="92" y1="20" x2="92" y2="200" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="128" y1="20" x2="128" y2="200" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="164" y1="20" x2="164" y2="200" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="20" y1="56" x2="200" y2="56" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="20" y1="92" x2="200" y2="92" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="20" y1="128" x2="200" y2="128" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><line x1="20" y1="164" x2="200" y2="164" stroke="#C8B89A" stroke-width=".5" opacity=".1"/><text x="38" y="44" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">1</text><text x="74" y="44" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">2</text><text x="110" y="44" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">3</text><text x="146" y="44" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">4</text><text x="182" y="44" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">5</text><text x="38" y="80" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">6</text><text x="74" y="80" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">7</text><text x="110" y="80" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">8</text><text x="146" y="80" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">9</text><text x="182" y="80" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">11</text><text x="38" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">22</text><text x="74" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#C8B89A" opacity=".2">33</text><rect x="92" y="96" width="36" height="36" fill="#C8B89A" opacity=".12" rx="2"/><rect x="92" y="96" width="36" height="36" stroke="#C8B89A" stroke-width="1.5" rx="2"/><text x="110" y="119" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="20" fill="#C8B89A" font-weight="600">9</text><text x="110" y="148" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#C8B89A" opacity=".6" letter-spacing="2">CAMINO DE VIDA</text></svg></div>
+      <div class="slide-tag">Motor 02</div>
+      <div class="slide-title">Numerología</div>
+      <p class="slide-desc">Camino de vida, expresión, alma, personalidad. Los patrones numéricos de tu nombre y fecha como código operativo.</p>
+    </div>
+
+    <div class="slide" data-index="2">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><polygon points="110,10 200,110 110,210 20,110" stroke="#C8B89A" stroke-width="1" opacity=".3"/><polygon points="110,45 167,110 110,175 53,110" stroke="#C8B89A" stroke-width="1" opacity=".5"/><polygon points="110,78 142,110 110,142 78,110" stroke="#C8B89A" stroke-width="1.5" opacity=".8"/><line x1="110" y1="10" x2="110" y2="210" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><line x1="20" y1="110" x2="200" y2="110" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><circle cx="110" cy="10" r="5" fill="#C8B89A"/><circle cx="200" cy="110" r="4" fill="#C8B89A" opacity=".7"/><circle cx="110" cy="210" r="4" fill="#C8B89A" opacity=".7"/><circle cx="20" cy="110" r="4" fill="#C8B89A" opacity=".7"/><circle cx="110" cy="45" r="3" fill="#C8B89A" opacity=".5"/><circle cx="167" cy="110" r="3" fill="#C8B89A" opacity=".5"/><circle cx="110" cy="175" r="3" fill="#C8B89A" opacity=".5"/><circle cx="53" cy="110" r="3" fill="#C8B89A" opacity=".5"/><circle cx="110" cy="110" r="8" fill="#C8B89A" opacity=".15"/><circle cx="110" cy="110" r="4" fill="#C8B89A"/><text x="110" y="7" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#C8B89A" opacity=".8">A</text><text x="207" y="113" font-family="DM Sans,sans-serif" font-size="8" fill="#C8B89A" opacity=".8">B</text><text x="110" y="222" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="8" fill="#C8B89A" opacity=".8">C</text><text x="7" y="113" font-family="DM Sans,sans-serif" font-size="8" fill="#C8B89A" opacity=".8">D</text></svg></div>
+      <div class="slide-tag">Motor 03</div>
+      <div class="slide-title">Matriz del Destino</div>
+      <p class="slide-desc">Los arcanos que rigen tu evolución por década. Puntos A–E, linajes y canales de abundancia. Tu secuencia hasta los 80 años.</p>
+    </div>
+
+    <div class="slide" data-index="3">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><line x1="110" y1="18" x2="75" y2="58" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="110" y1="18" x2="145" y2="58" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="75" y1="58" x2="145" y2="58" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="75" y1="58" x2="110" y2="98" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="145" y1="58" x2="110" y2="98" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="75" y1="58" x2="55" y2="108" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="145" y1="58" x2="165" y2="108" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="110" y1="98" x2="55" y2="108" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="110" y1="98" x2="165" y2="108" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="55" y1="108" x2="110" y2="148" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="165" y1="108" x2="110" y2="148" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="55" y1="108" x2="75" y2="158" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="165" y1="108" x2="145" y2="158" stroke="#C8B89A" stroke-width=".8" opacity=".3"/><line x1="75" y1="158" x2="110" y2="202" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="145" y1="158" x2="110" y2="202" stroke="#C8B89A" stroke-width=".8" opacity=".4"/><line x1="110" y1="18" x2="110" y2="202" stroke="#C8B89A" stroke-width=".5" opacity=".2"/><circle cx="110" cy="18" r="8" fill="#C8B89A" opacity=".9"/><circle cx="75" cy="58" r="6" fill="#C8B89A" opacity=".7"/><circle cx="145" cy="58" r="6" fill="#C8B89A" opacity=".7"/><circle cx="110" cy="98" r="7" fill="#C8B89A" opacity=".8"/><circle cx="55" cy="108" r="5.5" fill="#C8B89A" opacity=".6"/><circle cx="165" cy="108" r="5.5" fill="#C8B89A" opacity=".6"/><circle cx="110" cy="148" r="7" fill="#C8B89A" opacity=".8"/><circle cx="75" cy="158" r="5" fill="#C8B89A" opacity=".55"/><circle cx="145" cy="158" r="5" fill="#C8B89A" opacity=".55"/><circle cx="110" cy="202" r="8" fill="#C8B89A" opacity=".9"/></svg></div>
+      <div class="slide-tag">Motor 04</div>
+      <div class="slide-title">Kabbalah</div>
+      <p class="slide-desc">El árbol de la vida como mapa de atributos. Traducción operativa de tu signo solar en las 10 esferas de manifestación.</p>
+    </div>
+
+    <div class="slide" data-index="4">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><path d="M80,10 C95,35 75,55 90,80 C105,105 80,125 95,150 C110,175 85,195 100,210" stroke="#C8B89A" stroke-width="2" opacity=".7"/><path d="M140,10 C125,35 145,55 130,80 C115,105 140,125 125,150 C110,175 135,195 120,210" stroke="#C8B89A" stroke-width="2" opacity=".7"/><line x1="84" y1="26" x2="136" y2="26" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><line x1="79" y1="48" x2="141" y2="48" stroke="#C8B89A" stroke-width="1.5" opacity=".4"/><line x1="82" y1="70" x2="138" y2="70" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><line x1="90" y1="92" x2="130" y2="92" stroke="#C8B89A" stroke-width="3" opacity="1"/><line x1="93" y1="114" x2="127" y2="114" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><line x1="90" y1="136" x2="130" y2="136" stroke="#C8B89A" stroke-width="1.5" opacity=".4"/><line x1="85" y1="158" x2="135" y2="158" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><line x1="83" y1="180" x2="137" y2="180" stroke="#C8B89A" stroke-width="1.5" opacity=".4"/><line x1="88" y1="200" x2="132" y2="200" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><circle cx="90" cy="92" r="4" fill="#C8B89A"/><circle cx="130" cy="92" r="4" fill="#C8B89A"/><rect x="52" y="86" width="22" height="12" rx="2" stroke="#C8B89A" stroke-width="1" opacity=".6"/><text x="63" y="95" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#C8B89A" opacity=".8">BIO</text></svg></div>
+      <div class="slide-tag">Motor 05</div>
+      <div class="slide-title">Descodificación Biológica</div>
+      <p class="slide-desc">Los conflictos emocionales sin resolver se expresan en el cuerpo. Mapeamos la secuencia biológica del fallo sistémico.</p>
+    </div>
+
+    <div class="slide" data-index="5">
+      <div class="slide-visual"><svg viewBox="0 0 220 220" fill="none"><circle cx="110" cy="30" r="10" stroke="#C8B89A" stroke-width="1.5" opacity=".9"/><circle cx="55" cy="80" r="8" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><circle cx="165" cy="80" r="8" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><circle cx="35" cy="140" r="7" stroke="#C8B89A" stroke-width="1.5" opacity=".6"/><circle cx="110" cy="130" r="10" stroke="#C8B89A" stroke-width="1.5" opacity=".9" fill="#C8B89A" fill-opacity=".1"/><circle cx="185" cy="140" r="7" stroke="#C8B89A" stroke-width="1.5" opacity=".6"/><circle cx="70" cy="185" r="7" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><circle cx="150" cy="185" r="7" stroke="#C8B89A" stroke-width="1.5" opacity=".7"/><line x1="110" y1="40" x2="55" y2="72" stroke="#C8B89A" stroke-width="2" opacity=".9"/><line x1="55" y1="88" x2="110" y2="120" stroke="#C8B89A" stroke-width="2" opacity=".9"/><line x1="110" y1="140" x2="150" y2="178" stroke="#C8B89A" stroke-width="2" opacity=".9"/><line x1="110" y1="40" x2="165" y2="72" stroke="#C8B89A" stroke-width="1" opacity=".4"/><line x1="165" y1="88" x2="185" y2="133" stroke="#C8B89A" stroke-width="1" opacity=".3"/><line x1="165" y1="88" x2="110" y2="120" stroke="#C8B89A" stroke-width="1.5" opacity=".6"/><line x1="35" y1="147" x2="70" y2="178" stroke="#C8B89A" stroke-width="1" opacity=".3"/><line x1="110" y1="140" x2="70" y2="178" stroke="#C8B89A" stroke-width="1.5" opacity=".5"/><text x="110" y="33" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#C8B89A">IN</text><text x="110" y="133" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="6" fill="#C8B89A">CREENCIA</text><text x="150" y="188" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="6" fill="#C8B89A">OUT</text></svg></div>
+      <div class="slide-tag">Motor 06</div>
+      <div class="slide-title">PNL</div>
+      <p class="slide-desc">Programación neurolingüística aplicada. Los programas mentales que condicionan tu toma de decisiones ejecutiva.</p>
+    </div>
+
+    <div class="slide-nav" id="slideNav">
+      <button class="slide-dot active" data-slide="0"></button>
+      <button class="slide-dot" data-slide="1"></button>
+      <button class="slide-dot" data-slide="2"></button>
+      <button class="slide-dot" data-slide="3"></button>
+      <button class="slide-dot" data-slide="4"></button>
+      <button class="slide-dot" data-slide="5"></button>
+    </div>
   </div>
 </section>
 
-<!-- ═══ PROBLEMA ═══ -->
 <section id="problema" class="problema-section">
   <div class="container">
     <div class="reveal">
-      <div class="label" style="color:rgba(200,184,154,0.7);">Diagnóstico</div>
-      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);color:var(--white);max-width:600px;">
-        Tres patrones que frenan al high performer.
-      </h2>
+      <div class="label" style="color:rgba(200,184,154,.6)">Diagnóstico</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);color:#F0EAD8;max-width:600px">Tres patrones que frenan al high performer.</h2>
     </div>
-    <div class="problema-grid reveal reveal-delay-1">
-      <div class="problema-card">
-        <div class="problema-num">01</div>
-        <div class="problema-title">El techo invisible</div>
-        <p class="problema-text">Tu éxito está limitado por una configuración de origen que no aparece en ningún análisis de mercado. No es disciplina. Es arquitectura.</p>
-      </div>
-      <div class="problema-card">
-        <div class="problema-num">02</div>
-        <div class="problema-title">La identidad fusionada</div>
-        <p class="problema-text">Cuando el negocio va bien, tú vas bien. Cuando baja la presión, desapareces. Eso no es resiliencia. Es un fallo en la estructura del yo.</p>
-      </div>
-      <div class="problema-card">
-        <div class="problema-num">03</div>
-        <div class="problema-title">El sabotaje encubierto</div>
-        <p class="problema-text">Tomas decisiones que frenan tu propio crecimiento sin entender por qué. Es un protocolo de protección que opera por debajo de tu conciencia.</p>
-      </div>
+    <div class="problema-grid reveal reveal-d1">
+      <div class="problema-card"><div class="problema-num">01</div><div class="problema-title">El techo invisible</div><p class="problema-text">Tu éxito está limitado por una configuración de origen que no aparece en ningún análisis de mercado. No es disciplina. Es arquitectura.</p></div>
+      <div class="problema-card"><div class="problema-num">02</div><div class="problema-title">La identidad fusionada</div><p class="problema-text">Cuando el negocio va bien, tú vas bien. Cuando baja la presión, desapareces. Eso no es resiliencia. Es un fallo en la estructura del yo.</p></div>
+      <div class="problema-card"><div class="problema-num">03</div><div class="problema-title">El sabotaje encubierto</div><p class="problema-text">Tomas decisiones que frenan tu propio crecimiento sin entender por qué. Es un protocolo de protección que opera por debajo de tu conciencia.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ SISTEMA ═══ -->
 <section id="sistema" class="sistema-section">
   <div class="container">
     <div class="sistema-header reveal">
-      <div>
-        <div class="label">Sistema integrado</div>
-        <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
-          Tres motores de diagnóstico. Un solo reporte.
-        </h2>
-      </div>
-      <p class="sistema-desc">
-        Cada sistema opera de forma independiente. La síntesis es lo que genera el diagnóstico preciso. No interpretamos. Mapeamos la arquitectura de tu configuración de origen.
-      </p>
+      <div><div class="label">Sistema integrado</div><h2 class="display" style="font-size:clamp(2rem,4vw,3rem)">Seis motores.<br>Un solo reporte.</h2></div>
+      <p class="sistema-desc">Cada motor opera de forma independiente. La síntesis genera el diagnóstico preciso. No interpretamos. Mapeamos la arquitectura de tu configuración de origen.</p>
     </div>
-    <div class="sistema-grid reveal reveal-delay-1">
-      <div class="sistema-item">
-        <div class="sistema-icon">⬡</div>
-        <div class="sistema-title">Carta Astral</div>
-        <p class="sistema-text">Tu hardware psicológico de origen. Planetas, casas, aspectos. La configuración base del sistema antes de cualquier intervención consciente.</p>
-      </div>
-      <div class="sistema-item">
-        <div class="sistema-icon">◈</div>
-        <div class="sistema-title">Numerología</div>
-        <p class="sistema-text">Los patrones numéricos de tu nombre y fecha. Camino de vida, expresión, alma. Tu código operativo en una secuencia decodificable.</p>
-      </div>
-      <div class="sistema-item">
-        <div class="sistema-icon">◎</div>
-        <div class="sistema-title">Matriz del Destino</div>
-        <p class="sistema-text">Los arcanos que rigen tu evolución por década. Puntos de poder, linajes, canales. Tu secuencia de transformación hasta los 80 años.</p>
-      </div>
+    <div class="sistema-grid reveal reveal-d1">
+      <div class="sistema-item"><div class="sistema-icon">⬡</div><div class="sistema-title">Carta Astral</div><p class="sistema-text">Tu hardware psicológico de origen. Planetas, casas, aspectos. Configuración base del sistema antes de cualquier intervención.</p></div>
+      <div class="sistema-item"><div class="sistema-icon">◈</div><div class="sistema-title">Numerología</div><p class="sistema-text">Los patrones numéricos de nombre y fecha. Camino de vida, expresión, alma. Tu código operativo en secuencia decodificable.</p></div>
+      <div class="sistema-item"><div class="sistema-icon">◎</div><div class="sistema-title">Matriz del Destino</div><p class="sistema-text">Los arcanos que rigen tu evolución por década. Puntos de poder, linajes, canales. Secuencia hasta los 80 años.</p></div>
+      <div class="sistema-item"><div class="sistema-icon">✦</div><div class="sistema-title">Kabbalah</div><p class="sistema-text">El árbol de la vida como mapa de atributos. Traducción operativa de tu signo solar en las 10 esferas de manifestación.</p></div>
+      <div class="sistema-item"><div class="sistema-icon">⬘</div><div class="sistema-title">Descodificación Biológica</div><p class="sistema-text">Los conflictos emocionales sin resolver se expresan en el cuerpo. Mapeamos la secuencia biológica del fallo sistémico.</p></div>
+      <div class="sistema-item"><div class="sistema-icon">◉</div><div class="sistema-title">PNL</div><p class="sistema-text">Programación neurolingüística aplicada. Los programas mentales que condicionan tu toma de decisiones ejecutiva.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ PROCESO ═══ -->
 <section id="proceso" class="proceso-section">
   <div class="container">
-    <div class="reveal">
-      <div class="label">Metodología</div>
-      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
-        Cuatro fases. Sin ambigüedad.
-      </h2>
-    </div>
-    <div class="proceso-steps reveal reveal-delay-1">
-      <div class="proceso-step">
-        <div class="step-dot">01</div>
-        <div class="step-title">Recopilación</div>
-        <p class="step-text">Nombre, fecha, hora y lugar de nacimiento exactos. Sin estos parámetros no hay diagnóstico posible.</p>
-      </div>
-      <div class="proceso-step">
-        <div class="step-dot">02</div>
-        <div class="step-title">Análisis</div>
-        <p class="step-text">Los tres motores procesan los datos en paralelo y generan tu perfil técnico de configuración.</p>
-      </div>
-      <div class="proceso-step">
-        <div class="step-dot">03</div>
-        <div class="step-title">Síntesis</div>
-        <p class="step-text">Transformamos datos en lenguaje ejecutable. Cada párrafo es un instrumento diagnóstico.</p>
-      </div>
-      <div class="proceso-step">
-        <div class="step-dot">04</div>
-        <div class="step-title">Entrega</div>
-        <p class="step-text">Reporte PDF en menos de 2 minutos. Tu documento de referencia permanente. Nunca envejece.</p>
-      </div>
+    <div class="reveal"><div class="label">Metodología</div><h2 class="display" style="font-size:clamp(2rem,4vw,3rem)">Cuatro fases. Sin ambigüedad.</h2></div>
+    <div class="proceso-steps reveal reveal-d1">
+      <div class="proceso-step"><div class="step-dot">01</div><div class="step-title">Recopilación</div><p class="step-text">Nombre, fecha, hora y lugar de nacimiento exactos. Sin estos parámetros no hay diagnóstico posible.</p></div>
+      <div class="proceso-step"><div class="step-dot">02</div><div class="step-title">Análisis</div><p class="step-text">Los seis motores procesan los datos en paralelo y generan tu perfil técnico de configuración.</p></div>
+      <div class="proceso-step"><div class="step-dot">03</div><div class="step-title">Síntesis</div><p class="step-text">Transformamos datos en lenguaje ejecutable. Cada párrafo es un instrumento diagnóstico preciso.</p></div>
+      <div class="proceso-step"><div class="step-dot">04</div><div class="step-title">Entrega</div><p class="step-text">Reporte PDF en menos de 2 minutos. Tu documento de referencia permanente. Nunca envejece.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ PRICING ═══ -->
 <section id="pricing" class="pricing-section">
   <div class="container">
-    <div class="reveal">
-      <div class="label">Inversión</div>
-      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
-        Dos niveles de diagnóstico.
-      </h2>
-    </div>
-    <div class="pricing-grid reveal reveal-delay-1">
+    <div class="reveal"><div class="label">Inversión</div><h2 class="display" style="font-size:clamp(2rem,4vw,3rem)">Dos niveles de diagnóstico.</h2></div>
+    <div class="pricing-grid reveal reveal-d1">
       <div class="price-card">
         <div class="price-label-top">Plan Esencial</div>
         <div class="price-amount"><sup>$</sup>55</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
-        <ul class="price-features">
-          <li>14 bloques de diagnóstico</li>
-          <li>Perfil astrológico completo</li>
-          <li>Numerología aplicada</li>
-          <li>Matriz del Destino (resumen)</li>
-          <li>Reporte PDF personalizado</li>
-        </ul>
-        <a href="checkout.html" class="btn btn-dark btn-lg" style="width:100%;justify-content:center;">Seleccionar plan</a>
+        <ul class="price-features"><li>14 bloques de diagnóstico</li><li>6 sistemas integrados</li><li>Perfil astrológico completo</li><li>Numerología + Kabbalah aplicada</li><li>Reporte PDF personalizado</li></ul>
+        <a href="checkout.html" class="btn btn-dark btn-lg" style="width:100%">Seleccionar plan</a>
       </div>
       <div class="price-card featured">
         <div class="price-label-top">Plan Completo — Recomendado</div>
         <div class="price-amount"><sup>$</sup>111</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
-        <ul class="price-features">
-          <li>20 bloques de diagnóstico</li>
-          <li>Análisis de profundidad radical</li>
-          <li>Matriz completa + cronología</li>
-          <li>Patrones relacionales y financieros</li>
-          <li>Plan de acción ejecutable</li>
-          <li>Reporte PDF de 80+ páginas</li>
-        </ul>
-        <a href="checkout.html" class="btn btn-sand btn-lg" style="width:100%;justify-content:center;">Comenzar análisis</a>
+        <ul class="price-features"><li>20 bloques de diagnóstico</li><li>6 sistemas integrados</li><li>Análisis de profundidad radical</li><li>Matriz completa + cronología</li><li>Descodificación biológica + PNL</li><li>Reporte PDF de 80+ páginas</li></ul>
+        <a href="checkout.html" class="btn btn-sand btn-lg" style="width:100%">Comenzar análisis</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ CTA FINAL ═══ -->
 <section class="cta-section">
   <div class="container reveal">
-    <div class="label" style="color:rgba(200,184,154,0.6);">¿Listo para el diagnóstico?</div>
-    <h2 class="display cta-headline">
-      El autoconocimiento<br>no es un lujo.<br>
-      <em style="color:var(--sand);font-style:italic;">Es una estrategia.</em>
-    </h2>
+    <div class="label" style="color:rgba(200,184,154,.5)">¿Listo para el diagnóstico?</div>
+    <h2 class="display cta-headline">El autoconocimiento<br>no es un lujo.<br><em style="color:var(--sand);font-style:italic">Es una estrategia.</em></h2>
     <p class="cta-sub">20 minutos de recopilación. Un reporte que usarás por vida.</p>
     <div class="cta-actions">
       <a href="checkout.html" class="btn btn-sand btn-lg">Acceder al diagnóstico</a>
-      <a href="#problema" class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);">Conoce el sistema</a>
+      <a href="#problema" class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.15);color:rgba(240,234,216,.5)">Conoce el sistema</a>
     </div>
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="container">
     <div class="footer-inner">
-      <div class="footer-logo">I<em>.</em>M<em>.</em> Consulting</div>
+      <svg class="footer-logo-svg" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="220 56" stroke-dashoffset="-14"/><text x="50" y="46" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="28" font-weight="600" fill="currentColor" letter-spacing="2">I.M.</text><text x="50" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="currentColor" letter-spacing="4">CONSULTING</text></svg>
       <div class="footer-copy">© 2026 IM Consulting · Hermosillo, Sonora, México</div>
     </div>
   </div>
 </footer>
-<!-- ═══ SCRIPTS ═══ -->
+
 <script>
-// ── Navbar scroll ──────────────────────────────────────────
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 10);
-}, { passive: true });
-
-// ── Mobile menu ────────────────────────────────────────────
-const menuBtn     = document.getElementById('menuBtn');
-const menuOverlay = document.getElementById('menuOverlay');
-
-menuBtn.addEventListener('click', () => {
-  menuOverlay.classList.toggle('open');
-  document.body.style.overflow = menuOverlay.classList.contains('open') ? 'hidden' : '';
-});
-menuOverlay.addEventListener('click', e => {
-  if (e.target === menuOverlay) {
-    menuOverlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-});
-menuOverlay.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    menuOverlay.classList.remove('open');
-    document.body.style.overflow = '';
-  });
-});
-
-// ── Reveal on scroll ───────────────────────────────────────
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-  });
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// ── Smooth scroll ──────────────────────────────────────────
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const t = document.querySelector(a.getAttribute('href'));
-    if (!t) return;
-    e.preventDefault();
-    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 72, behavior: 'smooth' });
-  });
-});
-
-// ── THREE.JS — Geometric wireframe ─────────────────────────
-(function() {
-  const canvas = document.getElementById('hero-canvas');
-  if (!canvas || typeof THREE === 'undefined') return;
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
-
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 0, 5);
-
-  const matWire = new THREE.MeshBasicMaterial({
-    color: 0xC8B89A, wireframe: true, opacity: 0.18, transparent: true
-  });
-  const matLine = new THREE.LineBasicMaterial({
-    color: 0xC8B89A, opacity: 0.35, transparent: true
-  });
-  const matDot = new THREE.MeshBasicMaterial({ color: 0xC8B89A });
-
-  // Icosaedro principal
-  const geoMain  = new THREE.IcosahedronGeometry(1.6, 1);
-  const meshMain = new THREE.Mesh(geoMain, matWire);
-  scene.add(meshMain);
-
-  // Octaedro interior
-  const meshInner = new THREE.Mesh(
-    new THREE.OctahedronGeometry(1.0, 2),
-    new THREE.MeshBasicMaterial({ color: 0x1A1A1A, wireframe: true, opacity: 0.08, transparent: true })
-  );
-  scene.add(meshInner);
-
-  // Anillos orbitales
-  const ring1 = new THREE.Mesh(
-    new THREE.TorusGeometry(2.2, 0.004, 2, 80),
-    new THREE.MeshBasicMaterial({ color: 0xC8B89A, opacity: 0.2, transparent: true })
-  );
-  ring1.rotation.x = Math.PI / 3;
-  scene.add(ring1);
-
-  const ring2 = new THREE.Mesh(
-    new THREE.TorusGeometry(1.8, 0.003, 2, 80),
-    new THREE.MeshBasicMaterial({ color: 0xC8B89A, opacity: 0.12, transparent: true })
-  );
-  ring2.rotation.x = Math.PI / 2;
-  ring2.rotation.y = Math.PI / 4;
-  scene.add(ring2);
-
-  // Dots en vértices
-  const pos    = geoMain.attributes.position;
-  const dotGeo = new THREE.SphereGeometry(0.018, 6, 6);
-  for (let i = 0; i < pos.count; i += 2) {
-    const dot = new THREE.Mesh(dotGeo, matDot);
-    dot.position.set(pos.getX(i), pos.getY(i), pos.getZ(i));
-    scene.add(dot);
-  }
-
-  // Ejes de referencia
-  const mkLine = (x1,y1,z1,x2,y2,z2) => {
-    const g = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(x1,y1,z1), new THREE.Vector3(x2,y2,z2)
-    ]);
-    return new THREE.Line(g, matLine);
-  };
-  scene.add(mkLine(-2.8,0,0, 2.8,0,0));
-  scene.add(mkLine(0,-2.8,0, 0,2.8,0));
-  scene.add(mkLine(0,0,-2.8, 0,0,2.8));
-
-  // Partículas flotantes
-  const ptCount = 80;
-  const ptPos   = new Float32Array(ptCount * 3);
-  for (let i = 0; i < ptCount; i++) {
-    const r     = 2.5 + Math.random() * 1.5;
-    const theta = Math.random() * Math.PI * 2;
-    const phi   = Math.acos(2 * Math.random() - 1);
-    ptPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-    ptPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-    ptPos[i*3+2] = r * Math.cos(phi);
-  }
-  const ptGeo = new THREE.BufferGeometry();
-  ptGeo.setAttribute('position', new THREE.BufferAttribute(ptPos, 3));
-  const pts = new THREE.Points(ptGeo, new THREE.PointsMaterial({
-    color: 0xC8B89A, size: 0.025, transparent: true, opacity: 0.5
-  }));
-  scene.add(pts);
-
-  // Resize
-  const resize = () => {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  };
-  resize();
-  new ResizeObserver(resize).observe(canvas);
-
-  // Mouse parallax
-  let mx = 0, my = 0;
-  document.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - 0.5) * 0.4;
-    my = (e.clientY / window.innerHeight - 0.5) * 0.4;
-  }, { passive: true });
-
-  // Animate
-  const clock = new THREE.Clock();
-  (function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-    meshMain.rotation.y  = t * 0.08 + mx;
-    meshMain.rotation.x  = t * 0.04 + my;
-    meshInner.rotation.y = -t * 0.12;
-    meshInner.rotation.z =  t * 0.06;
-    ring1.rotation.z     = t * 0.05;
-    ring2.rotation.x     = Math.PI / 2 + t * 0.07;
-    pts.rotation.y       = t * 0.03;
-    renderer.render(scene, camera);
-  })();
+const root=document.documentElement,themeBtn=document.getElementById('themeToggle'),saved=localStorage.getItem('imTheme'),prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+if(saved)root.setAttribute('data-theme',saved);else if(prefersDark)root.setAttribute('data-theme','dark');
+themeBtn.addEventListener('click',()=>{const next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);localStorage.setItem('imTheme',next)});
+const navbar=document.getElementById('navbar');
+window.addEventListener('scroll',()=>navbar.classList.toggle('scrolled',window.scrollY>10),{passive:true});
+const menuBtn=document.getElementById('menuBtn'),menuOverlay=document.getElementById('menuOverlay');
+menuBtn.addEventListener('click',()=>{menuOverlay.classList.toggle('open');document.body.style.overflow=menuOverlay.classList.contains('open')?'hidden':''});
+menuOverlay.addEventListener('click',e=>{if(e.target===menuOverlay){menuOverlay.classList.remove('open');document.body.style.overflow=''}});
+menuOverlay.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menuOverlay.classList.remove('open');document.body.style.overflow=''}));
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(!t)return;e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+scrollY-72,behavior:'smooth'})}));
+const slides=document.querySelectorAll('.slide'),dots=document.querySelectorAll('.slide-dot');
+let current=0,autoTimer=null;
+function goTo(n){slides[current].classList.remove('active');dots[current].classList.remove('active');current=(n+slides.length)%slides.length;slides[current].classList.add('active');dots[current].classList.add('active')}
+function startAuto(){autoTimer=setInterval(()=>goTo(current+1),4000)}
+function resetAuto(){clearInterval(autoTimer);startAuto()}
+document.getElementById('nextSlide').addEventListener('click',()=>{goTo(current+1);resetAuto()});
+document.getElementById('prevSlide').addEventListener('click',()=>{goTo(current-1);resetAuto()});
+dots.forEach(d=>d.addEventListener('click',()=>{goTo(+d.dataset.slide);resetAuto()}));
+let tx=0;const hr=document.querySelector('.hero-right');
+hr.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+hr.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40){goTo(dx<0?current+1:current-1);resetAuto()}},{passive:true});
+startAuto();
+(function(){
+  const canvas=document.getElementById('hero-canvas');
+  if(!canvas||typeof THREE==='undefined')return;
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setClearColor(0x000000,0);
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(45,1,.1,100);
+  camera.position.set(0,0,5);
+  const wire=c=>new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:.15});
+  const meshMain=new THREE.Mesh(new THREE.IcosahedronGeometry(1.55,1),wire(0xC8B89A));
+  const meshInner=new THREE.Mesh(new THREE.OctahedronGeometry(.95,2),new THREE.MeshBasicMaterial({color:0xC8B89A,wireframe:true,transparent:true,opacity:.06}));
+  scene.add(meshMain,meshInner);
+  [[2.1,.004,Math.PI/3,0],[1.75,.003,Math.PI/2,Math.PI/4]].forEach(([r,t,rx,ry])=>{const m=new THREE.Mesh(new THREE.TorusGeometry(r,t,2,80),new THREE.MeshBasicMaterial({color:0xC8B89A,transparent:true,opacity:.15}));m.rotation.x=rx;m.rotation.y=ry;scene.add(m)});
+  const lm=new THREE.LineBasicMaterial({color:0xC8B89A,transparent:true,opacity:.2});
+  [[-2.5,0,0,2.5,0,0],[0,-2.5,0,0,2.5,0],[0,0,-2.5,0,0,2.5]].forEach(([x1,y1,z1,x2,y2,z2])=>{const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x1,y1,z1),new THREE.Vector3(x2,y2,z2)]);scene.add(new THREE.Line(g,lm))});
+  const ptPos=new Float32Array(60*3);
+  for(let i=0;i<60;i++){const r=2.4+Math.random()*1.2,t=Math.random()*Math.PI*2,p=Math.acos(2*Math.random()-1);ptPos[i*3]=r*Math.sin(p)*Math.cos(t);ptPos[i*3+1]=r*Math.sin(p)*Math.sin(t);ptPos[i*3+2]=r*Math.cos(p)}
+  const ptGeo=new THREE.BufferGeometry();ptGeo.setAttribute('position',new THREE.BufferAttribute(ptPos,3));
+  scene.add(new THREE.Points(ptGeo,new THREE.PointsMaterial({color:0xC8B89A,size:.022,transparent:true,opacity:.4})));
+  const resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};
+  resize();new ResizeObserver(resize).observe(canvas);
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.35;my=(e.clientY/innerHeight-.5)*.35},{passive:true});
+  const clock=new THREE.Clock();
+  (function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();meshMain.rotation.y=t*.07+mx;meshMain.rotation.x=t*.04+my;meshInner.rotation.y=-t*.1;meshInner.rotation.z=t*.05;renderer.render(scene,camera)})();
 })();
 </script>
-
 </body>
 </html>
