@@ -4,829 +4,410 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IM Consulting — Ingeniería Humana de Alto Rendimiento</title>
-  <meta name="description" content="No es coaching. No es bienestar. Es Ingeniería Humana: auditoría, reprogramación y ejecución de tu sistema operativo personal para alcanzar rendimiento de élite." />
+  <meta name="description" content="No es coaching. No es bienestar. Es Ingeniería Humana: auditoría, reprogramación y ejecución de tu sistema operativo personal." />
   <meta property="og:title" content="IM Consulting — Ingeniería Humana" />
   <meta property="og:description" content="Sistema de diagnóstico para profesionales, fundadores y líderes que sienten que algo interno no escala." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="/" />
   <meta name="theme-color" content="#1A1A1A" />
-  
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  
-  <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --ink: #1A1A1A;
-      --ink-2: #3D3D3D;
-      --ink-3: #777;
-      --sand: #C8B89A;
+      --ink:    #1A1A1A;
+      --ink-2:  #3D3D3D;
+      --ink-3:  #888;
+      --sand:   #C8B89A;
       --sand-2: #DDD0BF;
       --sand-3: #F3EDE4;
       --sand-4: #FAF7F3;
-      --white: #FFFFFF;
+      --white:  #FFFFFF;
       --border: #E8E0D5;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--white);
       color: var(--ink);
       line-height: 1.65;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
-
-    /* Display Font */
-    .display {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-    }
-
-    /* Typography */
-    .serif { font-family: 'Cormorant Garamond', serif; }
+    .display { font-family: 'Cormorant Garamond', serif; font-weight: 300; line-height: 1.05; }
+    a { text-decoration: none; color: inherit; }
     .label {
       display: inline-block;
-      font-size: 0.7rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--sand);
-      font-weight: 600;
-      margin-bottom: 16px;
+      font-size: 0.68rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--sand);
+      font-weight: 600; margin-bottom: 20px;
     }
-
-    /* Buttons */
+    .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 15px 32px;
-      border-radius: 6px;
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 30px; border-radius: 4px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      border: none;
-      transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+      font-size: 0.88rem; font-weight: 500;
+      letter-spacing: 0.06em; cursor: pointer; border: none;
+      transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
       text-decoration: none;
     }
-
-    .btn-primary {
-      background: var(--ink);
-      color: var(--white);
-    }
-    .btn-primary:hover {
-      background: #333;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-sand {
-      background: var(--sand);
-      color: var(--white);
-    }
-    .btn-sand:hover {
-      background: #b5a48a;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(200, 184, 154, 0.35);
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1.5px solid var(--ink);
-      color: var(--ink);
-    }
-    .btn-outline:hover {
-      background: var(--ink);
-      color: var(--white);
-    }
-
-    .btn-lg {
-      padding: 18px 40px;
-      font-size: 1rem;
-    }
-
-    /* Navbar */
+    .btn-dark { background: var(--ink); color: var(--white); }
+    .btn-dark:hover { background: #2d2d2d; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
+    .btn-sand { background: var(--sand); color: var(--white); }
+    .btn-sand:hover { background: #b5a488; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(200,184,154,0.4); }
+    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid rgba(26,26,26,0.25); }
+    .btn-ghost:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .btn-lg { padding: 17px 36px; font-size: 0.92rem; }
     nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 200;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      transition: box-shadow 0.3s;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
-    nav.scrolled {
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    nav.scrolled { border-color: var(--border); box-shadow: 0 1px 24px rgba(0,0,0,0.06); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.1em; }
+    .nav-logo em { color: var(--sand); font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 0.85rem; color: var(--ink-3); letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .menu-overlay {
+      display: none; position: fixed; inset: 0; z-index: 280;
+      background: rgba(26,26,26,0.5); backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.3s;
     }
-
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 64px;
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      color: var(--ink);
-    }
-    .nav-logo span {
-      color: var(--sand);
-    }
-
-    .nav-menu-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 16px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--ink-2);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .nav-menu-btn:hover {
-      border-color: var(--sand-2);
-      background: var(--sand-4);
-    }
-
-    /* Menu Panel */
-    .menu-panel {
-      position: fixed;
-      inset: 0;
-      z-index: 190;
-      background: rgba(26, 26, 26, 0.6);
-      backdrop-filter: blur(4px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-    .menu-panel.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
+    .menu-overlay.open { opacity: 1; }
     .menu-drawer {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: min(480px, 100vw);
-      height: 100dvh;
-      background: var(--white);
-      padding: 80px 36px 40px;
+      position: absolute; top: 0; right: 0;
+      width: min(360px, 90vw); height: 100dvh;
+      background: var(--white); padding: 80px 32px 40px;
       transform: translateX(100%);
       transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 0;
     }
-    .menu-panel.open .menu-drawer {
-      transform: translateX(0);
-    }
-
-    .menu-eyebrow {
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-      font-weight: 600;
-      margin-bottom: 24px;
-    }
-
-    .menu-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
-    }
-
-    .menu-card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px 22px;
-      cursor: pointer;
-      transition: all 0.2s;
+    .menu-overlay.open .menu-drawer { transform: translateX(0); }
+    .drawer-item {
+      padding: 20px 0; border-bottom: 1px solid var(--border);
+      font-size: 1.5rem; font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; color: var(--ink); cursor: pointer; transition: color 0.2s;
       display: block;
-      text-decoration: none;
-      color: inherit;
     }
-    .menu-card:hover {
-      border-color: var(--sand-2);
-      background: var(--sand-4);
-      transform: translateX(-3px);
-    }
-
-    .mc-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--sand);
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    .mc-title {
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 4px;
-      font-family: 'Cormorant Garamond', serif;
-    }
-
-    .mc-desc {
-      font-size: 0.78rem;
-      color: var(--ink-3);
-      line-height: 1.5;
-    }
-
-    /* Fade In */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(22px);
-      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-    .fade-in.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    /* Sections */
-    section {
-      padding: 96px 0;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Hero */
+    .drawer-item:hover { color: var(--sand); }
     .hero {
-      padding: 160px 0 120px;
-      background: var(--white);
+      min-height: 100vh; display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center; position: relative;
+      overflow: hidden; padding-top: 64px;
     }
-
-    .hero-content {
-      max-width: 720px;
+    .hero-left { padding: 80px 0; position: relative; z-index: 2; }
+    .hero-eyebrow {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.2s forwards;
     }
-
+    .eyebrow-line { width: 32px; height: 1px; background: var(--sand); }
+    .eyebrow-text { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--sand); font-weight: 600; }
     .hero-headline {
-      font-size: clamp(2.5rem, 8vw, 4.5rem);
-      line-height: 1;
-      margin-bottom: 24px;
-      color: var(--ink);
+      font-size: clamp(2.8rem, 5vw, 4.2rem); line-height: 1.0;
+      color: var(--ink); margin-bottom: 28px;
+      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.35s forwards;
     }
-
-    .hero-subheadline {
-      font-size: 1.25rem;
-      line-height: 1.6;
-      color: var(--ink-2);
-      margin-bottom: 32px;
-      max-width: 600px;
+    .hero-headline em { font-style: italic; color: var(--sand); }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--ink-3); line-height: 1.75;
+      max-width: 460px; margin-bottom: 48px; font-weight: 300;
+      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.5s forwards;
     }
-
-    .hero-cta {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 48px;
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.65s forwards;
     }
-
-    /* Problem Section */
-    .problem-section {
-      background: var(--sand-4);
-      padding: 96px 0;
+    .hero-stat-row {
+      display: flex; gap: 40px; margin-top: 64px;
+      padding-top: 40px; border-top: 1px solid var(--border);
+      opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.25,0.1,0.25,1) 0.8s forwards;
     }
-
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
-      margin-top: 48px;
+    .hero-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .hero-stat-num em { color: var(--sand); font-style: normal; }
+    .hero-stat-label { font-size: 0.78rem; color: var(--ink-3); letter-spacing: 0.06em; }
+    .hero-right { position: relative; height: 100%; min-height: 600px; }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    section { padding: 112px 0; }
+    .problema-section { background: var(--ink); color: var(--white); }
+    .problema-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08); margin-top: 72px;
     }
-
-    .problem-card {
-      padding: 32px;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      transition: all 0.3s;
+    .problema-card { padding: 48px 40px; background: var(--ink); transition: background 0.3s; }
+    .problema-card:hover { background: #222; }
+    .problema-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: rgba(200,184,154,0.2); line-height: 1; margin-bottom: 24px; }
+    .problema-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; color: var(--white); margin-bottom: 16px; line-height: 1.3; }
+    .problema-text { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.75; }
+    .sistema-section { background: var(--white); }
+    .sistema-header { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; }
+    .sistema-desc { font-size: 1rem; color: var(--ink-3); line-height: 1.8; font-weight: 300; }
+    .sistema-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); }
+    .sistema-item { background: var(--white); padding: 48px 40px; transition: background 0.25s; }
+    .sistema-item:hover { background: var(--sand-4); }
+    .sistema-icon { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; font-size: 1.1rem; }
+    .sistema-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 14px; color: var(--ink); }
+    .sistema-text { font-size: 0.88rem; color: var(--ink-3); line-height: 1.75; }
+    .proceso-section { background: var(--sand-4); }
+    .proceso-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 72px; position: relative; }
+    .proceso-steps::before { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; height: 1px; background: var(--sand-2); z-index: 0; }
+    .proceso-step { padding: 0 32px 0 0; position: relative; z-index: 1; }
+    .step-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 1px solid var(--sand); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--sand); margin-bottom: 28px; letter-spacing: 0.04em; }
+    .step-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 12px; color: var(--ink); }
+    .step-text { font-size: 0.86rem; color: var(--ink-3); line-height: 1.7; }
+    .pricing-section { background: var(--white); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; background: var(--border); margin-top: 72px; }
+    .price-card { background: var(--white); padding: 56px 48px; position: relative; transition: background 0.25s; display: flex; flex-direction: column; }
+    .price-card:hover { background: var(--sand-4); }
+    .price-card.featured { background: var(--ink); }
+    .price-card.featured:hover { background: #222; }
+    .price-label-top { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sand); font-weight: 600; margin-bottom: 16px; }
+    .price-amount { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; line-height: 1; color: var(--ink); margin-bottom: 8px; }
+    .price-card.featured .price-amount { color: var(--white); }
+    .price-amount sup { font-size: 1.6rem; vertical-align: super; }
+    .price-currency { font-size: 0.8rem; color: var(--ink-3); letter-spacing: 0.06em; margin-bottom: 40px; }
+    .price-card.featured .price-currency { color: rgba(255,255,255,0.4); }
+    .price-divider { height: 1px; background: var(--border); margin-bottom: 32px; }
+    .price-card.featured .price-divider { background: rgba(255,255,255,0.1); }
+    .price-features { list-style: none; margin-bottom: 48px; flex: 1; }
+    .price-features li { padding: 12px 0; font-size: 0.9rem; color: var(--ink-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .price-card.featured .price-features li { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.08); }
+    .price-features li::before { content: '—'; color: var(--sand); font-weight: 300; flex-shrink: 0; }
+    .cta-section { background: var(--ink); padding: 160px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 20% 50%, rgba(200,184,154,0.04) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 50%, rgba(200,184,154,0.04) 0%, transparent 60%); }
+    .cta-headline { font-size: clamp(2.5rem, 6vw, 4rem); color: var(--white); margin-bottom: 24px; position: relative; z-index: 1; }
+    .cta-sub { font-size: 1rem; color: rgba(255,255,255,0.4); margin-bottom: 48px; position: relative; z-index: 1; font-weight: 300; letter-spacing: 0.02em; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; position: relative; z-index: 1; }
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 40px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-3); }
+    .footer-logo em { color: var(--sand); font-style: normal; }
+    .footer-copy { font-size: 0.82rem; color: var(--ink-3); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.8s cubic-bezier(0.25,0.1,0.25,1), transform 0.8s cubic-bezier(0.25,0.1,0.25,1); }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding: 100px 0 60px; }
+      .hero-right { display: none; }
+      .hero-left { padding: 40px 0; }
+      .problema-grid { grid-template-columns: 1fr; }
+      .sistema-header { grid-template-columns: 1fr; gap: 32px; }
+      .sistema-grid { grid-template-columns: 1fr; }
+      .proceso-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .proceso-steps::before { display: none; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: flex; }
+      .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+      .menu-overlay { display: block; pointer-events: none; }
+      .menu-overlay.open { pointer-events: all; }
     }
-    .problem-card:hover {
-      border-color: var(--sand);
-      box-shadow: 0 8px 24px rgba(200, 184, 154, 0.1);
-    }
-
-    .problem-card-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.35rem;
-      font-weight: 400;
-      margin-bottom: 16px;
-      color: var(--ink);
-    }
-
-    .problem-card-text {
-      font-size: 0.95rem;
-      color: var(--ink-2);
-      line-height: 1.7;
-    }
-
-    /* Features Section */
-    .features-section {
-      background: var(--white);
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 40px;
-      margin-top: 56px;
-    }
-
-    .feature-item {
-      text-align: center;
-    }
-
-    .feature-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--sand-4);
-      border: 2px solid var(--sand-2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 2rem;
-    }
-
-    .feature-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.25rem;
-      font-weight: 400;
-      margin-bottom: 12px;
-      color: var(--ink);
-    }
-
-    .feature-desc {
-      font-size: 0.95rem;
-      color: var(--ink-3);
-      line-height: 1.65;
-    }
-
-    /* Process Section */
-    .process-section {
-      background: var(--sand-4);
-    }
-
-    .process-steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 32px;
-      margin-top: 48px;
-    }
-
-    .step-card {
-      background: var(--white);
-      padding: 40px 32px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      position: relative;
-      padding-left: 80px;
-    }
-
-    .step-number {
-      position: absolute;
-      left: 32px;
-      top: 32px;
-      width: 40px;
-      height: 40px;
-      background: var(--sand);
-      color: var(--white);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .step-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 400;
-      margin-bottom: 12px;
-      color: var(--ink);
-    }
-
-    .step-desc {
-      font-size: 0.9rem;
-      color: var(--ink-3);
-      line-height: 1.6;
-    }
-
-    /* Pricing Section */
-    .pricing-section {
-      background: var(--white);
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 32px;
-      margin-top: 48px;
-    }
-
-    .price-card {
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      padding: 48px 40px;
-      background: var(--white);
-      transition: all 0.3s;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-    .price-card:hover {
-      border-color: var(--sand);
-      box-shadow: 0 12px 40px rgba(200, 184, 154, 0.15);
-      transform: translateY(-4px);
-    }
-
-    .price-card.featured {
-      border-color: var(--sand);
-      background: var(--sand-4);
-    }
-
-    .price-badge {
-      position: absolute;
-      top: -12px;
-      left: 24px;
-      background: var(--sand);
-      color: var(--white);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .price-label {
-      font-size: 0.85rem;
-      color: var(--sand);
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .price-amount {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 3rem;
-      font-weight: 300;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
-
-    .price-amount sup {
-      font-size: 1.5rem;
-      vertical-align: super;
-    }
-
-    .price-currency {
-      font-size: 0.9rem;
-      color: var(--ink-3);
-      margin-bottom: 24px;
-    }
-
-    .price-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    .price-features {
-      list-style: none;
-      margin-bottom: 32px;
-      flex: 1;
-    }
-
-    .price-features li {
-      padding: 12px 0;
-      font-size: 0.95rem;
-      color: var(--ink-2);
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .price-features li:before {
-      content: "✓";
-      color: var(--sand);
-      font-weight: 600;
-      min-width: 16px;
-    }
-
-    .price-btn {
-      width: 100%;
-    }
-
-    .price-note {
-      font-size: 0.85rem;
-      color: var(--ink-3);
-      text-align: center;
-      margin-top: 16px;
-    }
-
-    /* CTA Section */
-    .cta-section {
-      background: var(--ink);
-      color: var(--white);
-      padding: 120px 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-section::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(200, 184, 154, 0.05) 0%, transparent 70%);
-      border-radius: 50%;
-      z-index: 0;
-    }
-
-    .cta-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .cta-headline {
-      font-size: clamp(2rem, 6vw, 3.5rem);
-      line-height: 1.2;
-      margin-bottom: 24px;
-    }
-
-    .cta-subheadline {
-      font-size: 1.15rem;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 32px;
-      max-width: 500px;
-    }
-
-    /* Footer */
-    footer {
-      background: var(--white);
-      border-top: 1px solid var(--border);
-      padding: 48px 0;
-      text-align: center;
-      color: var(--ink-3);
-      font-size: 0.9rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .hero {
-        padding: 120px 0 80px;
-      }
-
-      .hero-headline {
-        font-size: 2rem;
-      }
-
-      .hero-cta {
-        flex-direction: column;
-      }
-
-      section {
-        padding: 64px 0;
-      }
+    @media (max-width: 600px) {
+      .proceso-steps { grid-template-columns: 1fr; }
+      .hero-stat-row { gap: 24px; }
+      section { padding: 80px 0; }
+      .container { padding: 0 20px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════ NAVBAR ═══════ -->
+<!-- ═══ NAV ═══ -->
 <nav id="navbar">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">I<span>.</span>M<span>.</span> Consulting</a>
-    <button id="menuBtn" class="nav-menu-btn" aria-label="Abrir menú">
-      Menú
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <line x1="5" y1="6" x2="19" y2="6"></line>
-        <line x1="5" y1="18" x2="19" y2="18"></line>
-      </svg>
-    </button>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">I<em>.</em>M<em>.</em> Consulting</a>
+      <ul class="nav-links">
+        <li><a href="#problema">Diagnóstico</a></li>
+        <li><a href="#sistema">Sistema</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+        <li><a href="#pricing">Planes</a></li>
+      </ul>
+      <a href="checkout.html" class="btn btn-dark" style="margin-left:8px;">Comenzar</a>
+      <button class="nav-mobile-btn" id="menuBtn" aria-label="Menú">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="4" y1="7" x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </nav>
 
-<!-- ═══════ MENU PANEL ═══════ -->
-<div id="menuPanel" class="menu-panel">
+<!-- ═══ MENU MOBILE ═══ -->
+<div id="menuOverlay" class="menu-overlay">
   <div class="menu-drawer">
-    <div class="menu-eyebrow">Navegación</div>
-    <div class="menu-cards">
-      <a href="#problema" class="menu-card">
-        <div class="mc-label">¿Para quién?</div>
-        <div class="mc-title">El perfil de cliente</div>
-        <div class="mc-desc">A quién está dirigido este sistema y por qué</div>
-      </a>
-      <a href="#proceso" class="menu-card">
-        <div class="mc-label">Metodología</div>
-        <div class="mc-title">El proceso</div>
-        <div class="mc-desc">Cómo funciona y qué incluye cada fase</div>
-      </a>
-      <a href="#pricing" class="menu-card">
-        <div class="mc-label">Planes</div>
-        <div class="mc-title">Inversión</div>
-        <div class="mc-desc">Transparente y sin sorpresas ocultas</div>
-      </a>
-      <a href="checkout.html" class="menu-card menu-card-cta">
-        <div class="mc-label">Comenzar</div>
-        <div class="mc-title">Checkout</div>
-        <div class="mc-desc">Acceso directo al formulario de datos</div>
-      </a>
-    </div>
-    <div class="menu-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink-3);">
-      © 2026 I.M. Consulting<br>Hermosillo, Sonora, México
+    <a href="#problema" class="drawer-item">Diagnóstico</a>
+    <a href="#sistema" class="drawer-item">Sistema</a>
+    <a href="#proceso" class="drawer-item">Proceso</a>
+    <a href="#pricing" class="drawer-item">Planes</a>
+    <div style="margin-top:32px;">
+      <a href="checkout.html" class="btn btn-dark btn-lg" style="width:100%;justify-content:center;">Comenzar diagnóstico</a>
     </div>
   </div>
 </div>
 
-<!-- ═══════ HERO ═══════ -->
+<!-- ═══ HERO ═══ -->
 <section class="hero">
+  <div class="hero-left container" style="padding-right: 0;">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-line"></span>
+      <span class="eyebrow-text">Ingeniería Humana</span>
+    </div>
+    <h1 class="display hero-headline">
+      Tu sistema operativo<br>
+      tiene <em>fallos</em><br>
+      que no ves.
+    </h1>
+    <p class="hero-sub">
+      No es coaching. Es auditoría. Integramos carta natal, numerología y Matriz del Destino para diagnosticar los patrones que limitan tu ejecución de alto nivel.
+    </p>
+    <div class="hero-actions">
+      <a href="checkout.html" class="btn btn-sand btn-lg">Comenzar diagnóstico</a>
+      <a href="#sistema" class="btn btn-ghost btn-lg">Ver el sistema</a>
+    </div>
+    <div class="hero-stat-row">
+      <div>
+        <div class="hero-stat-num">20<em>+</em></div>
+        <div class="hero-stat-label">Bloques de análisis</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">Sistemas integrados</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">&lt;2<em>min</em></div>
+        <div class="hero-stat-label">Tiempo de entrega</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <canvas id="hero-canvas"></canvas>
+  </div>
+</section>
+
+<!-- ═══ PROBLEMA ═══ -->
+<section id="problema" class="problema-section">
   <div class="container">
-    <div class="hero-content fade-in">
-      <div class="label">Ingeniería Humana</div>
-      <h1 class="display hero-headline">
-        No es coaching.<br>
-        Es auditoría de tu sistema operativo.
-      </h1>
-      <p class="hero-subheadline">
-        El autoconocimiento no es un refugio emocional. Es la tecnología de diagnóstico más avanzada para el profesional de alto rendimiento que siente que algo interno no escala.
+    <div class="reveal">
+      <div class="label" style="color:rgba(200,184,154,0.7);">Diagnóstico</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);color:var(--white);max-width:600px;">
+        Tres patrones que frenan al high performer.
+      </h2>
+    </div>
+    <div class="problema-grid reveal reveal-delay-1">
+      <div class="problema-card">
+        <div class="problema-num">01</div>
+        <div class="problema-title">El techo invisible</div>
+        <p class="problema-text">Tu éxito está limitado por una configuración de origen que no aparece en ningún análisis de mercado. No es disciplina. Es arquitectura.</p>
+      </div>
+      <div class="problema-card">
+        <div class="problema-num">02</div>
+        <div class="problema-title">La identidad fusionada</div>
+        <p class="problema-text">Cuando el negocio va bien, tú vas bien. Cuando baja la presión, desapareces. Eso no es resiliencia. Es un fallo en la estructura del yo.</p>
+      </div>
+      <div class="problema-card">
+        <div class="problema-num">03</div>
+        <div class="problema-title">El sabotaje encubierto</div>
+        <p class="problema-text">Tomas decisiones que frenan tu propio crecimiento sin entender por qué. Es un protocolo de protección que opera por debajo de tu conciencia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SISTEMA ═══ -->
+<section id="sistema" class="sistema-section">
+  <div class="container">
+    <div class="sistema-header reveal">
+      <div>
+        <div class="label">Sistema integrado</div>
+        <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
+          Tres motores de diagnóstico. Un solo reporte.
+        </h2>
+      </div>
+      <p class="sistema-desc">
+        Cada sistema opera de forma independiente. La síntesis es lo que genera el diagnóstico preciso. No interpretamos. Mapeamos la arquitectura de tu configuración de origen.
       </p>
-      <div class="hero-cta fade-in" style="transition-delay: 0.1s;">
-        <a href="checkout.html" class="btn btn-sand btn-lg">Comenzar diagnóstico</a>
-        <a href="#problema" class="btn btn-outline btn-lg">Conoce el proceso</a>
+    </div>
+    <div class="sistema-grid reveal reveal-delay-1">
+      <div class="sistema-item">
+        <div class="sistema-icon">⬡</div>
+        <div class="sistema-title">Carta Astral</div>
+        <p class="sistema-text">Tu hardware psicológico de origen. Planetas, casas, aspectos. La configuración base del sistema antes de cualquier intervención consciente.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">◈</div>
+        <div class="sistema-title">Numerología</div>
+        <p class="sistema-text">Los patrones numéricos de tu nombre y fecha. Camino de vida, expresión, alma. Tu código operativo en una secuencia decodificable.</p>
+      </div>
+      <div class="sistema-item">
+        <div class="sistema-icon">◎</div>
+        <div class="sistema-title">Matriz del Destino</div>
+        <p class="sistema-text">Los arcanos que rigen tu evolución por década. Puntos de poder, linajes, canales. Tu secuencia de transformación hasta los 80 años.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ PROBLEMA ═══════ -->
-<section id="problema" class="problem-section">
+<!-- ═══ PROCESO ═══ -->
+<section id="proceso" class="proceso-section">
   <div class="container">
-    <div class="fade-in">
-      <div class="label" style="text-align: center;">¿Por qué estás aquí?</div>
-      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center; max-width: 800px; margin: 0 auto 16px;">
-        El rendimiento sin alineación es insostenible.
-      </h2>
-      <p style="text-align: center; color: var(--ink-2); max-width: 600px; margin: 0 auto 48px; font-size: 1.1rem;">
-        Lograste resultados visibles. Pero hay una brecha entre lo que produces y lo que realmente eres capaz de ser.
-      </p>
-    </div>
-
-    <div class="problem-grid fade-in" style="transition-delay: 0.15s;">
-      <div class="problem-card">
-        <div class="problem-card-title">El techo invisible</div>
-        <p class="problem-card-text">
-          Tu éxito está limitado por un fallo sistémico que no ves. No es un problema de disciplina o estrategia. Es una configuración de origen que frena tu ejecución.
-        </p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-card-title">La identidad fusionada</div>
-        <p class="problem-card-text">
-          Tu identidad está atrapada en tus logros. Cuando desciendes la presión, desapareces. El siguiente nivel requiere que seas antes de que hagas.
-        </p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-card-title">El sabotaje encubierto</div>
-        <p class="problem-card-text">
-          Tomas decisiones que frenan tu propio crecimiento sin entender por qué. No es falta de voluntad. Es un protocolo de protección que opera sin tu consentimiento consciente.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ QUÉ ES ═══════ -->
-<section class="features-section">
-  <div class="container">
-    <div class="fade-in">
-      <div class="label" style="text-align: center;">Sistema integrado</div>
-      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center; max-width: 800px; margin: 0 auto;">
-        Tres sistemas de diagnóstico, uno solo reporte.
+    <div class="reveal">
+      <div class="label">Metodología</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
+        Cuatro fases. Sin ambigüedad.
       </h2>
     </div>
-
-    <div class="features-grid fade-in" style="transition-delay: 0.15s;">
-      <div class="feature-item">
-        <div class="feature-icon">🪐</div>
-        <div class="feature-title">Carta Astral</div>
-        <div class="feature-desc">
-          Tu carta natal como sistema operativo: planetas, casas, aspectos. Cómo está configurado tu hardware psicológico desde el origen.
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🔢</div>
-        <div class="feature-title">Numerología</div>
-        <div class="feature-desc">
-          Los patrones numéricos de tu nombre y fecha: camino de vida, número de expresión, del alma. Tu configuración operativa en código.
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">✦</div>
-        <div class="feature-title">Matriz del Destino</div>
-        <div class="feature-desc">
-          Los arcanos que rigen tu evolución: puntos de poder, linajes, canales de abundancia. Tu secuencia de transformación hasta los 80 años.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ PROCESO ═══════ -->
-<section id="proceso" class="process-section">
-  <div class="container">
-    <div class="fade-in">
-      <div class="label" style="text-align: center;">Metodología</div>
-      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center;">
-        Cuatro fases de diagnóstico.
-      </h2>
-    </div>
-
-    <div class="process-steps fade-in" style="transition-delay: 0.15s;">
-      <div class="step-card">
-        <div class="step-number">1</div>
+    <div class="proceso-steps reveal reveal-delay-1">
+      <div class="proceso-step">
+        <div class="step-dot">01</div>
         <div class="step-title">Recopilación</div>
-        <p class="step-desc">
-          Datos precisos: nombre, fecha, hora y lugar de nacimiento. Sin estos parámetros, no hay diagnóstico posible.
-        </p>
+        <p class="step-text">Nombre, fecha, hora y lugar de nacimiento exactos. Sin estos parámetros no hay diagnóstico posible.</p>
       </div>
-      <div class="step-card">
-        <div class="step-number">2</div>
+      <div class="proceso-step">
+        <div class="step-dot">02</div>
         <div class="step-title">Análisis</div>
-        <p class="step-desc">
-          Integramos datos astrológicos, numerológicos y arcánicos. Generamos tu perfil técnico de configuración.
-        </p>
+        <p class="step-text">Los tres motores procesan los datos en paralelo y generan tu perfil técnico de configuración.</p>
       </div>
-      <div class="step-card">
-        <div class="step-number">3</div>
+      <div class="proceso-step">
+        <div class="step-dot">03</div>
         <div class="step-title">Síntesis</div>
-        <p class="step-desc">
-          Transformamos datos en lenguaje ejecutable. Cada párrafo es un instrumento diagnóstico, no decoración.
-        </p>
+        <p class="step-text">Transformamos datos en lenguaje ejecutable. Cada párrafo es un instrumento diagnóstico.</p>
       </div>
-      <div class="step-card">
-        <div class="step-number">4</div>
+      <div class="proceso-step">
+        <div class="step-dot">04</div>
         <div class="step-title">Entrega</div>
-        <p class="step-desc">
-          Reporte PDF completo que es tu documento de referencia permanente. Nunca envejece. Se aplica por vida.
-        </p>
+        <p class="step-text">Reporte PDF en menos de 2 minutos. Tu documento de referencia permanente. Nunca envejece.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ PRICING ═══════ -->
+<!-- ═══ PRICING ═══ -->
 <section id="pricing" class="pricing-section">
   <div class="container">
-    <div class="fade-in">
-      <div class="label" style="text-align: center;">Inversión</div>
-      <h2 class="display" style="font-size: clamp(2rem, 5vw, 3rem); text-align: center;">
-        Sin sorpresas ocultas.
+    <div class="reveal">
+      <div class="label">Inversión</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,3rem);">
+        Dos niveles de diagnóstico.
       </h2>
     </div>
-
-    <div class="pricing-grid fade-in" style="transition-delay: 0.15s;">
-      <!-- Plan Esencial -->
+    <div class="pricing-grid reveal reveal-delay-1">
       <div class="price-card">
-        <div class="price-label">Plan Esencial</div>
+        <div class="price-label-top">Plan Esencial</div>
         <div class="price-amount"><sup>$</sup>55</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
@@ -837,14 +418,10 @@
           <li>Matriz del Destino (resumen)</li>
           <li>Reporte PDF personalizado</li>
         </ul>
-        <a href="checkout.html" class="btn btn-primary btn-lg price-btn">Seleccionar plan</a>
-        <p class="price-note">Ideal para comenzar</p>
+        <a href="checkout.html" class="btn btn-dark btn-lg" style="width:100%;justify-content:center;">Seleccionar plan</a>
       </div>
-
-      <!-- Plan Completo -->
       <div class="price-card featured">
-        <div class="price-badge">Recomendado</div>
-        <div class="price-label">Plan Completo</div>
+        <div class="price-label-top">Plan Completo — Recomendado</div>
         <div class="price-amount"><sup>$</sup>111</div>
         <div class="price-currency">USD · Pago único</div>
         <div class="price-divider"></div>
@@ -852,101 +429,207 @@
           <li>20 bloques de diagnóstico</li>
           <li>Análisis de profundidad radical</li>
           <li>Matriz completa + cronología</li>
-          <li>Patrones de relaciones y dinero</li>
-          <li>Plan de acción personalizado</li>
+          <li>Patrones relacionales y financieros</li>
+          <li>Plan de acción ejecutable</li>
           <li>Reporte PDF de 80+ páginas</li>
         </ul>
-        <a href="checkout.html" class="btn btn-sand btn-lg price-btn">Comenzar análisis</a>
-        <p class="price-note">Análisis integral</p>
+        <a href="checkout.html" class="btn btn-sand btn-lg" style="width:100%;justify-content:center;">Comenzar análisis</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ CTA FINAL ═══════ -->
+<!-- ═══ CTA FINAL ═══ -->
 <section class="cta-section">
-  <div class="container">
-    <div class="cta-content fade-in">
-      <h2 class="display cta-headline">
-        El autoconocimiento no es un lujo.<br>
-        Es una estrategia.
-      </h2>
-      <p class="cta-subheadline">
-        Comienza ahora. 20 minutos de recopilación. Un reporte que será tu referencia por vida.
-      </p>
+  <div class="container reveal">
+    <div class="label" style="color:rgba(200,184,154,0.6);">¿Listo para el diagnóstico?</div>
+    <h2 class="display cta-headline">
+      El autoconocimiento<br>no es un lujo.<br>
+      <em style="color:var(--sand);font-style:italic;">Es una estrategia.</em>
+    </h2>
+    <p class="cta-sub">20 minutos de recopilación. Un reporte que usarás por vida.</p>
+    <div class="cta-actions">
       <a href="checkout.html" class="btn btn-sand btn-lg">Acceder al diagnóstico</a>
+      <a href="#problema" class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);">Conoce el sistema</a>
     </div>
   </div>
 </section>
 
-<!-- ═══════ FOOTER ═══════ -->
+<!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="container">
-    <p>© 2026 I.M. Consulting — Ingeniería Humana de Alto Rendimiento · Hermosillo, Sonora, México</p>
+    <div class="footer-inner">
+      <div class="footer-logo">I<em>.</em>M<em>.</em> Consulting</div>
+      <div class="footer-copy">© 2026 IM Consulting · Hermosillo, Sonora, México</div>
+    </div>
   </div>
 </footer>
-
-<!-- ═══════ SCRIPTS ═══════ -->
+<!-- ═══ SCRIPTS ═══ -->
 <script>
-  // Navbar scroll effect
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 20);
-  });
+// ── Navbar scroll ──────────────────────────────────────────
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
 
-  // Menu toggle
-  const menuBtn = document.getElementById('menuBtn');
-  const menuPanel = document.getElementById('menuPanel');
+// ── Mobile menu ────────────────────────────────────────────
+const menuBtn     = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
 
-  function openMenu() {
-    menuPanel.classList.add('open');
-    menuBtn.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeMenu() {
-    menuPanel.classList.remove('open');
-    menuBtn.classList.remove('open');
+menuBtn.addEventListener('click', () => {
+  menuOverlay.classList.toggle('open');
+  document.body.style.overflow = menuOverlay.classList.contains('open') ? 'hidden' : '';
+});
+menuOverlay.addEventListener('click', e => {
+  if (e.target === menuOverlay) {
+    menuOverlay.classList.remove('open');
     document.body.style.overflow = '';
   }
-
-  menuBtn.addEventListener('click', () => {
-    menuPanel.classList.contains('open') ? closeMenu() : openMenu();
+});
+menuOverlay.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    menuOverlay.classList.remove('open');
+    document.body.style.overflow = '';
   });
+});
 
-  // Close on panel click
-  menuPanel.addEventListener('click', (e) => {
-    if (e.target === menuPanel) closeMenu();
+// ── Reveal on scroll ───────────────────────────────────────
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
   });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // Close on Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
+// ── Smooth scroll ──────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (!t) return;
+    e.preventDefault();
+    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 72, behavior: 'smooth' });
   });
+});
 
-  // Fade-in on scroll
-  const fadeEls = document.querySelectorAll('.fade-in');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+// ── THREE.JS — Geometric wireframe ─────────────────────────
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
 
-  fadeEls.forEach(el => io.observe(el));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
 
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (!target) return;
-      e.preventDefault();
-      const top = target.getBoundingClientRect().top + window.scrollY - 76;
-      window.scrollTo({ top, behavior: 'smooth' });
-    });
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 5);
+
+  const matWire = new THREE.MeshBasicMaterial({
+    color: 0xC8B89A, wireframe: true, opacity: 0.18, transparent: true
   });
+  const matLine = new THREE.LineBasicMaterial({
+    color: 0xC8B89A, opacity: 0.35, transparent: true
+  });
+  const matDot = new THREE.MeshBasicMaterial({ color: 0xC8B89A });
+
+  // Icosaedro principal
+  const geoMain  = new THREE.IcosahedronGeometry(1.6, 1);
+  const meshMain = new THREE.Mesh(geoMain, matWire);
+  scene.add(meshMain);
+
+  // Octaedro interior
+  const meshInner = new THREE.Mesh(
+    new THREE.OctahedronGeometry(1.0, 2),
+    new THREE.MeshBasicMaterial({ color: 0x1A1A1A, wireframe: true, opacity: 0.08, transparent: true })
+  );
+  scene.add(meshInner);
+
+  // Anillos orbitales
+  const ring1 = new THREE.Mesh(
+    new THREE.TorusGeometry(2.2, 0.004, 2, 80),
+    new THREE.MeshBasicMaterial({ color: 0xC8B89A, opacity: 0.2, transparent: true })
+  );
+  ring1.rotation.x = Math.PI / 3;
+  scene.add(ring1);
+
+  const ring2 = new THREE.Mesh(
+    new THREE.TorusGeometry(1.8, 0.003, 2, 80),
+    new THREE.MeshBasicMaterial({ color: 0xC8B89A, opacity: 0.12, transparent: true })
+  );
+  ring2.rotation.x = Math.PI / 2;
+  ring2.rotation.y = Math.PI / 4;
+  scene.add(ring2);
+
+  // Dots en vértices
+  const pos    = geoMain.attributes.position;
+  const dotGeo = new THREE.SphereGeometry(0.018, 6, 6);
+  for (let i = 0; i < pos.count; i += 2) {
+    const dot = new THREE.Mesh(dotGeo, matDot);
+    dot.position.set(pos.getX(i), pos.getY(i), pos.getZ(i));
+    scene.add(dot);
+  }
+
+  // Ejes de referencia
+  const mkLine = (x1,y1,z1,x2,y2,z2) => {
+    const g = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x1,y1,z1), new THREE.Vector3(x2,y2,z2)
+    ]);
+    return new THREE.Line(g, matLine);
+  };
+  scene.add(mkLine(-2.8,0,0, 2.8,0,0));
+  scene.add(mkLine(0,-2.8,0, 0,2.8,0));
+  scene.add(mkLine(0,0,-2.8, 0,0,2.8));
+
+  // Partículas flotantes
+  const ptCount = 80;
+  const ptPos   = new Float32Array(ptCount * 3);
+  for (let i = 0; i < ptCount; i++) {
+    const r     = 2.5 + Math.random() * 1.5;
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    ptPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    ptPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    ptPos[i*3+2] = r * Math.cos(phi);
+  }
+  const ptGeo = new THREE.BufferGeometry();
+  ptGeo.setAttribute('position', new THREE.BufferAttribute(ptPos, 3));
+  const pts = new THREE.Points(ptGeo, new THREE.PointsMaterial({
+    color: 0xC8B89A, size: 0.025, transparent: true, opacity: 0.5
+  }));
+  scene.add(pts);
+
+  // Resize
+  const resize = () => {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  };
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+
+  // Mouse parallax
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth  - 0.5) * 0.4;
+    my = (e.clientY / window.innerHeight - 0.5) * 0.4;
+  }, { passive: true });
+
+  // Animate
+  const clock = new THREE.Clock();
+  (function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    meshMain.rotation.y  = t * 0.08 + mx;
+    meshMain.rotation.x  = t * 0.04 + my;
+    meshInner.rotation.y = -t * 0.12;
+    meshInner.rotation.z =  t * 0.06;
+    ring1.rotation.z     = t * 0.05;
+    ring2.rotation.x     = Math.PI / 2 + t * 0.07;
+    pts.rotation.y       = t * 0.03;
+    renderer.render(scene, camera);
+  })();
+})();
 </script>
 
 </body>
