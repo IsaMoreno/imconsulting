@@ -1,0 +1,15 @@
+node_modules/
+graphify-out/
+.codegraph/
+.git/
+__pycache__/
+*.pyc
+.env
+.env.local
+tmp/
+/tmp/
+*.log
+*.pdf
+*.png
+*.jpg
+*.jpeg

@@ -29,6 +29,10 @@ build/
 # Reports output
 /report/output/
 
+# Índices locales de desarrollo (no versionar)
+.codegraph/
+graphify-out/
+
 # OS
 .DS_Store
 Thumbs.db

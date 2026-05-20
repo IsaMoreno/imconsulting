@@ -30,7 +30,7 @@ Sistema completamente automatizado que genera reportes personalizados de autocon
 
 
 
-Cliente paga (Stripe) → webhook.js → dataset.py → template-injector.js → html-to-pdf.js → Resend → ✅ PDF
+Cliente paga (Stripe) → webhook.js → generate-report.js (Claude) → generarHtmlDeBloques() → send-email.js (Resend) → ✅ Email con link de descarga
 
 
 
