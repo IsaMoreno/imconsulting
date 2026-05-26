@@ -116,12 +116,16 @@ def build_dataset(
     return dataset
 
 if __name__ == "__main__":
+    import os
     geo = CITIES["hermosillo"]
     dataset = build_dataset(
-        name="Isaac Moreno",
-        day=11, month=2, year=1994,
-        hour=1, minute=5,
+        name="Priscilla Moreno",
+        day=1, month=11, year=1990,
+        hour=11, minute=7,
         **geo,
         comprimir=True,
     )
-    print(json.dumps(dataset, ensure_ascii=False, indent=2))
+    os.makedirs("tmp", exist_ok=True)
+    with open("tmp/priscilla_dataset.json", "w", encoding="utf-8") as f:
+        json.dump(dataset, f, ensure_ascii=False, indent=2)
+    print("✅ Dataset guardado en tmp/priscilla_dataset.json")
