@@ -36,3 +36,5 @@ graphify-out/
 # OS
 .DS_Store
 Thumbs.db
+generate-pdf-local.js
+test-local.js
