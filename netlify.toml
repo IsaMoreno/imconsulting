@@ -23,4 +23,5 @@
   status = 200
   [build.environment]
   
-  SECRETS_SCAN_OMIT_PATHS = "public/checkout.html,public/confirmation.html,api/webhook.js"
+  SECRETS_SCAN_OMIT_PATHS = "public/checkout.html,public/confirmation.html,api/webhook.js,.env.example"
+  SECRETS_SCAN_OMIT_KEYS = "ISAAC_EMAIL,REPORT_EMAIL_FROM"

@@ -159,7 +159,7 @@ IM Consulting
     // from: dominio verificado en Resend (onboarding@resend.dev mientras no está imconsulting.me)
     // reply_to: Gmail temporal hasta adquirir dominio imconsulting.me
     const response = await resend.emails.send({
-      from: process.env.REPORT_EMAIL_FROM || 'IM Consulting <onboarding@resend.dev>',
+      from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to: to,
       subject: `Tu Reporte IM Consulting (${planNombre}) está listo para descargar`,
       html: htmlContent,
