@@ -36,5 +36,19 @@ graphify-out/
 # OS
 .DS_Store
 Thumbs.db
+
+# Scripts de desarrollo local
 generate-pdf-local.js
 test-local.js
+test_webhook*.js
+
+# Archivos temporales de sesión / parches
+*.bak
+*.bak-*
+*.bak[0-9]
+patch-*.js
+limpiar-*.js
+integrar-graficos.js
+engine_matriz_nuevo.py
+generar-bloques-faltantes.js
+engine/generate_pdf.py

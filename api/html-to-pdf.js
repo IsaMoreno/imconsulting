@@ -1,18 +1,18 @@
 /**
  * HTMLtoPDF.js
  * IM Consulting — HTML to PDF Converter
- * 
- * Usa Chrome que ya está instalado en Windows
+ *
+ * Usa @sparticuz/chromium para entornos serverless (Netlify Functions)
  */
 
 const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const path = require('path');
 const fs = require('fs');
 
 class HTMLtoPDF {
   constructor(options = {}) {
     this.options = {
-      headless: options.headless !== false,
       timeout: options.timeout || 30000,
       format: options.format || 'A4',
       margin: options.margin || {
@@ -21,50 +21,34 @@ class HTMLtoPDF {
         bottom: '15mm',
         left: '15mm'
       },
-      printBackground: options.printBackground !== false,
-      chromeExecutablePath: options.chromeExecutablePath || this._findChrome()
+      printBackground: options.printBackground !== false
     };
-  }
-
-  _findChrome() {
-    // Rutas comunes de Chrome en Windows
-    const possiblePaths = [
-      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-      process.env.CHROME_PATH
-    ];
-
-    for (const path of possiblePaths) {
-      if (path && fs.existsSync(path)) {
-        console.log(`✅ Chrome encontrado en: ${path}`);
-        return path;
-      }
-    }
-
-    throw new Error('Chrome no encontrado. Instala Chrome o establece CHROME_PATH');
   }
 
   async convertToPDF(htmlContent, pdfOptions = {}) {
     let browser;
     try {
-      console.log('🌐 Conectando a Chrome...');
+      console.log('🌐 Iniciando Chromium serverless...');
       browser = await puppeteer.launch({
-        headless: this.options.headless,
-        executablePath: this.options.chromeExecutablePath,
         args: [
+          ...chromium.args,
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage'
-        ]
+          '--disable-dev-shm-usage',
+          '--single-process'
+        ],
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless
       });
 
       console.log('📄 Creando página...');
       const page = await browser.newPage();
 
       await page.setViewport({
-        width: 1200,
-        height: 1600,
-        deviceScaleFactor: 1
+        width: 816,
+        height: 1056,
+        deviceScaleFactor: 2
       });
 
       console.log('💉 Inyectando HTML...');
@@ -77,10 +61,10 @@ class HTMLtoPDF {
 
       console.log('📑 Generando PDF...');
       const pdfBuffer = await page.pdf({
-        format: pdfOptions.format || this.options.format,
-        margin: pdfOptions.margin || this.options.margin,
+        format: pdfOptions.format || 'Letter',
+        margin: pdfOptions.margin || { top: '0', right: '0', bottom: '0', left: '0' },
         printBackground: pdfOptions.printBackground !== false,
-        preferCSSPageSize: true
+        preferCSSPageSize: false
       });
 
       await page.close();
