@@ -34,19 +34,30 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const { paymentMethodId, plan, amount, cliente } = body;
+    const { paymentMethodId, plan, cliente } = body;
 
-    if (!paymentMethodId || !plan || !amount || !cliente) {
+    if (!paymentMethodId || !plan || !cliente) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Datos incompletos' })
       };
     }
 
-    if (!['esencial', 'completo'].includes(plan)) {
+    // Prices defined server-side — never trust amount from client
+    const PLAN_PRICES = { esencial: 5500, completo: 11100 };
+    if (!PLAN_PRICES[plan]) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Plan inválido' })
+      };
+    }
+    const amount = PLAN_PRICES[plan];
+
+    // Basic email validation
+    if (!cliente.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cliente.email)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Email inválido' })
       };
     }
 
@@ -54,7 +65,7 @@ exports.handler = async (event, context) => {
     console.log(`[${id_pedido}] Iniciando procesamiento...`);
 
     console.log(`[${id_pedido}] Confirmando pago de $${amount / 100}...`);
-    
+
     let paymentIntent;
     try {
       paymentIntent = await stripe.paymentIntents.create({
@@ -234,14 +245,24 @@ exports.handler = async (event, context) => {
   }
 };
 
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function generarHtmlDeBloques(bloques, nombreCliente, plan) {
+  const nombreSafe = esc(nombreCliente);
   let html = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reporte IM Consulting - ${nombreCliente}</title>
+  <title>Reporte IM Consulting - ${nombreSafe}</title>
   <style>
     body { font-family: Georgia, serif; margin: 40px; color: #1A1A1A; }
     h1 { color: #C8B89A; letter-spacing: 3px; text-align: center; }
@@ -256,14 +277,14 @@ function generarHtmlDeBloques(bloques, nombreCliente, plan) {
 <body>
   <h1>R E P O R T E  D E  A U T O C O N O C I M I E N T O</h1>
   <p style="text-align: center; color: #C8B89A; font-size: 18px;">✦</p>
-  <h2>Reporte para ${nombreCliente}</h2>
+  <h2>Reporte para ${nombreSafe}</h2>
   <p style="text-align: center; color: #999;">Plan: ${plan === '$55' ? 'Esencial' : 'Completo'}</p>
 `;
 
   bloques.forEach((bloque, idx) => {
     html += `
   <div class="bloque">
-    <div class="bloque-titulo">${idx + 1}. ${bloque.nombre || bloque.bloque}</div>
+    <div class="bloque-titulo">${idx + 1}. ${esc(bloque.nombre || bloque.bloque)}</div>
     <div class="bloque-contenido">${bloque.contenido || '[Contenido no disponible]'}</div>
     <div class="pregunta">✦ Pregunta de poder: Reflexiona sobre este aspecto en tu vida.</div>
   </div>
