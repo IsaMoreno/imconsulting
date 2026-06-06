@@ -108,7 +108,7 @@ async function sendEmailReporte(to, nombreCliente, id_pedido, plan) {
       </div>
 
       <p style="color: #999; font-size: 13px;">
-        <em>El enlace expira en 7 días. Si tienes problemas descargando, contacta a support@imconsulting.me</em>
+        <em>El enlace expira en 7 días. Si tienes problemas descargando, contacta a imconsulting.me@gmail.com</em>
       </p>
 
       <div class="info-box" style="background: #fffbf0; border-left-color: #C8B89A;">
@@ -131,7 +131,7 @@ async function sendEmailReporte(to, nombreCliente, id_pedido, plan) {
       <p>Hermosillo, Sonora, México</p>
       <p style="margin-top: 15px;">
         <a href="https://imconsulting.me" style="color: #C8B89A; text-decoration: none;">Visita nuestro sitio</a> | 
-        <a href="mailto:support@imconsulting.me" style="color: #C8B89A; text-decoration: none;">Contacto</a>
+        <a href="mailto:imconsulting.me@gmail.com" style="color: #C8B89A; text-decoration: none;">Contacto</a>
       </p>
     </div>
   </div>
@@ -156,13 +156,15 @@ IM Consulting
     `.trim();
 
     // Enviar con Resend
+    // from: dominio verificado en Resend (onboarding@resend.dev mientras no está imconsulting.me)
+    // reply_to: Gmail temporal hasta adquirir dominio imconsulting.me
     const response = await resend.emails.send({
-      from: 'noreply@imconsulting.me', // Cambiar según tu dominio en Resend
+      from: process.env.REPORT_EMAIL_FROM || 'IM Consulting <onboarding@resend.dev>',
       to: to,
       subject: `Tu Reporte IM Consulting (${planNombre}) está listo para descargar`,
       html: htmlContent,
       text: textContent,
-      reply_to: 'support@imconsulting.me'
+      reply_to: 'imconsulting.me@gmail.com'
     });
 
     console.log(`[EMAIL] ✅ Enviado a ${to} | MessageID: ${response.id}`);
