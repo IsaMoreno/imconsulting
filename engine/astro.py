@@ -20,9 +20,24 @@ PLANETS_ES = {
 
 PLANETS = list(PLANETS_ES.keys())
 
+# Signs grouped by element (Spanish names, after SIGN_ES translation)
+ELEMENT_MAP = {
+    "fuego": {"Aries", "Leo", "Sagitario"},
+    "tierra": {"Tauro", "Virgo", "Capricornio"},
+    "aire": {"Géminis", "Libra", "Acuario"},
+    "agua": {"Cáncer", "Escorpio", "Piscis"},
+}
+
 
 def _sign_es(sign: str) -> str:
     return SIGN_ES.get(sign, sign)
+
+
+def _element_of(sign_es: str) -> str:
+    for element, signs in ELEMENT_MAP.items():
+        if sign_es in signs:
+            return element
+    return "desconocido"
 
 
 def compute_astro(
@@ -48,6 +63,13 @@ def compute_astro(
             "retrograde": bool(obj.retrograde),
         }
 
+    # Elemental balance — count across all 10 planets
+    balance = {"fuego": 0, "tierra": 0, "aire": 0, "agua": 0}
+    for p in planets.values():
+        el = _element_of(p["sign"])
+        if el in balance:
+            balance[el] += 1
+
     return {
         "planets": planets,
         "ascendant": {
@@ -58,4 +80,5 @@ def compute_astro(
             "sign": _sign_es(subject.tenth_house.sign),
             "degrees": round(subject.tenth_house.position, 2),
         },
+        "balance": balance,
     }
