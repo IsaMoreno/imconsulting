@@ -1,0 +1,30 @@
+{
+  "_meta": "Metadato interno. NUNCA imprimir ni exponer al cliente. Regla de contradicción: gana prioridad MENOR.",
+  "_regla_contradiccion": "Si dos herramientas dan anclas opuestas, prevalece la de menor número de prioridad.",
+  "herramientas": {
+    "kabbalah": {
+      "prioridad": 1,
+      "ancla_universal": "lo que aprendiste a ser"
+    },
+    "numerologia": {
+      "prioridad": 2,
+      "ancla_universal": "con lo que llegaste"
+    },
+    "astrologia": {
+      "prioridad": 3,
+      "ancla_universal": "cómo ves el mundo y cómo el mundo te ve"
+    },
+    "matriz": {
+      "prioridad": 4,
+      "ancla_universal": "el mapa de lo que ya pasó y lo que puede pasar"
+    },
+    "descodificacion": {
+      "prioridad": 5,
+      "ancla_universal": "lo que te frena sin que lo veas"
+    },
+    "neuro": {
+      "prioridad": 6,
+      "ancla_universal": "cómo tu mente convierte creencia en hábito"
+    }
+  }
+}
