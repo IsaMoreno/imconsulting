@@ -9,6 +9,10 @@
 [functions."*"]
   included_files = ["engine/**", "prompts/**"]
 
+# Función Python — excluir de esbuild, runtime propio
+[functions."compute_dataset"]
+  included_files = ["engine/**"]
+
 [dev]
   functions = "api"
 
