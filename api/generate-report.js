@@ -11,6 +11,22 @@ const { registrarConsumo }     = require('./track-tokens');
 // ── Paths ─────────────────────────────────────────────────────────────────────
 const PROMPTS_DIR = path.join(__dirname, '..', 'prompts');
 
+// ── Árbol de la Vida — anclas universales por herramienta ─────────────────────
+let ARBOL_DATA = { herramientas: {} };
+try {
+  ARBOL_DATA = JSON.parse(
+    fs.readFileSync(path.join(PROMPTS_DIR, '03_ARBOL.json'), 'utf8')
+  );
+} catch { /* no bloquear si falta */ }
+
+function getAnclaUniversal() {
+  const tools = ARBOL_DATA.herramientas || {};
+  // La herramienta de menor prioridad gana (regla de contradicción)
+  const dominante = Object.values(tools).sort((a, b) => a.prioridad - b.prioridad)[0];
+  if (!dominante) return '';
+  return `Ancla: ${dominante.ancla_universal}. Escribe en lenguaje cotidiano, sin nombrar sistemas, frases cortas y directas.`;
+}
+
 // ── Anthropic client ──────────────────────────────────────────────────────────
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -110,10 +126,11 @@ function extractKabbRow(signo) {
 }
 
 // ── Build user message for Claude ─────────────────────────────────────────────
-function buildUserMessage(codigo, cliente, dataset) {
+function buildUserMessage(codigo, cliente, dataset, sugerenciaCorreccion = null) {
   const signoSolar = dataset.signo_solar || 'Desconocido';
   const zoharRow   = extractZoharRow(codigo);
   const kabbRow    = extractKabbRow(signoSolar);
+  const ancla      = getAnclaUniversal();
 
   let msg =
     `Cliente: ${cliente.nombre}\n` +
@@ -123,6 +140,14 @@ function buildUserMessage(codigo, cliente, dataset) {
 
   if (BLOQUES_CON_EVENTOS.has(codigo) && cliente.eventos_cruzados?.length) {
     msg += `\n\nEventos cruzados:\n${JSON.stringify(cliente.eventos_cruzados, null, 2)}`;
+  }
+
+  if (ancla) {
+    msg += `\n\n${ancla}`;
+  }
+
+  if (sugerenciaCorreccion) {
+    msg += `\n\nCORRECCIÓN REQUERIDA: ${sugerenciaCorreccion}`;
   }
 
   msg += `\n\nDesarrolla ${codigo}: ${BLOQUES_META[codigo]}`;
@@ -145,12 +170,14 @@ async function callBloque(codigo, cliente, dataset) {
   }
 
   // 2. GENERAR CON CLAUDE
-  const userContent = buildUserMessage(codigo, cliente, dataset);
   let lastError;
   let respuestaFinal = null;
+  let sugerenciaPendiente = null;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     if (attempt > 1) await sleep(3000);
+
+    const userContent = buildUserMessage(codigo, cliente, dataset, sugerenciaPendiente);
 
     try {
       const res = await anthropic.messages.create({
@@ -170,6 +197,9 @@ async function callBloque(codigo, cliente, dataset) {
 
       // 3. AUDITAR BLOQUE
       const auditoria = auditarBloque(respuestaFinal, codigo);
+
+      // Propagar sugerencia del criterio 9 al siguiente intento
+      sugerenciaPendiente = auditoria.sugerencia || null;
 
       if (auditoria.passed) {
         console.log(`✅ ${codigo} pasó auditoría`);
