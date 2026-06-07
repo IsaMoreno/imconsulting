@@ -12,13 +12,42 @@
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const crypto = require('crypto');
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
+const { execFile } = require('child_process');
 const { sendEmailReporte } = require('./send-email');
 const TemplateInjector = require('./template-injector');
 const HTMLtoPDF = require('./html-to-pdf');
 
-const TEMPLATE_PATH = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
+const TEMPLATE_PATH  = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
+const DATASET_SCRIPT = path.join(__dirname, '..', 'engine', 'dataset.py');
+
+// Llama a dataset.py con los datos crudos del cliente y devuelve el dataset estructurado
+function buildDataset(cliente) {
+  return new Promise((resolve, reject) => {
+    const [day, month, year] = (cliente.fechaNacimiento || '').split('-').map(Number);
+    const [hour, minute]     = (cliente.horaNacimiento  || '00:00').split(':').map(Number);
+    const args = [
+      DATASET_SCRIPT,
+      '--nombre', cliente.nombre || '',
+      '--day',    String(day   || 1),
+      '--month',  String(month || 1),
+      '--year',   String(year  || 2000),
+      '--hour',   String(hour  || 0),
+      '--minute', String(minute || 0),
+      '--ciudad', cliente.ciudad || 'Hermosillo',
+      '--pais',   cliente.pais   || 'México',
+    ];
+    execFile('python', args, { timeout: 30000 }, (err, stdout, stderr) => {
+      if (err) return reject(new Error(`dataset.py: ${stderr || err.message}`));
+      try {
+        resolve(JSON.parse(stdout));
+      } catch {
+        reject(new Error(`dataset.py output no es JSON válido: ${stdout.slice(0, 200)}`));
+      }
+    });
+  });
+}
 
 exports.handler = async (event, context) => {
   try {
@@ -108,29 +137,18 @@ exports.handler = async (event, context) => {
 
     console.log(`[${id_pedido}] ✅ Pago confirmado`);
 
-    console.log(`[${id_pedido}] Generando dataset completo...`);
-    
-    const datasetCompleto = {
-      nombre: cliente.nombre || 'Cliente',
-      edad: cliente.edad || 30,
-      signo_solar: cliente.signo_solar || 'Acuario',
-      ascendente: cliente.ascendente || 'Escorpio',
-      mc: cliente.mc || 'Leo',
-      camino_vida: cliente.camino_vida || 9,
-      numero_expresion: cliente.numero_expresion || 7,
-      numero_alma: cliente.numero_alma || 5,
-      numero_personalidad: cliente.numero_personalidad || 22,
-      punto_a: cliente.punto_a || 1,
-      punto_b: cliente.punto_b || 2,
-      punto_c: cliente.punto_c || 3,
-      punto_d: cliente.punto_d || 4,
-      punto_e: cliente.punto_e || 5,
-      ciudad: cliente.ciudad || 'Hermosillo',
-      pais: cliente.pais || 'México',
-      eventos_cruzados: cliente.eventos_cruzados || []
-    };
-    
-    console.log(`[${id_pedido}] ✅ Dataset completado`);
+    console.log(`[${id_pedido}] Generando dataset completo con engine/dataset.py...`);
+    let datasetCompleto;
+    try {
+      datasetCompleto = await buildDataset(cliente);
+      console.log(`[${id_pedido}] ✅ Dataset completado — signo solar: ${datasetCompleto.resumen?.signo_solar || '?'}`);
+    } catch (dsErr) {
+      console.error(`[${id_pedido}] ❌ dataset.py falló: ${dsErr.message}`);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ success: false, error: 'Error calculando datos astrológicos.' }),
+      };
+    }
 
     console.log(`[${id_pedido}] Generando ${plan === 'esencial' ? 14 : 20} bloques...`);
     
@@ -146,11 +164,11 @@ exports.handler = async (event, context) => {
         cliente: {
           nombre: cliente.nombre,
           email: cliente.email,
-          edad: cliente.edad,
+          edad: datasetCompleto.resumen?.edad || null,
           plan: plan,
           eventos_cruzados: cliente.eventos_cruzados || []
         },
-        dataset: datasetCompleto
+        dataset: datasetCompleto.resumen || datasetCompleto,
       };
       
       console.log(`[${id_pedido}] 📤 Llamando a generate-report.js...`);
@@ -187,17 +205,13 @@ exports.handler = async (event, context) => {
     try {
       const injector = new TemplateInjector(TEMPLATE_PATH);
       const dataset = {
-        cliente: {
-          nombre: cliente.nombre,
-          email: cliente.email,
-          plan: plan === '$55' ? 'esencial' : 'completo',
-        },
-        astro:       datasetCompleto,
-        numerologia: datasetCompleto,
-        matriz:      datasetCompleto,
+        cliente:     { ...datasetCompleto.cliente, email: cliente.email, plan },
+        astro:       datasetCompleto.astro,
+        numerologia: datasetCompleto.numerologia,
+        matriz:      datasetCompleto.matriz,
         bloques_html: bloques.map(b => ({ codigo: b.bloque, contenido: b.contenido })),
       };
-      html = injector.render(dataset, { plan: plan === '$55' ? 'esencial' : 'completo' });
+      html = injector.render(dataset, { plan });
       console.log(`[${id_pedido}] ✅ HTML inyectado con TemplateInjector`);
     } catch (tplError) {
       console.warn(`[${id_pedido}] ⚠️ TemplateInjector falló (${tplError.message}), usando fallback`);

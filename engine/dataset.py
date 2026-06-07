@@ -117,15 +117,47 @@ def build_dataset(
 
 if __name__ == "__main__":
     import os
-    geo = CITIES["hermosillo"]
-    dataset = build_dataset(
-        name="Priscilla Moreno",
-        day=1, month=11, year=1990,
-        hour=11, minute=7,
-        **geo,
-        comprimir=True,
-    )
-    os.makedirs("tmp", exist_ok=True)
-    with open("tmp/priscilla_dataset.json", "w", encoding="utf-8") as f:
-        json.dump(dataset, f, ensure_ascii=False, indent=2)
-    print("✅ Dataset guardado en tmp/priscilla_dataset.json")
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--nombre',  default=None)
+    parser.add_argument('--day',     type=int, default=None)
+    parser.add_argument('--month',   type=int, default=None)
+    parser.add_argument('--year',    type=int, default=None)
+    parser.add_argument('--hour',    type=int, default=None)
+    parser.add_argument('--minute',  type=int, default=None)
+    parser.add_argument('--ciudad',  default=None)
+    parser.add_argument('--pais',    default=None)
+    args = parser.parse_args()
+
+    # Modo API: todos los args provistos → imprimir JSON a stdout
+    if args.nombre is not None:
+        # Geocodificación simple: intentar ciudad conocida, sino usar Hermosillo como fallback
+        ciudad_key = (args.ciudad or '').lower()
+        geo = CITIES.get(ciudad_key, CITIES["hermosillo"])
+        dataset = build_dataset(
+            name=args.nombre,
+            day=args.day, month=args.month, year=args.year,
+            hour=args.hour, minute=args.minute,
+            lat=geo["lat"], lng=geo["lng"], tz_str=geo["tz_str"],
+            ciudad=args.ciudad or geo["ciudad"],
+            estado=geo.get("estado", ""),
+            pais=args.pais or geo["pais"],
+            comprimir=False,
+        )
+        # stdout = JSON limpio para Node.js; stderr = logs de compresión
+        print(json.dumps(dataset, ensure_ascii=False))
+    else:
+        # Modo desarrollo: datos hardcoded, guarda en tmp/
+        geo = CITIES["hermosillo"]
+        dataset = build_dataset(
+            name="Priscilla Moreno",
+            day=1, month=11, year=1990,
+            hour=11, minute=7,
+            **geo,
+            comprimir=True,
+        )
+        os.makedirs("tmp", exist_ok=True)
+        with open("tmp/priscilla_dataset.json", "w", encoding="utf-8") as f:
+            json.dump(dataset, f, ensure_ascii=False, indent=2)
+        print("✅ Dataset guardado en tmp/priscilla_dataset.json")
