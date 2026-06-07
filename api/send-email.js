@@ -17,7 +17,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @param {string} plan - Plan: 'esencial' o 'completo'
  * @returns {object} - { success, messageId, error }
  */
-async function sendEmailReporte(to, nombreCliente, id_pedido, plan) {
+async function sendEmailReporte(to, nombreCliente, id_pedido, plan, pdfBuffer = null) {
   try {
     // Validar email
     if (!to || !to.includes('@')) {
@@ -156,16 +156,24 @@ IM Consulting
     `.trim();
 
     // Enviar con Resend
-    // from: dominio verificado en Resend (onboarding@resend.dev mientras no está imconsulting.me)
-    // reply_to: Gmail temporal hasta adquirir dominio imconsulting.me
-    const response = await resend.emails.send({
+    const emailPayload = {
       from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to: to,
-      subject: `Tu Reporte IM Consulting (${planNombre}) está listo para descargar`,
+      bcc: process.env.OWNER_EMAIL || 'its.isaacmoreno@gmail.com',
+      subject: `Tu Reporte IM Consulting (${planNombre}) está listo`,
       html: htmlContent,
       text: textContent,
-      reply_to: 'imconsulting.me@gmail.com'
-    });
+      reply_to: 'imconsulting.me@gmail.com',
+    };
+
+    if (pdfBuffer) {
+      emailPayload.attachments = [{
+        filename: `reporte-im-consulting-${id_pedido.slice(0, 8)}.pdf`,
+        content: pdfBuffer.toString('base64'),
+      }];
+    }
+
+    const response = await resend.emails.send(emailPayload);
 
     console.log(`[EMAIL] ✅ Enviado a ${to} | MessageID: ${response.id}`);
 
@@ -192,10 +200,11 @@ IM Consulting
 /**
  * Simulación de email (cuando RESEND_API_KEY no está configurada)
  */
-function simulateEmail(to, nombreCliente) {
+function simulateEmail(to, nombreCliente, pdfBuffer = null) {
   console.log(`[EMAIL] 📧 SIMULADO: Email a ${to}`);
-  console.log(`[EMAIL] Asunto: Tu Reporte IM Consulting está listo para descargar`);
+  console.log(`[EMAIL] Asunto: Tu Reporte IM Consulting está listo`);
   console.log(`[EMAIL] Destinatario: ${nombreCliente}`);
+  console.log(`[EMAIL] PDF adjunto: ${pdfBuffer ? `${(pdfBuffer.length / 1024).toFixed(0)} KB` : 'no'}`);
   
   return {
     success: true,

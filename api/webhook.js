@@ -13,7 +13,12 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const crypto = require('crypto');
 const fs = require('fs');
+const path = require('path');
 const { sendEmailReporte } = require('./send-email');
+const TemplateInjector = require('./template-injector');
+const HTMLtoPDF = require('./html-to-pdf');
+
+const TEMPLATE_PATH = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
 
 exports.handler = async (event, context) => {
   try {
@@ -178,12 +183,38 @@ exports.handler = async (event, context) => {
     console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados exitosamente`);
 
     console.log(`[${id_pedido}] Inyectando bloques en template HTML...`);
-    const html = generarHtmlDeBloques(bloques, cliente.nombre, plan);
-    console.log(`[${id_pedido}] ✅ HTML inyectado`);
+    let html;
+    try {
+      const injector = new TemplateInjector(TEMPLATE_PATH);
+      const dataset = {
+        cliente: {
+          nombre: cliente.nombre,
+          email: cliente.email,
+          plan: plan === '$55' ? 'esencial' : 'completo',
+        },
+        astro:       datasetCompleto,
+        numerologia: datasetCompleto,
+        matriz:      datasetCompleto,
+        bloques_html: bloques.map(b => ({ codigo: b.bloque, contenido: b.contenido })),
+      };
+      html = injector.render(dataset, { plan: plan === '$55' ? 'esencial' : 'completo' });
+      console.log(`[${id_pedido}] ✅ HTML inyectado con TemplateInjector`);
+    } catch (tplError) {
+      console.warn(`[${id_pedido}] ⚠️ TemplateInjector falló (${tplError.message}), usando fallback`);
+      html = generarHtmlDeBloques(bloques, cliente.nombre, plan);
+    }
 
     console.log(`[${id_pedido}] Convirtiendo a PDF...`);
-    const pdfPath = `/tmp/${id_pedido}_reporte.pdf`;
-    console.log(`[${id_pedido}] ✅ PDF generado: ${pdfPath}`);
+    let pdfBuffer = null;
+    try {
+      const converter = new HTMLtoPDF();
+      pdfBuffer = await converter.convertToPDF(html, { format: 'Letter' });
+      const pdfPath = `/tmp/${id_pedido}_reporte.pdf`;
+      fs.writeFileSync(pdfPath, pdfBuffer);
+      console.log(`[${id_pedido}] ✅ PDF generado: ${(pdfBuffer.length / 1024).toFixed(0)} KB`);
+    } catch (pdfError) {
+      console.warn(`[${id_pedido}] ⚠️ PDF falló (${pdfError.message}), email sin adjunto`);
+    }
 
     console.log(`[${id_pedido}] Enviando email a ${cliente.email}...`);
     let emailResult;
@@ -192,7 +223,8 @@ exports.handler = async (event, context) => {
         cliente.email,
         cliente.nombre,
         id_pedido,
-        plan
+        plan,
+        pdfBuffer
       );
       if (emailResult.success) {
         console.log(`[${id_pedido}] ✅ Email enviado | MessageID: ${emailResult.messageId}`);
