@@ -126,26 +126,28 @@ if __name__ == "__main__":
     parser.add_argument('--year',    type=int, default=None)
     parser.add_argument('--hour',    type=int, default=None)
     parser.add_argument('--minute',  type=int, default=None)
+    parser.add_argument('--lat',     type=float, default=None)
+    parser.add_argument('--lng',     type=float, default=None)
+    parser.add_argument('--tz',      default=None)
     parser.add_argument('--ciudad',  default=None)
     parser.add_argument('--pais',    default=None)
     args = parser.parse_args()
 
-    # Modo API: todos los args provistos → imprimir JSON a stdout
+    # Modo API: nombre provisto → imprimir JSON a stdout para Node.js
     if args.nombre is not None:
-        # Geocodificación simple: intentar ciudad conocida, sino usar Hermosillo como fallback
-        ciudad_key = (args.ciudad or '').lower()
-        geo = CITIES.get(ciudad_key, CITIES["hermosillo"])
         dataset = build_dataset(
             name=args.nombre,
             day=args.day, month=args.month, year=args.year,
             hour=args.hour, minute=args.minute,
-            lat=geo["lat"], lng=geo["lng"], tz_str=geo["tz_str"],
-            ciudad=args.ciudad or geo["ciudad"],
-            estado=geo.get("estado", ""),
-            pais=args.pais or geo["pais"],
+            lat=args.lat or 29.07,
+            lng=args.lng or -110.96,
+            tz_str=args.tz or "America/Hermosillo",
+            ciudad=args.ciudad or "",
+            estado="",
+            pais=args.pais or "",
             comprimir=False,
         )
-        # stdout = JSON limpio para Node.js; stderr = logs de compresión
+        # stdout = JSON limpio para Node.js
         print(json.dumps(dataset, ensure_ascii=False))
     else:
         # Modo desarrollo: datos hardcoded, guarda en tmp/

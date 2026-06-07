@@ -21,12 +21,68 @@ const HTMLtoPDF = require('./html-to-pdf');
 
 const TEMPLATE_PATH  = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
 const DATASET_SCRIPT = path.join(__dirname, '..', 'engine', 'dataset.py');
+const https = require('https');
 
-// Llama a dataset.py con los datos crudos del cliente y devuelve el dataset estructurado
-function buildDataset(cliente) {
+// Geocodifica "Ciudad, País" con Nominatim (OpenStreetMap) — sin API key
+function geocodificar(ciudadTexto) {
+  return new Promise((resolve) => {
+    const q   = encodeURIComponent(ciudadTexto);
+    const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&addressdetails=1`;
+    const req = https.get(url, { headers: { 'User-Agent': 'IMConsulting/1.0 (imconsulting.me@gmail.com)' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const results = JSON.parse(data);
+          if (!results.length) return resolve(null);
+          const r = results[0];
+          resolve({
+            lat:    parseFloat(r.lat),
+            lng:    parseFloat(r.lon),
+            ciudad: r.address?.city || r.address?.town || r.address?.village || ciudadTexto,
+            pais:   r.address?.country || '',
+          });
+        } catch { resolve(null); }
+      });
+    });
+    req.on('error', () => resolve(null));
+    req.setTimeout(8000, () => { req.destroy(); resolve(null); });
+  });
+}
+
+// Resuelve timezone desde lat/lng con la API pública de timezone (timeapi.io)
+function resolverTimezone(lat, lng) {
+  return new Promise((resolve) => {
+    const url = `https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lng}`;
+    const req = https.get(url, { headers: { 'User-Agent': 'IMConsulting/1.0' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const r = JSON.parse(data);
+          resolve(r.timeZone || 'America/Mexico_City');
+        } catch { resolve('America/Mexico_City'); }
+      });
+    });
+    req.on('error', () => resolve('America/Mexico_City'));
+    req.setTimeout(5000, () => { req.destroy(); resolve('America/Mexico_City'); });
+  });
+}
+
+// Llama a dataset.py con coordenadas reales y devuelve el dataset estructurado
+async function buildDataset(cliente) {
+  const [day, month, year] = (cliente.fechaNacimiento || '').split('-').map(Number);
+  const [hour, minute]     = (cliente.horaNacimiento  || '00:00').split(':').map(Number);
+
+  // Geocodificar ciudad
+  const geo = await geocodificar(cliente.ciudad || '');
+  const lat  = geo?.lat  ?? 29.07;
+  const lng  = geo?.lng  ?? -110.96;
+  const tz   = await resolverTimezone(lat, lng);
+  const ciudad = geo?.ciudad || cliente.ciudad || '';
+  const pais   = geo?.pais   || '';
+
   return new Promise((resolve, reject) => {
-    const [day, month, year] = (cliente.fechaNacimiento || '').split('-').map(Number);
-    const [hour, minute]     = (cliente.horaNacimiento  || '00:00').split(':').map(Number);
     const args = [
       DATASET_SCRIPT,
       '--nombre', cliente.nombre || '',
@@ -35,8 +91,11 @@ function buildDataset(cliente) {
       '--year',   String(year  || 2000),
       '--hour',   String(hour  || 0),
       '--minute', String(minute || 0),
-      '--ciudad', cliente.ciudad || 'Hermosillo',
-      '--pais',   cliente.pais   || 'México',
+      '--lat',    String(lat),
+      '--lng',    String(lng),
+      '--tz',     tz,
+      '--ciudad', ciudad,
+      '--pais',   pais,
     ];
     execFile('python', args, { timeout: 30000 }, (err, stdout, stderr) => {
       if (err) return reject(new Error(`dataset.py: ${stderr || err.message}`));

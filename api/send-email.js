@@ -210,7 +210,7 @@ IM Consulting
       from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to: to,
       bcc: process.env.ISAAC_EMAIL || process.env.OWNER_EMAIL || 'its.isaacmoreno@gmail.com',
-      subject: `Tu Reporte IM Consulting (${planNombre}) está listo`,
+      subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
       html: htmlContent,
       text: textContent,
       reply_to: 'imconsulting.me@gmail.com',
