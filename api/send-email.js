@@ -159,7 +159,7 @@ IM Consulting
     const emailPayload = {
       from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to: to,
-      bcc: process.env.OWNER_EMAIL || 'its.isaacmoreno@gmail.com',
+      bcc: process.env.ISAAC_EMAIL || process.env.OWNER_EMAIL || 'its.isaacmoreno@gmail.com',
       subject: `Tu Reporte IM Consulting (${planNombre}) está listo`,
       html: htmlContent,
       text: textContent,
