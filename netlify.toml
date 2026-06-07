@@ -1,5 +1,5 @@
 [build]
-  command = "echo 'Build complete'"
+  command = "pip install -r requirements.txt && echo 'Build complete'"
   functions = "api"
   publish = "public"
 

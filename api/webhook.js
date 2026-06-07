@@ -14,13 +14,11 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const crypto = require('crypto');
 const fs   = require('fs');
 const path = require('path');
-const { execFile } = require('child_process');
 const { sendEmailReporte } = require('./send-email');
 const TemplateInjector = require('./template-injector');
 const HTMLtoPDF = require('./html-to-pdf');
 
-const TEMPLATE_PATH  = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
-const DATASET_SCRIPT = path.join(__dirname, '..', 'engine', 'dataset.py');
+const TEMPLATE_PATH = path.join(__dirname, '..', 'templates', 'reporte-maestro-2026.html');
 const https = require('https');
 
 // Geocodifica "Ciudad, País" con Nominatim (OpenStreetMap) — sin API key
@@ -69,43 +67,39 @@ function resolverTimezone(lat, lng) {
   });
 }
 
-// Llama a dataset.py con coordenadas reales y devuelve el dataset estructurado
+// Llama a la función Python compute_dataset via HTTP interno
 async function buildDataset(cliente) {
   const [day, month, year] = (cliente.fechaNacimiento || '').split('-').map(Number);
   const [hour, minute]     = (cliente.horaNacimiento  || '00:00').split(':').map(Number);
 
   // Geocodificar ciudad
-  const geo = await geocodificar(cliente.ciudad || '');
-  const lat  = geo?.lat  ?? 29.07;
-  const lng  = geo?.lng  ?? -110.96;
-  const tz   = await resolverTimezone(lat, lng);
+  const geo    = await geocodificar(cliente.ciudad || '');
+  const lat    = geo?.lat    ?? 29.07;
+  const lng    = geo?.lng    ?? -110.96;
+  const tz     = await resolverTimezone(lat, lng);
   const ciudad = geo?.ciudad || cliente.ciudad || '';
   const pais   = geo?.pais   || '';
 
-  return new Promise((resolve, reject) => {
-    const args = [
-      DATASET_SCRIPT,
-      '--nombre', cliente.nombre || '',
-      '--day',    String(day   || 1),
-      '--month',  String(month || 1),
-      '--year',   String(year  || 2000),
-      '--hour',   String(hour  || 0),
-      '--minute', String(minute || 0),
-      '--lat',    String(lat),
-      '--lng',    String(lng),
-      '--tz',     tz,
-      '--ciudad', ciudad,
-      '--pais',   pais,
-    ];
-    execFile('python', args, { timeout: 30000 }, (err, stdout, stderr) => {
-      if (err) return reject(new Error(`dataset.py: ${stderr || err.message}`));
-      try {
-        resolve(JSON.parse(stdout));
-      } catch {
-        reject(new Error(`dataset.py output no es JSON válido: ${stdout.slice(0, 200)}`));
-      }
-    });
+  const siteUrl = process.env.URL || process.env.SITE_URL || 'https://imconsulting.netlify.app';
+  const res = await fetch(`${siteUrl}/.netlify/functions/compute_dataset`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nombre: cliente.nombre || '',
+      day:    day    || 1,
+      month:  month  || 1,
+      year:   year   || 2000,
+      hour:   hour   || 0,
+      minute: minute || 0,
+      lat, lng, tz, ciudad, pais,
+    }),
   });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`compute_dataset: ${txt.slice(0, 200)}`);
+  }
+  return res.json();
 }
 
 exports.handler = async (event, context) => {
