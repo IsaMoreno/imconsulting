@@ -17,7 +17,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @param {string} plan - Plan: 'esencial' o 'completo'
  * @returns {object} - { success, messageId, error }
  */
-async function sendEmailReporte(to, nombreCliente, id_pedido, plan, pdfBuffer = null) {
+async function sendEmailReporte(to, nombreCliente, id_pedido, plan, pdfBuffer = null, bloquesHtml = null) {
   try {
     // Validar email
     if (!to || !to.includes('@')) {
@@ -111,12 +111,22 @@ async function sendEmailReporte(to, nombreCliente, id_pedido, plan, pdfBuffer = 
                 </td>
               </tr>
 
+              <!-- BLOQUES DEL REPORTE (solo en modo admin, sin PDF) -->
+              ${bloquesHtml ? `
+              <tr>
+                <td style="padding-bottom:40px;border-top:1px solid #e8e0d5;padding-top:32px;">
+                  <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:11px;color:#c8b89a;letter-spacing:3px;text-transform:uppercase;">Tu Reporte</p>
+                  <div style="font-family:Arial,sans-serif;font-size:14px;color:#3d3d3d;line-height:1.8;">${bloquesHtml}</div>
+                </td>
+              </tr>
+              ` : `
               <!-- BOTÓN DESCARGAR -->
               <tr>
                 <td style="padding-bottom:16px;" align="center">
                   <a href="${urlDescarga}" style="display:inline-block;background-color:#1a1a1a;color:#ffffff;font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;text-decoration:none;padding:14px 40px;">Descargar Reporte</a>
                 </td>
               </tr>
+              `}
 
               <!-- BOTÓN NUESTRA WEB -->
               <tr>
