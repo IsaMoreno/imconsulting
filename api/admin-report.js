@@ -203,14 +203,30 @@ exports.handler = async (event) => {
     </section>
   `).join('');
 
-  // ── Enviar email ───────────────────────────────────────────────────────────
+  // ── Enviar email al cliente ────────────────────────────────────────────────
   try {
     console.log(`[${id_pedido}] 📧 Enviando email a ${email}...`);
     await sendEmailReporte(email, nombre, id_pedido, plan, null, bloquesHtml);
-    console.log(`[${id_pedido}] ✅ Email enviado`);
+    console.log(`[${id_pedido}] ✅ Email enviado al cliente`);
   } catch (err) {
-    console.error(`[${id_pedido}] ❌ sendEmail:`, err.message);
+    console.error(`[${id_pedido}] ❌ sendEmail cliente:`, err.message);
     return { statusCode: 500, body: JSON.stringify({ error: 'Reporte generado pero email falló', detalle: err.message }) };
+  }
+
+  // ── Copia a Isaac ──────────────────────────────────────────────────────────
+  const isaacEmail = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
+  const bloquesHtmlIsaac = `
+    <div style="background:#f5f5f5;border-left:3px solid #c8b89a;padding:12px 16px;margin-bottom:24px;font-family:Arial,sans-serif;font-size:12px;color:#888;">
+      Reporte generado para <strong>${nombre}</strong> — ${email} — Plan ${plan} — ID ${id_pedido}
+    </div>
+    ${bloquesHtml}
+  `;
+  try {
+    console.log(`[${id_pedido}] 📧 Enviando copia a Isaac...`);
+    await sendEmailReporte(isaacEmail, 'Isaac', id_pedido, plan, null, bloquesHtmlIsaac);
+    console.log(`[${id_pedido}] ✅ Copia enviada a Isaac`);
+  } catch (err) {
+    console.warn(`[${id_pedido}] ⚠️ Copia a Isaac falló (no crítico):`, err.message);
   }
 
   return {
@@ -221,7 +237,7 @@ exports.handler = async (event) => {
       cliente:   nombre,
       plan,
       bloques:   bloques.length,
-      mensaje:   `Reporte enviado a ${email}`,
+      mensaje:   `Reporte enviado a ${email} y copia a ${isaacEmail}`,
     }),
   };
 };
