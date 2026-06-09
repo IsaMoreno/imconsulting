@@ -339,7 +339,7 @@ async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido,
     await resend.emails.send({
       from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to, subject, html,
-      attachments: pdfBuffer ? [{ filename, content: pdfBuffer.toString('base64') }] : [],
+      attachments: pdfBuffer ? [{ filename, content: pdfBuffer.toString('base64'), content_type: 'application/pdf' }] : [],
     });
   }
 }
