@@ -20,6 +20,7 @@
     "uuid": "^14.0.0"
   },
   "scripts": {
-    "dev": "netlify dev"
+    "dev": "netlify dev",
+    "start": "node railway/app.js"
   }
 }
