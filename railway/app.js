@@ -10,8 +10,8 @@ const express   = require('express');
 const fs        = require('fs');
 const path      = require('path');
 const crypto    = require('crypto');
-const Anthropic = require('@anthropic-ai/sdk');
-const { Resend } = require('resend');
+const Anthropic  = require('@anthropic-ai/sdk');
+const nodemailer = require('nodemailer');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -20,7 +20,14 @@ app.use(express.json());
 
 // ── Clientes API ──────────────────────────────────────────────────────────────
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const resend    = new Resend(process.env.RESEND_API_KEY);
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
 
 // ── Paths (Railway despliega desde raíz del repo) ─────────────────────────────
 const PROMPTS_DIR = path.join(__dirname, '..', 'prompts');
@@ -191,10 +198,10 @@ async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido,
   </table>
 </body></html>`;
 
-  await resend.emails.send({
-    from:     process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from:    `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
     to,
-    subject:  `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
+    subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
     html,
   });
 }
