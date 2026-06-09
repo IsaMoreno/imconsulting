@@ -18,8 +18,26 @@
 
 const crypto = require('crypto');
 const https  = require('https');
-const { generateReport } = require('./generate-report');
 const { sendEmailReporte } = require('./send-email');
+
+const SITE_URL = process.env.URL || process.env.SITE_URL || 'https://imconsulting.netlify.app';
+
+// Llama a generate-report.js como función Netlify interna
+async function callGenerateReport(id_pedido, plan, clienteData, dataset) {
+  // generate-report espera plan como '$55' o '$111'
+  const planCode = plan === 'completo' ? '$111' : '$55';
+  const res = await fetch(`${SITE_URL}/.netlify/functions/generate-report`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_pedido, plan: planCode, cliente: clienteData, dataset }),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`generate-report: ${txt.slice(0, 300)}`);
+  }
+  const data = await res.json();
+  return data.bloques || [];
+}
 
 // ─── Geocodificación (misma lógica que webhook.js) ───────────────────────────
 
@@ -182,11 +200,17 @@ exports.handler = async (event) => {
 
   console.log(`[${id_pedido}] ✅ Dataset — signo: ${dataset.resumen.signo_solar} | camino: ${dataset.resumen.camino_de_vida}`);
 
-  // ── Generar reporte ────────────────────────────────────────────────────────
+  // ── Generar reporte via función interna ───────────────────────────────────
   let bloques;
   try {
-    console.log(`[${id_pedido}] 🤖 Generando bloques...`);
-    bloques = await generateReport(dataset, plan, id_pedido);
+    console.log(`[${id_pedido}] 🤖 Generando bloques via generate-report...`);
+    const clienteData = {
+      nombre, email, plan,
+      fechaNacimiento: fecha,
+      horaNacimiento:  hora,
+      ciudad,
+    };
+    bloques = await callGenerateReport(id_pedido, plan, clienteData, dataset.resumen);
     console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados`);
   } catch (err) {
     console.error(`[${id_pedido}] ❌ generateReport:`, err.message);
