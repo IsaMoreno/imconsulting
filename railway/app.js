@@ -237,7 +237,8 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
 app.post('/admin-report', (req, res) => {
   const { secret, nombre, email, fecha, hora = '12:00', ciudad, plan = 'esencial' } = req.body;
 
-  if (secret !== process.env.ADMIN_SECRET) {
+  const secretEnviado = req.headers['x-admin-secret'] || secret;
+  if (secretEnviado !== process.env.ADMIN_SECRET) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
