@@ -12,6 +12,7 @@ const path      = require('path');
 const crypto    = require('crypto');
 const Anthropic  = require('@anthropic-ai/sdk');
 const nodemailer = require('nodemailer');
+const { auditarBloque } = require('../api/audit-bloque');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -37,9 +38,10 @@ function load(file) {
   try { return fs.readFileSync(path.join(PROMPTS_DIR, file), 'utf8'); } catch { return ''; }
 }
 
-const CAPA_A     = load('00_CORE.md').split('## CAPA B')[0];
-const ZOHAR_DATA = load('01_ZOHAR.md');
-const KABB_DATA  = load('02_KABBALAH.md');
+const CAPA_A         = load('00_CORE.md').split('## CAPA B')[0];
+const ZOHAR_DATA     = load('01_ZOHAR.md');
+const KABB_DATA      = load('02_KABBALAH.md');
+const TRANSFORMACION = load('06_TRANSFORMACION.md');
 let   ARBOL_DATA = { herramientas: {} };
 try { ARBOL_DATA = JSON.parse(load('03_ARBOL.json')); } catch {}
 
@@ -50,9 +52,11 @@ const BLOQUES_META = {
   B7:'Amor y Vínculos', B8:'Ámbito Profesional', B9:'Dinero',
   B10:'Salud y Cuerpo', B11:'Fortalezas', B12:'Ciclos',
   B13:'FODA Personal', B14:'Resumen',
-  'B2.1':'Activación I', 'B2.2':'Activación II', 'B2.3':'Activación III',
-  'B2.4':'Activación IV', 'B2.5':'Activación V', 'B2.6':'Activación VI',
+  'B2.1':'Integración Energética', 'B2.2':'Ruptura de Patrones', 'B2.3':'Reprogramación',
+  'B2.4':'Trascender Patrones',   'B2.5':'Estrategia de Vida',  'B2.6':'Plan de Acción',
 };
+
+const esTransformacion = codigo => codigo.startsWith('B2.');
 
 const SECUENCIA_55  = ['B1','B2','B3','B4','B5','B6','B8','B10','B11','B12','B13','B14','B2.1','B2.3'];
 const SECUENCIA_111 = ['B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B12','B13','B14','B2.1','B2.2','B2.3','B2.4','B2.5','B2.6'];
@@ -70,10 +74,15 @@ function extractKabbRow(signo) {
   return m ? m[1].trim() : '';
 }
 
-function getAncla() {
+function getArbolInjection() {
   const tools = ARBOL_DATA.herramientas || {};
-  const dom = Object.values(tools).sort((a, b) => a.prioridad - b.prioridad)[0];
-  return dom ? `Ancla: ${dom.ancla_universal}. Escribe en lenguaje cotidiano, sin nombrar sistemas, frases cortas y directas.` : '';
+  const ordenadas = Object.values(tools).sort((a, b) => a.prioridad - b.prioridad);
+  if (!ordenadas.length) return '';
+  const apice = ordenadas[0];
+  const capas = ordenadas.map(t => `(${t.prioridad}) ${t.ancla_universal}`).join('  ·  ');
+  return `Jerarquía de construcción (el ápice manda, las demás sirven):\n${capas}\n` +
+    `Ápice: "${apice.ancla_universal}". El Creador puede nombrarse; las disciplinas no. ` +
+    `Escribe en lenguaje cotidiano, frases cortas y directas, sin nombrar sistemas.`;
 }
 
 function calcularSignoSolar(day, month) {
@@ -110,38 +119,111 @@ function buildDataset(nombre, fecha, hora, ciudad) {
   };
 }
 
+// ── Contexto base compartido por todas las llamadas de un bloque ──────────────
+function contextoBase(codigo, cliente, dataset) {
+  const signo = dataset.signo_solar || 'Desconocido';
+  const zohar = extractZoharRow(codigo);
+  const kabb  = extractKabbRow(signo);
+  return `Cliente: ${cliente.nombre}\n\nDataset:\n${JSON.stringify(dataset, null, 2)}` +
+    `\n\nPrincipio activo (Zohar): ${zohar}` +
+    `\n\nTraducción operativa (signo ${signo}): ${kabb}` +
+    `\n\n${getArbolInjection()}`;
+}
+
+// ── FASE A — Plan interno para bloques de transformación ──────────────────────
+async function planTransformacion(codigo, cliente, dataset) {
+  const planPrompt =
+    `${contextoBase(codigo, cliente, dataset)}\n\n` +
+    `Vas a preparar el PLAN INTERNO (no es el bloque final) para "${codigo}: ${BLOQUES_META[codigo]}".\n` +
+    `Sigue el árbol: el ápice (Creador / lo escritural) define la corrección; las demás capas sirven.\n` +
+    `Devuelve en 4 líneas compactas, una por punto, sin adornos:\n` +
+    `1. PATRÓN: el "lo que aprendiste a ser" de este cliente en 1 frase.\n` +
+    `2. CORRECCIÓN DEL ÁPICE: la identidad/valor dado por el Creador + el punto exacto de elección.\n` +
+    `3. INTENCIÓN PROTECTORA: qué protegía el patrón.\n` +
+    `4. PRÁCTICA IF-THEN: disparador físico exacto + la frase o micro-acción precisa.`;
+
+  try {
+    const res = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 500,
+      temperature: 0,
+      system: [
+        { type: 'text', text: CAPA_A, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: TRANSFORMACION },
+      ],
+      messages: [{ role: 'user', content: planPrompt }],
+    });
+    return res.content[0]?.text || '';
+  } catch (err) {
+    console.error(`[${codigo}] plan falló:`, err.message);
+    return '';
+  }
+}
+
 // ── Generar un bloque con Claude ──────────────────────────────────────────────
 async function callBloque(codigo, cliente, dataset) {
-  const signo   = dataset.signo_solar || 'Desconocido';
-  const zohar   = extractZoharRow(codigo);
-  const kabb    = extractKabbRow(signo);
-  const ancla   = getAncla();
+  const transformacion = esTransformacion(codigo);
 
-  let userMsg =
-    `Cliente: ${cliente.nombre}\n\nDataset:\n${JSON.stringify(dataset, null, 2)}` +
-    `\n\nPrincipio activo (Zohar): ${zohar}` +
-    `\n\nTraducción kabbalística (${signo}): ${kabb}`;
+  // FASE A (solo transformación): construir el plan antes de componer
+  let plan = '';
+  if (transformacion) {
+    plan = await planTransformacion(codigo, cliente, dataset);
+  }
 
-  if (ancla) userMsg += `\n\n${ancla}`;
-  userMsg += `\n\nDesarrolla ${codigo}: ${BLOQUES_META[codigo]}`;
+  // FASE B: composición del bloque
+  let userMsg = contextoBase(codigo, cliente, dataset);
+  if (transformacion && plan) {
+    userMsg += `\n\nPLAN INTERNO (úsalo, no lo imprimas):\n${plan}` +
+      `\n\nCompón el bloque "${codigo}: ${BLOQUES_META[codigo]}" tejiendo los 4 tiempos en orden de jerarquía. ` +
+      `El ápice abre el marco. Cierra con pregunta de COMPROMISO, no de consciencia.`;
+  } else {
+    userMsg += `\n\nDesarrolla ${codigo}: ${BLOQUES_META[codigo]}`;
+  }
 
-  for (let i = 1; i <= 3; i++) {
-    if (i > 1) await sleep(3000);
+  const system = transformacion
+    ? [{ type: 'text', text: CAPA_A, cache_control: { type: 'ephemeral' } }, { type: 'text', text: TRANSFORMACION }]
+    : [{ type: 'text', text: CAPA_A, cache_control: { type: 'ephemeral' } }];
+
+  let mejorTexto = '';
+  let correccion = '';
+
+  for (let i = 1; i <= 4; i++) {
+    if (i > 1) await sleep(2000);
     try {
+      const contenidoUsuario = correccion
+        ? `${userMsg}\n\nCORRECCIÓN REQUERIDA (reescribe el bloque resolviendo esto): ${correccion}`
+        : userMsg;
+
       const res = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 1100,
         temperature: 0,
-        system: [{ type: 'text', text: CAPA_A, cache_control: { type: 'ephemeral' } }],
-        messages: [{ role: 'user', content: userMsg }],
+        system,
+        messages: [{ role: 'user', content: contenidoUsuario }],
       });
       const texto = res.content[0]?.text || '';
-      return { bloque: codigo, titulo: BLOQUES_META[codigo], contenido: texto, error: false };
+      mejorTexto = texto;
+
+      // Auditoría — si pasa, entregar; si falla, reintentar con la sugerencia
+      const audit = auditarBloque(texto, codigo);
+      if (audit.passed) {
+        return { bloque: codigo, titulo: BLOQUES_META[codigo], contenido: texto, error: false };
+      }
+      correccion = audit.sugerencia || audit.failures.join('; ');
+      console.warn(`[${codigo}] intento ${i} no pasó auditoría: ${audit.failures.join(' | ')}`);
     } catch (err) {
       console.error(`[${codigo}] intento ${i} fallido:`, err.message);
-      if (i === 3) return { bloque: codigo, titulo: BLOQUES_META[codigo], contenido: '', error: true };
     }
   }
+
+  // Agotados los reintentos: entregar el mejor texto disponible, marcado
+  return {
+    bloque: codigo,
+    titulo: BLOQUES_META[codigo],
+    contenido: mejorTexto,
+    error: mejorTexto === '',
+    auditoria_pendiente: mejorTexto !== '',
+  };
 }
 
 // ── Enviar email ──────────────────────────────────────────────────────────────

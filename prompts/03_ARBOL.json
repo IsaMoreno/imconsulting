@@ -1,30 +1,46 @@
 {
-  "_meta": "Metadato interno. NUNCA imprimir ni exponer al cliente. Regla de contradicción: gana prioridad MENOR.",
-  "_regla_contradiccion": "Si dos herramientas dan anclas opuestas, prevalece la de menor número de prioridad.",
+  "_meta": "Metadato interno. NUNCA imprimir ni exponer al cliente la palabra 'kabbalah', 'tanaj', 'brit hadasháh' ni los nombres de disciplinas. Regla de contradicción: gana prioridad MENOR.",
+  "_regla_contradiccion": "Si dos herramientas dan anclas o lecturas opuestas, prevalece la de menor número de prioridad. El ápice (prioridad 1) define el marco; las demás lo sirven, nunca lo dictan.",
+  "_rige_partes": "El árbol rige la construcción de TODO bloque: Parte 1 (diagnóstico) y Parte 2 (transformación). En ambas, el ápice manda y las subordinadas aportan capas en orden de prioridad.",
+  "_creador_nombrable": "El Creador / Dios SÍ puede nombrarse en el texto del cliente. Es la única fuente del ápice que puede hacerse visible. Las disciplinas y los términos técnicos permanecen invisibles.",
   "herramientas": {
-    "kabbalah": {
+    "apice_escritural": {
       "prioridad": 1,
-      "ancla_universal": "lo que aprendiste a ser"
+      "componentes": ["kabbalah", "tanaj", "brit_hadasháh"],
+      "ancla_universal": "lo que aprendiste a ser frente a quién te creó el Creador para ser",
+      "mecanismos_diagnostico": {
+        "tikkun": "el patrón no es defecto: es la materia prima de tu corrección",
+        "lejem_de_bushá": "el alma se gana las cosas para no recibirlas dadas — raíz de muchos patrones de mérito",
+        "corazon_de_piedra": "Ezequiel 36:26 — el núcleo endurecido que el Creador promete volver de carne",
+        "identidad_dada": "el lugar y el valor se reciben del Creador antes de toda obra — jésed / gracia"
+      },
+      "mecanismos_transformacion": {
+        "nekudat_habechirá": "el punto exacto de libre albedrío — el frente donde la elección es real",
+        "tzimtzum": "restringir el impulso reactivo abre el espacio para lo dado",
+        "teshuvá": "retorno al ser verdadero — reorientación, no culpa",
+        "metanoia": "Romanos 12:2 — renovación del entendimiento; el nombre escritural de la reprogramación",
+        "creacion_nueva": "el viejo modo pasa; el lugar dado se recibe y se comparte desde plenitud"
+      }
     },
     "numerologia": {
       "prioridad": 2,
-      "ancla_universal": "con lo que llegaste"
+      "ancla_universal": "con lo que llegaste — el recurso disponible para elegir"
     },
     "astrologia": {
       "prioridad": 3,
-      "ancla_universal": "cómo ves el mundo y cómo el mundo te ve"
+      "ancla_universal": "cómo ves el mundo y cómo el mundo te ve — el contexto del disparador"
     },
     "matriz": {
       "prioridad": 4,
-      "ancla_universal": "el mapa de lo que ya pasó y lo que puede pasar"
+      "ancla_universal": "el mapa de lo que ya pasó y lo que puede pasar — el timing del cambio"
     },
     "descodificacion": {
       "prioridad": 5,
-      "ancla_universal": "lo que te frena sin que lo veas"
+      "ancla_universal": "lo que te frena sin que lo veas — la intención protectora del patrón"
     },
     "neuro": {
       "prioridad": 6,
-      "ancla_universal": "cómo tu mente convierte creencia en hábito"
+      "ancla_universal": "cómo tu mente convierte creencia en hábito — el cómo invisible: disparador, frase, anclaje"
     }
   }
 }

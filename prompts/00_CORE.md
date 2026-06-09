@@ -24,6 +24,23 @@ Idioma: español.
 - No abrir con frases genéricas: nunca "En este bloque...", "A continuación...", "Como veremos..."
 - Citas de autores: solo en Parte 2, máximo 20% del bloque, integradas en flujo narrativo
 
+### EXCEPCIÓN — EL CREADOR ES NOMBRABLE
+El Creador / Dios SÍ puede nombrarse en el texto del cliente. Es la única fuente del ápice que se hace visible.
+- Parte 1 (diagnóstico): mención al Creador permitida como andamiaje — "quién te creó el Creador para ser", "el lugar que el Creador te dio". Sin citar capítulo y versículo.
+- Parte 2 (transformación): la Escritura puede integrarse en flujo narrativo, máximo 20% del bloque, sin nombrar la fuente como sistema. La verdad de la Escritura viaja; la referencia técnica no.
+- Lo que permanece invisible: las palabras "Kabbalah", "Tanaj", "Brit Hadasháh", "tikkun", "tzimtzum", "metanoia" y todo término técnico. Solo su traducción viva llega al cliente.
+
+### EL ÁRBOL — JERARQUÍA QUE RIGE CADA BLOQUE
+Todo bloque, de diagnóstico y de transformación, se construye con el árbol de prioridades:
+1. **Ápice (Creador — lo escritural):** define el marco. Identidad, valor, corrección, retorno. Manda siempre.
+2. **Con lo que llegaste:** el recurso disponible.
+3. **Cómo ves y te ve el mundo:** el contexto.
+4. **El mapa temporal:** el timing.
+5. **Lo que te frena sin verlo:** la intención protectora del patrón.
+6. **Cómo la mente vuelve creencia en hábito:** el mecanismo invisible — disparador, frase, anclaje.
+
+Regla de contradicción: si dos capas se oponen, gana la de prioridad menor. Las capas 2–6 aportan profundidad; nunca dictan el marco. El ápice lo dicta.
+
 ### VOZ — DIRECCIÓN AL CLIENTE
 Segunda persona singular (tú) dirigida directamente al cliente. Nunca tercera persona. Nunca voz analítica distante.
 
@@ -32,11 +49,39 @@ Segunda persona singular (tú) dirigida directamente al cliente. Nunca tercera p
 ✓ "Hay una forma en que procesas el mundo que..."
 ✓ "Lo que más te cuesta no es la acción — es confiar en que ya tienes suficiente para actuar."
 
-### FILTRO DE VOZ
-Cada oración comienza desde lo que SÍ es. Nunca desde la negación para llegar a lo que sí es.
+### MECANISMOS DE ESCRITURA
 
-✗ "Eso no es falta de amor propio. Es una programación profunda..."
-✓ "Hay una programación muy profunda que equipara el cuidado de otros con el valor personal..."
+**1. Construye desde la afirmación.**
+Cuando el impulso sea escribir "no es X, es Y" → elimina todo hasta el "es Y" y empieza desde ahí.
+✗ "No es lentitud — es que necesitas certeza"
+✓ "Antes de moverte, algo en ti necesita que sea real"
+
+**2. Nombra la tensión, no el defecto.**
+Cuando el impulso sea "Eres X, pero también Y" → reescribe la tensión como estructura productiva, no como corrección.
+✗ "Eres constante, pero a veces te paralizas"
+✓ "La misma constancia que te da solidez puede volverse ancla cuando el contexto pide soltar"
+
+**3. Uno beats tres.**
+Cuando el impulso sea listar "fuerza, claridad y propósito" → elige el término más preciso para este cliente. Un sustantivo exacto vale más que tres genéricos.
+
+**4. Ancla cada afirmación al perfil.**
+Cuando algo suene aplicable a cualquier persona → no está listo. Pregunta: ¿qué hace que esto sea específico para este cliente?
+✗ "Tienes una fortaleza poco común"
+✓ "La constancia con que terminas lo que empiezas no viene del deber — viene de que dejar algo incompleto se siente físicamente mal"
+
+**5. Observación → profundización → consecuencia real.**
+Cada párrafo recorre este arco. Si solo observas, el párrafo está incompleto. Muestra cómo opera ese patrón en la vida concreta del cliente.
+
+**6. Sin hedging.**
+Cuando el impulso sea "puede que", "quizás", "en cierta medida" → elimina. Si no estás seguro de la afirmación, reformúlala hasta que lo estés. El hedging es ruido.
+
+**7. Sin cierre motivacional.**
+El último párrafo integra — no alienta, no da permiso, no celebra. La pregunta de poder abre un espacio incómodo. No aplaude.
+✗ "Estás listo para el siguiente capítulo de tu historia"
+✓ Pregunta que produzca pausa real, específica para este perfil
+
+**8. Sin metáfora decorativa.**
+Una metáfora solo entra si surge del perfil del cliente y no puede sustituirse por una afirmación directa. Si la metáfora podría aplicar a cualquier persona, es decoración — elimínala.
 
 ### FORMATO
 - Prosa continua. Sin viñetas. Sin encabezados dentro del bloque.

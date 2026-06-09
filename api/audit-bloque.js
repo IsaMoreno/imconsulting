@@ -20,6 +20,16 @@ const PATRONES_REDIRECCION = [
     sugerencia: 'Escribe Y directo, sin introducir X para negarlo.',
   },
   {
+    regex: /puede\s+(leerse|verse|parecer|sonar)\s+como\s+.{1,50},?\s+(pero|aunque|sin\s+embargo)\b/i,
+    patron: 'Contraste invalidador ("puede leerse como X, pero Y")',
+    sugerencia: 'Afirma Y directamente desde la perspectiva del cliente. Elimina la lectura externa que introduces para corregirla.',
+  },
+  {
+    regex: /desde\s+afuera\s+.{1,40},?\s+(pero|mas|pero\s+desde\s+adentro)\b|desde\s+adentro\s+es\b/i,
+    patron: 'Contraste afuera/adentro',
+    sugerencia: 'Nombra lo que es desde adentro directamente, sin contrastar con la mirada externa.',
+  },
+  {
     regex: /\b(claridad|fuerza|propósito|poder|paz|abundancia|plenitud|equilibrio)(,\s*(claridad|fuerza|propósito|poder|paz|abundancia|plenitud|equilibrio)){2,}/i,
     patron: 'Tricolon decorativo de sustantivos abstractos',
     sugerencia: 'Elige una sola idea concreta y específica para este cliente. Elimina las otras dos.',
@@ -182,7 +192,9 @@ const auditarBloque = (contenido, numeroBloque) => {
   }
 
   // Criterio 2 — Negación antes de afirmación (00_CORE: FILTRO DE VOZ)
-  if (contenido.match(/(^|\s)No (es |se trata |significa )/im)) {
+  // Cubre: "No es X, es Y" · "No es X — es Y" · "no la X, sino la Y" · "no porque X sino Y"
+  if (contenido.match(/(^|\s)[Nn]o (es |se trata |significa |la |el |porque |por )[^.?!]{1,80}[—,]\s*(es|sino|sí|si)\b/m) ||
+      contenido.match(/(^|\s)[Nn]o (es |se trata |significa )/im)) {
     failures.push({ criterio: 2, descripcion: 'Negación antes de afirmación' });
   }
 
