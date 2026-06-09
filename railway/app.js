@@ -198,12 +198,25 @@ async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido,
   </table>
 </body></html>`;
 
-  await transporter.sendMail({
-    from:    `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
-    to,
-    subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
-    html,
-  });
+  // Intentar Gmail primero, fallback a Resend
+  try {
+    await transporter.sendMail({
+      from:    `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
+      to,
+      subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
+      html,
+    });
+  } catch (gmailErr) {
+    console.warn(`[EMAIL] Gmail falló (${gmailErr.message}) — usando Resend fallback`);
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from:    process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
+      to,
+      subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
+      html,
+    });
+  }
 }
 
 // ── Proceso completo en background ────────────────────────────────────────────
@@ -228,12 +241,29 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
       </section>
     `).join('');
 
-    await sendEmail(email, nombre, nombre, plan, id_pedido, bloquesHtml);
-    console.log(`[${id_pedido}] ✅ Email enviado a ${email}`);
+    // ── Guardar reporte en disco ANTES de enviar ───────────────────────────
+    const archivoHtml = `/tmp/reporte-${id_pedido}.html`;
+    const archivoJson = `/tmp/reporte-${id_pedido}.json`;
+    fs.writeFileSync(archivoHtml, `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte ${nombre}</title></head><body>${bloquesHtml}</body></html>`);
+    fs.writeFileSync(archivoJson, JSON.stringify({ id_pedido, nombre, email, plan, fecha: new Date().toISOString(), bloques }, null, 2));
+    console.log(`[${id_pedido}] 💾 Reporte guardado en ${archivoHtml}`);
 
-    const isaacEmail = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
-    await sendEmail(isaacEmail, 'Isaac', nombre, plan, id_pedido, bloquesHtml);
-    console.log(`[${id_pedido}] ✅ Copia enviada a Isaac`);
+    // ── Enviar emails ──────────────────────────────────────────────────────
+    try {
+      await sendEmail(email, nombre, nombre, plan, id_pedido, bloquesHtml);
+      console.log(`[${id_pedido}] ✅ Email enviado a ${email}`);
+    } catch (emailErr) {
+      console.error(`[${id_pedido}] ❌ Email al cliente falló: ${emailErr.message}`);
+      console.log(`[${id_pedido}] 💾 Reporte disponible en: ${archivoHtml}`);
+    }
+
+    try {
+      const isaacEmail = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
+      await sendEmail(isaacEmail, 'Isaac', nombre, plan, id_pedido, bloquesHtml);
+      console.log(`[${id_pedido}] ✅ Copia enviada a Isaac`);
+    } catch (copyErr) {
+      console.warn(`[${id_pedido}] ⚠️ Copia a Isaac falló: ${copyErr.message}`);
+    }
 
   } catch (err) {
     console.error(`[${id_pedido}] ❌ Error fatal:`, err.message);
