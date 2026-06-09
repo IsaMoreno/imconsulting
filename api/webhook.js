@@ -190,146 +190,62 @@ exports.handler = async (event, context) => {
 
     console.log(`[${id_pedido}] ✅ Pago confirmado`);
 
-    console.log(`[${id_pedido}] Generando dataset completo con engine/dataset.py...`);
-    let datasetCompleto;
+    // ── Generación canónica en Railway (async, sin timeout, con auditoría) ────
+    // Railway hace: dataset + 14/20 bloques + auditoría + email. Responde 202 al instante.
+    const RAILWAY_URL  = process.env.RAILWAY_URL || 'https://imconsulting-production.up.railway.app';
+    const ADMIN_SECRET = process.env.ADMIN_SECRET;
     try {
-      datasetCompleto = await buildDataset(cliente);
-      console.log(`[${id_pedido}] ✅ Dataset completado — signo solar: ${datasetCompleto.resumen?.signo_solar || '?'}`);
-    } catch (dsErr) {
-      console.error(`[${id_pedido}] ❌ dataset.py falló: ${dsErr.message}`);
+      console.log(`[${id_pedido}] 📤 Handoff a Railway para generación...`);
+      const railwayRes = await fetch(`${RAILWAY_URL}/admin-report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Secret': ADMIN_SECRET || '',
+        },
+        body: JSON.stringify({
+          nombre: cliente.nombre,
+          email:  cliente.email,
+          fecha:  cliente.fechaNacimiento,
+          hora:   cliente.horaNacimiento || '12:00',
+          ciudad: cliente.ciudad,
+          plan,
+        }),
+      });
+      if (!railwayRes.ok) {
+        const txt = await railwayRes.text();
+        throw new Error(`Railway respondió ${railwayRes.status}: ${txt.slice(0, 200)}`);
+      }
+      console.log(`[${id_pedido}] ✅ Railway aceptó la generación (procesando en background)`);
+    } catch (railwayErr) {
+      console.error(`[${id_pedido}] ❌ Handoff a Railway falló:`, railwayErr.message);
       return {
         statusCode: 500,
-        body: JSON.stringify({ success: false, error: 'Error calculando datos astrológicos.' }),
+        body: JSON.stringify({
+          success: false,
+          error: `Pago confirmado pero la generación falló. Guarda tu ID y contacta soporte: ${id_pedido}`,
+        }),
       };
     }
 
-    console.log(`[${id_pedido}] Generando ${plan === 'esencial' ? 14 : 20} bloques...`);
-    
-    let bloques;
-    
-    // Llamar a generate-report.js para generar bloques reales
     try {
-      const generateReportModule = require('./generate-report');
-      
-      const reportPayload = {
-        id_pedido,
-        plan: plan === 'esencial' ? '$55' : '$111',
-        cliente: {
-          nombre: cliente.nombre,
-          email: cliente.email,
-          edad: datasetCompleto.resumen?.edad || null,
-          plan: plan,
-          eventos_cruzados: cliente.eventos_cruzados || []
-        },
-        dataset: datasetCompleto.resumen || datasetCompleto,
-      };
-      
-      console.log(`[${id_pedido}] 📤 Llamando a generate-report.js...`);
-      
-      const reportResponse = await generateReportModule.handler({
-        httpMethod: 'POST',
-        body: JSON.stringify(reportPayload)
-      });
-      
-      const reportBody = JSON.parse(reportResponse.body);
-      bloques = reportBody.bloques || [];
-      
-      console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados por Claude`);
-    } catch (error) {
-      console.error(`[${id_pedido}] ❌ Error en generate-report:`, error.message);
-      // Fallback: generar bloques simulados si falla Claude
-      const numBloques = plan === 'esencial' ? 14 : 20;
-      bloques = [];
-      for (let i = 1; i <= numBloques; i++) {
-        bloques.push({
-          numero: i,
-          nombre: `Bloque ${i} (SIMULADO - error en Claude)`,
-          bloque: `B${i}`,
-          contenido: `Contenido simulado del bloque ${i}. Error en Claude: ${error.message}`
-        });
-      }
-      console.log(`[${id_pedido}] ⚠️ Usando bloques simulados como fallback`);
-    }
-    
-    console.log(`[${id_pedido}] ✅ ${bloques.length} bloques generados exitosamente`);
+      fs.writeFileSync(`/tmp/${id_pedido}_status.json`, JSON.stringify({
+        id_pedido, status: 'processing', plan, email: cliente.email,
+        created_at: new Date().toISOString(),
+      }));
+    } catch { /* /tmp opcional */ }
 
-    console.log(`[${id_pedido}] Inyectando bloques en template HTML...`);
-    let html;
-    try {
-      const injector = new TemplateInjector(TEMPLATE_PATH);
-      const dataset = {
-        cliente:     { ...datasetCompleto.cliente, email: cliente.email, plan },
-        astro:       datasetCompleto.astro,
-        numerologia: datasetCompleto.numerologia,
-        matriz:      datasetCompleto.matriz,
-        bloques_html: bloques.map(b => ({ codigo: b.bloque, contenido: b.contenido })),
-      };
-      html = injector.render(dataset, { plan });
-      console.log(`[${id_pedido}] ✅ HTML inyectado con TemplateInjector`);
-    } catch (tplError) {
-      console.warn(`[${id_pedido}] ⚠️ TemplateInjector falló (${tplError.message}), usando fallback`);
-      html = generarHtmlDeBloques(bloques, cliente.nombre, plan);
-    }
-
-    console.log(`[${id_pedido}] Convirtiendo a PDF...`);
-    let pdfBuffer = null;
-    try {
-      const converter = new HTMLtoPDF();
-      pdfBuffer = await converter.convertToPDF(html, { format: 'Letter' });
-      const pdfPath = `/tmp/${id_pedido}_reporte.pdf`;
-      fs.writeFileSync(pdfPath, pdfBuffer);
-      console.log(`[${id_pedido}] ✅ PDF generado: ${(pdfBuffer.length / 1024).toFixed(0)} KB`);
-    } catch (pdfError) {
-      console.warn(`[${id_pedido}] ⚠️ PDF falló (${pdfError.message}), email sin adjunto`);
-    }
-
-    console.log(`[${id_pedido}] Enviando email a ${cliente.email}...`);
-    let emailResult;
-    try {
-      emailResult = await sendEmailReporte(
-        cliente.email,
-        cliente.nombre,
-        id_pedido,
-        plan,
-        pdfBuffer
-      );
-      if (emailResult.success) {
-        console.log(`[${id_pedido}] ✅ Email enviado | MessageID: ${emailResult.messageId}`);
-      } else {
-        console.warn(`[${id_pedido}] ⚠️  Email no enviado: ${emailResult.error}`);
-      }
-    } catch (emailError) {
-      console.error(`[${id_pedido}] ❌ Error enviando email:`, emailError.message);
-      emailResult = { success: false, error: emailError.message };
-    }
-
-    const statusFile = `/tmp/${id_pedido}_status.json`;
-    fs.writeFileSync(statusFile, JSON.stringify({
-      id_pedido,
-      status: 'completed',
-      plan,
-      email: cliente.email,
-      bloques_generados: bloques.length,
-      email_enviado: emailResult?.success || false,
-      created_at: new Date().toISOString()
-    }));
-
-    console.log(`[${id_pedido}] ✅ COMPLETADO`);
+    console.log(`[${id_pedido}] ✅ PAGO CONFIRMADO — reporte en proceso`);
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
         id_pedido,
         plan,
         email: cliente.email,
-        bloques_generados: bloques.length,
-        email_enviado: emailResult?.success || false,
-        message: 'Reporte generado y email enviado exitosamente'
-      })
+        message: 'Pago confirmado. Tu reporte llegará a tu correo en unos minutos.',
+      }),
     };
 
   } catch (error) {
