@@ -13,6 +13,27 @@ const crypto    = require('crypto');
 const Anthropic  = require('@anthropic-ai/sdk');
 const nodemailer = require('nodemailer');
 const { auditarBloque } = require('../api/audit-bloque');
+const puppeteer = require('puppeteer-core');
+
+// ── PDF con Chromium del sistema (Dockerfile lo instala en /usr/bin/chromium) ──
+async function generatePdf(html) {
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  });
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
+    return await page.pdf({
+      format: 'Letter',
+      printBackground: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' },
+    });
+  } finally {
+    await browser.close();
+  }
+}
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -226,77 +247,99 @@ async function callBloque(codigo, cliente, dataset) {
   };
 }
 
-// ── Enviar email ──────────────────────────────────────────────────────────────
-async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido, bloquesHtml) {
+// ── HTML imprimible (documento del PDF) ───────────────────────────────────────
+function buildPrintHtml(nombreCliente, plan, bloquesHtml) {
   const planNombre = plan === 'completo' ? 'Completo' : 'Esencial';
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<style>
+  @page { margin: 18mm 16mm; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #2a2a2a; margin: 0; }
+  .portada { text-align: center; padding: 120px 0 80px; page-break-after: always; }
+  .portada img { width: 120px; height: auto; }
+  .linea { height: 2px; background: #c8b89a; width: 60%; margin: 28px auto; }
+  .portada h1 { font-size: 30px; color: #1a1a1a; letter-spacing: 1px; margin: 8px 0; }
+  .portada .sub { font-size: 11px; color: #c8b89a; letter-spacing: 3px; text-transform: uppercase; }
+  .portada .para { margin-top: 60px; font-size: 13px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+  .portada .nombre { font-size: 26px; color: #1a1a1a; margin-top: 8px; }
+  section { margin-bottom: 26px; page-break-inside: avoid; }
+  section h2 { font-size: 16px; color: #1a1a1a; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
+  section .cuerpo { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12.5px; line-height: 1.8; color: #333; }
+  section .cuerpo em { color: #6b5d44; }
+</style></head>
+<body>
+  <div class="portada">
+    <img src="https://res.cloudinary.com/dmmiebjew/image/upload/v1780617921/Logo_IM_Consulting_transparente_soyfcj.png" alt="I.M. Consulting">
+    <div class="linea"></div>
+    <h1>Reporte de Autoconocimiento</h1>
+    <div class="sub">I.M. Consulting · Plan ${planNombre}</div>
+    <div class="para">Preparado para</div>
+    <div class="nombre">${nombreCliente}</div>
+  </div>
+  ${bloquesHtml}
+</body></html>`;
+}
+
+// ── Cuerpo del correo (portada cálida, el reporte va adjunto en PDF) ───────────
+function buildEmailBody(nombreDestinatario, nombreCliente, plan, id_pedido) {
   const bannerAdmin = nombreDestinatario === 'Isaac' ? `
     <div style="background:#f5f5f5;border-left:3px solid #c8b89a;padding:12px 16px;margin-bottom:24px;font-family:Arial,sans-serif;font-size:12px;color:#888;">
       Reporte generado para <strong>${nombreCliente}</strong> — Plan ${plan} — ID ${id_pedido}
     </div>` : '';
-
-  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#fff;">
-  <table border="0" width="100%" cellspacing="0" cellpadding="0">
-    <tbody><tr><td style="padding:40px 16px 56px;" align="center">
-      <table style="max-width:600px;width:100%;" border="0" cellspacing="0" cellpadding="0">
-        <tbody>
-          <tr><td style="padding-bottom:32px;border-bottom:1px solid #e8e0d5;" align="center">
-            <table border="0" width="100%" cellspacing="0" cellpadding="0"><tbody><tr>
-              <td align="left" valign="middle">
-                <img style="display:block;border:0;width:80px;height:auto;" src="https://res.cloudinary.com/dmmiebjew/image/upload/v1780617921/Logo_IM_Consulting_transparente_soyfcj.png" alt="I.M. Consulting" width="80">
-              </td>
-              <td align="right" valign="middle">
-                <p style="margin:0;font-family:Georgia,serif;font-size:9px;color:#c8b89a;letter-spacing:2px;text-transform:uppercase;font-style:italic;">Consultoría de Autoconocimiento</p>
-              </td>
-            </tr></tbody></table>
-          </td></tr>
-          <tr><td style="padding:0;line-height:0;">
-            <table border="0" width="100%" cellspacing="0" cellpadding="0"><tbody>
-              <tr><td style="background-color:#c8b89a;height:2px;font-size:0;line-height:0;">&nbsp;</td></tr>
-            </tbody></table>
-          </td></tr>
-          <tr><td height="48">&nbsp;</td></tr>
-          <tr><td style="padding-bottom:6px;">
-            <p style="margin:0;font-family:Georgia,serif;font-size:10px;color:#c8b89a;letter-spacing:3px;text-transform:uppercase;">Para</p>
-          </td></tr>
-          <tr><td style="padding-bottom:32px;border-bottom:1px solid #e8e0d5;">
-            <p style="margin:0;font-family:Georgia,serif;font-size:24px;color:#1a1a1a;">${nombreDestinatario}</p>
-          </td></tr>
-          <tr><td height="32">&nbsp;</td></tr>
-          <tr><td style="padding-bottom:40px;">
-            ${bannerAdmin}
-            <div style="font-family:Arial,sans-serif;font-size:14px;color:#3d3d3d;line-height:1.8;">
-              ${bloquesHtml}
-            </div>
-          </td></tr>
-          <tr><td style="border-top:1px solid #e8e0d5;padding-top:32px;">
-            <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:15px;color:#1a1a1a;">Isaac Moreno</p>
-            <p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:9px;color:#c8b89a;letter-spacing:2.5px;text-transform:uppercase;">I.M.Consulting</p>
-            <p style="margin:0;font-family:Georgia,serif;font-size:13px;color:#3d3d3d;font-style:italic;">Bendiciones,</p>
-          </td></tr>
-        </tbody>
-      </table>
-    </td></tr></tbody>
-  </table>
+  <table border="0" width="100%" cellspacing="0" cellpadding="0"><tbody><tr>
+    <td style="padding:40px 16px 56px;" align="center">
+      <table style="max-width:600px;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+        <tr><td style="padding-bottom:32px;border-bottom:1px solid #e8e0d5;" align="center">
+          <img style="display:block;border:0;width:80px;height:auto;" src="https://res.cloudinary.com/dmmiebjew/image/upload/v1780617921/Logo_IM_Consulting_transparente_soyfcj.png" alt="I.M. Consulting" width="80">
+        </td></tr>
+        <tr><td style="background-color:#c8b89a;height:2px;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td height="40">&nbsp;</td></tr>
+        <tr><td style="padding-bottom:6px;">
+          <p style="margin:0;font-family:Georgia,serif;font-size:10px;color:#c8b89a;letter-spacing:3px;text-transform:uppercase;">Para</p>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;border-bottom:1px solid #e8e0d5;">
+          <p style="margin:0;font-family:Georgia,serif;font-size:24px;color:#1a1a1a;">${nombreDestinatario}</p>
+        </td></tr>
+        <tr><td height="32">&nbsp;</td></tr>
+        <tr><td style="padding-bottom:40px;">
+          ${bannerAdmin}
+          <p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:#3d3d3d;line-height:1.9;">¡Tu reporte está listo! Elegir conocerte con esta profundidad pide algo que no abunda: honestidad contigo mismo y disposición real a ver lo que hay.</p>
+          <p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:#3d3d3d;line-height:1.9;">Lo encontrarás <strong>adjunto en PDF</strong> a este correo. Es una síntesis ultra personalizada — léelo con calma, en un momento donde puedas estar contigo sin prisa.</p>
+          <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#3d3d3d;line-height:1.9;">Las preguntas al final de cada sección son las que más trabajo hacen. No las saltes.</p>
+        </td></tr>
+        <tr><td style="border-top:1px solid #e8e0d5;padding-top:32px;">
+          <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:15px;color:#1a1a1a;">Isaac Moreno</p>
+          <p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:9px;color:#c8b89a;letter-spacing:2.5px;text-transform:uppercase;">I.M.Consulting</p>
+          <p style="margin:0;font-family:Georgia,serif;font-size:13px;color:#3d3d3d;font-style:italic;">Bendiciones,</p>
+        </td></tr>
+      </tbody></table>
+    </td></tr></tbody></table>
 </body></html>`;
+}
+
+// ── Enviar email con PDF adjunto ──────────────────────────────────────────────
+async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido, pdfBuffer) {
+  const planNombre = plan === 'completo' ? 'Completo' : 'Esencial';
+  const subject    = `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`;
+  const html       = buildEmailBody(nombreDestinatario, nombreCliente, plan, id_pedido);
+  const filename   = `Reporte-IM-Consulting-${nombreCliente.replace(/\s+/g, '-')}.pdf`;
 
   // Intentar Gmail primero, fallback a Resend
   try {
     await transporter.sendMail({
-      from:    `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
-      to,
-      subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
-      html,
+      from: `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
+      to, subject, html,
+      attachments: pdfBuffer ? [{ filename, content: pdfBuffer }] : [],
     });
   } catch (gmailErr) {
     console.warn(`[EMAIL] Gmail falló (${gmailErr.message}) — usando Resend fallback`);
     const { Resend } = require('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
-      from:    process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
-      to,
-      subject: `${nombreCliente}, tu Reporte IM Consulting (${planNombre}) ya está listo`,
-      html,
+      from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
+      to, subject, html,
+      attachments: pdfBuffer ? [{ filename, content: pdfBuffer.toString('base64') }] : [],
     });
   }
 }
@@ -317,22 +360,33 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
     }
 
     const bloquesHtml = bloques.map(b => `
-      <section style="margin-bottom:2rem">
-        <h2 style="font-size:1.1rem;color:#1a1a1a;border-bottom:1px solid #e0e0e0;padding-bottom:0.5rem">${b.titulo}</h2>
-        <div style="line-height:1.8;color:#333">${b.contenido}</div>
+      <section>
+        <h2>${b.titulo}</h2>
+        <div class="cuerpo">${b.contenido.replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>')}</div>
       </section>
     `).join('');
 
-    // ── Guardar reporte en disco ANTES de enviar ───────────────────────────
+    // ── Guardar reporte en disco ANTES de enviar (nunca se pierde) ──────────
     const archivoHtml = `/tmp/reporte-${id_pedido}.html`;
     const archivoJson = `/tmp/reporte-${id_pedido}.json`;
-    fs.writeFileSync(archivoHtml, `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte ${nombre}</title></head><body>${bloquesHtml}</body></html>`);
+    const printHtml   = buildPrintHtml(nombre, plan, bloquesHtml);
+    fs.writeFileSync(archivoHtml, printHtml);
     fs.writeFileSync(archivoJson, JSON.stringify({ id_pedido, nombre, email, plan, fecha: new Date().toISOString(), bloques }, null, 2));
     console.log(`[${id_pedido}] 💾 Reporte guardado en ${archivoHtml}`);
 
+    // ── Generar PDF ────────────────────────────────────────────────────────
+    let pdfBuffer = null;
+    try {
+      pdfBuffer = await generatePdf(printHtml);
+      fs.writeFileSync(`/tmp/reporte-${id_pedido}.pdf`, pdfBuffer);
+      console.log(`[${id_pedido}] 📑 PDF generado: ${(pdfBuffer.length / 1024).toFixed(0)} KB`);
+    } catch (pdfErr) {
+      console.error(`[${id_pedido}] ⚠️ PDF falló (${pdfErr.message}) — se enviará sin adjunto`);
+    }
+
     // ── Enviar emails ──────────────────────────────────────────────────────
     try {
-      await sendEmail(email, nombre, nombre, plan, id_pedido, bloquesHtml);
+      await sendEmail(email, nombre, nombre, plan, id_pedido, pdfBuffer);
       console.log(`[${id_pedido}] ✅ Email enviado a ${email}`);
     } catch (emailErr) {
       console.error(`[${id_pedido}] ❌ Email al cliente falló: ${emailErr.message}`);
@@ -341,7 +395,7 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
 
     try {
       const isaacEmail = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
-      await sendEmail(isaacEmail, 'Isaac', nombre, plan, id_pedido, bloquesHtml);
+      await sendEmail(isaacEmail, 'Isaac', nombre, plan, id_pedido, pdfBuffer);
       console.log(`[${id_pedido}] ✅ Copia enviada a Isaac`);
     } catch (copyErr) {
       console.warn(`[${id_pedido}] ⚠️ Copia a Isaac falló: ${copyErr.message}`);
