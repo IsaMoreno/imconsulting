@@ -325,21 +325,24 @@ async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido,
   const html       = buildEmailBody(nombreDestinatario, nombreCliente, plan, id_pedido);
   const filename   = `Reporte-IM-Consulting-${nombreCliente.replace(/\s+/g, '-')}.pdf`;
 
-  // Intentar Gmail primero, fallback a Resend
+  // Resend primario (envía desde el dominio verificado im-consulting.me).
+  // Gmail solo como fallback si se configuran GMAIL_USER/GMAIL_PASS.
   try {
-    await transporter.sendMail({
-      from: `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
-      to, subject, html,
-      attachments: pdfBuffer ? [{ filename, content: pdfBuffer }] : [],
-    });
-  } catch (gmailErr) {
-    console.warn(`[EMAIL] Gmail falló (${gmailErr.message}) — usando Resend fallback`);
     const { Resend } = require('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
       to, subject, html,
       attachments: pdfBuffer ? [{ filename, content: pdfBuffer.toString('base64'), content_type: 'application/pdf' }] : [],
+    });
+  } catch (resendErr) {
+    // ponytail: sin Gmail configurado no hay otro canal → propaga el error
+    if (!process.env.GMAIL_USER) throw resendErr;
+    console.warn(`[EMAIL] Resend falló (${resendErr.message}) — usando Gmail fallback`);
+    await transporter.sendMail({
+      from: `"I.M.Consulting" <${process.env.GMAIL_USER}>`,
+      to, subject, html,
+      attachments: pdfBuffer ? [{ filename, content: pdfBuffer }] : [],
     });
   }
 }
