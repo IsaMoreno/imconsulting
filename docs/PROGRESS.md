@@ -24,6 +24,15 @@
   de dataset) viven en `api/generate-report.js` + `engine/`, que ya no se usan. Solo la
   auditoría (`api/audit-bloque.js`) sobrevivió a Railway. Railway no cachea ni trackea tokens.
 
+**Verificación Fase 1 (parcial):** Railway `/health`→200, Netlify sitio→200, función webhook→405 a GET.
+Falta (solo Isaac, dashboards): `ADMIN_SECRET` igual en ambas plataformas, Stripe en modo live, pago e2e real.
+
+**Limpieza Fase 3 (commit 37d8c72):** borrado el flujo Netlify muerto (`generate-report`,
+`admin-report*`, `send-email`, `template-injector`, `html-to-pdf`, `compute_dataset/`, `api/api/`);
+`webhook.js` reducido a solo el handler vivo; `netlify.toml` sin la función Python; scripts one-off
+movidos a `scripts/`. Smoke test local: `webhook.js` carga OK, los 6 api/ vivos pasan `node --check`.
+⚠️ Este cambio toca el camino de pago → **no deployar hasta hacer redeploy + smoke test + pago de prueba.**
+
 **Pendiente:** ver `docs/ROADMAP.md`.
 
 ---

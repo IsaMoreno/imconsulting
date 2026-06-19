@@ -26,14 +26,13 @@ PDF por email). Lo que falta es confirmar producción, limpiar deuda y blindar e
 
 ## Fase 3 — Limpieza de código muerto (evita que la doc se vuelva a desincronizar)
 
-- [ ] Borrar flujo Netlify viejo en `api/`: `template-injector.js`, `html-to-pdf.js`,
-      `send-email.js`, `admin-report.js`, `admin-report-background.js`, `generate-report.js`,
-      `compute_dataset/`
-- [ ] Limpiar imports y funciones muertas dentro de `api/webhook.js`
-      (líneas 17-19 + `buildDataset`/`geocodificar`/`resolverTimezone`/`generarHtmlDeBloques`/`esc`)
-- [ ] Mover scripts sueltos de raíz a `scripts/` o borrar: `patch-*.js`, `generate-pdf-local.js(.bak)`,
-      `integrar-graficos.js`, `limpiar-perfil-y-css.js`, `engine_matriz_nuevo.py`, `generar-bloques-faltantes.js`
-- [ ] Decidir destino de `generate-elizabeth.js` (¿queda como herramienta admin manual documentada?)
+- [x] Borrar flujo Netlify viejo en `api/` + dir anidado `api/api/` — 2026-06-18 (commit 37d8c72)
+- [x] Limpiar imports y funciones muertas dentro de `api/webhook.js` — 2026-06-18
+- [x] Mover scripts sueltos de raíz a `scripts/` (gitignored) — 2026-06-18
+- [ ] **PENDIENTE verificar tras deploy:** este cambio toca `webhook.js`+`netlify.toml` → necesita
+      redeploy de Netlify + smoke test (función webhook responde 405 a GET) + 1 pago de prueba
+- [ ] `netlify.toml` aún tiene `pip install -r requirements.txt` en build, ya vestigial (no quedan funciones Python)
+- [ ] Decidir destino de `generate-elizabeth.js` (herramienta admin manual, hoy untracked en raíz)
 
 ## Fase 4 — Recuperar optimizaciones perdidas en la migración a Railway
 
