@@ -23,15 +23,14 @@ PDF por email). Lo que falta es confirmar producción, limpiar deuda y blindar e
 > Dominio comprado: **`im-consulting.me`** (con guion; `imconsulting.me` estaba ocupado).
 > Ojo: varias referencias en código/docs dicen `imconsulting.me` sin guion → hay que corregirlas.
 
-- [ ] Apuntar `im-consulting.me` a Netlify (DNS) + activar HTTPS
-- [ ] Definir `SITE_URL=https://im-consulting.me` como env var en Netlify (lo usa `webhook.js`)
-- [ ] `public/checkout.html:657` — `WEBHOOK_URL` (hoy `imconsulting.netlify.app`)
-- [ ] `public/confirmation.html:440,445` — emails de soporte `support@imconsulting.me` → decidir
-      `support@im-consulting.me` (requiere configurar correo del dominio) o dejar Gmail
-- [ ] `api/webhook.js:81` — `return_url` default (hoy `imconsulting.netlify.app`)
-- [ ] `DEPLOYMENT.md` — corregir el dominio a `im-consulting.me`
-- [ ] Verificar que el correo del reporte (`REPORT_EMAIL_FROM` en Railway) use el dominio correcto si
-      se quiere `from` con marca propia (hoy sale por Gmail)
+- [x] Apuntar `im-consulting.me` a Netlify (Netlify DNS, primario + www) — 2026-06-18; SSL emitiéndose
+- [x] `public/checkout.html` — `WEBHOOK_URL` ahora relativo — 2026-06-18
+- [x] `public/confirmation.html` — `WEBHOOK_URL` relativo + soporte `support@im-consulting.me` — 2026-06-18
+- [x] `api/webhook.js` — `return_url` ya usa `SITE_URL` (basta con setear la env var)
+- [x] `DEPLOYMENT.md` — reescrito al flujo real con dominio correcto — 2026-06-18
+- [ ] **tú:** setear `SITE_URL=https://im-consulting.me` como env var en Netlify
+- [ ] **tú:** configurar buzón/reenvío de `support@im-consulting.me` (si no, los correos de soporte se pierden)
+- [ ] Opcional: `REPORT_EMAIL_FROM` (Railway) con dominio propio si quieres `from` con marca (hoy sale por Gmail)
 
 ## Fase 3 — Limpieza de código muerto (evita que la doc se vuelva a desincronizar)
 
