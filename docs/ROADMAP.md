@@ -18,11 +18,20 @@ PDF por email). Lo que falta es confirmar producción, limpiar deuda y blindar e
 - [ ] Confirmar Stripe en modo **live** (no test keys)
 - [ ] Prueba end-to-end real: un pago de prueba → reporte llega por correo con PDF
 
-## Fase 2 — Dominio
+## Fase 2 — Dominio (im-consulting.me)
 
-- [ ] Apuntar `imconsulting.me` a Netlify
-- [ ] Actualizar `WEBHOOK_URL` en `public/checkout.html` (hoy hardcodea `imconsulting.netlify.app`)
-      y `return_url`/`SITE_URL` en `api/webhook.js`
+> Dominio comprado: **`im-consulting.me`** (con guion; `imconsulting.me` estaba ocupado).
+> Ojo: varias referencias en código/docs dicen `imconsulting.me` sin guion → hay que corregirlas.
+
+- [ ] Apuntar `im-consulting.me` a Netlify (DNS) + activar HTTPS
+- [ ] Definir `SITE_URL=https://im-consulting.me` como env var en Netlify (lo usa `webhook.js`)
+- [ ] `public/checkout.html:657` — `WEBHOOK_URL` (hoy `imconsulting.netlify.app`)
+- [ ] `public/confirmation.html:440,445` — emails de soporte `support@imconsulting.me` → decidir
+      `support@im-consulting.me` (requiere configurar correo del dominio) o dejar Gmail
+- [ ] `api/webhook.js:81` — `return_url` default (hoy `imconsulting.netlify.app`)
+- [ ] `DEPLOYMENT.md` — corregir el dominio a `im-consulting.me`
+- [ ] Verificar que el correo del reporte (`REPORT_EMAIL_FROM` en Railway) use el dominio correcto si
+      se quiere `from` con marca propia (hoy sale por Gmail)
 
 ## Fase 3 — Limpieza de código muerto (evita que la doc se vuelva a desincronizar)
 
