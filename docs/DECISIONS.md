@@ -6,6 +6,13 @@
 
 ---
 
+### D-008 · Resend es el remitente primario desde `reportes@im-consulting.me` (revierte el orden de D-003)
+**Por qué:** Dominio `im-consulting.me` verificado en Resend (2026-06-18) → envío con marca propia
+y buena entregabilidad. Gmail desde `@gmail.com` no puede usar `from` del dominio sin Google
+Workspace de pago, y la App Password obligaba a 2FA. Ahora `sendEmail()` usa Resend por defecto;
+Gmail queda como fallback **opcional** solo si se configuran `GMAIL_USER`/`GMAIL_PASS` (hoy vacías).
+Esto invierte el orden de D-003 (que ponía Gmail primario).
+
 ### D-007 · Railway es el generador canónico, Netlify solo cobra y sirve el sitio
 **Por qué:** Las Netlify Functions tienen timeout corto (10-26s), insuficiente para 14-20
 llamadas a Claude con auditoría y reintentos (2-10 min). Railway corre Express en Docker sin

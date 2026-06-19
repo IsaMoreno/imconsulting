@@ -33,6 +33,12 @@ Falta (solo Isaac, dashboards): `ADMIN_SECRET` igual en ambas plataformas, Strip
 movidos a `scripts/`. Smoke test local: `webhook.js` carga OK, los 6 api/ vivos pasan `node --check`.
 ⚠️ Este cambio toca el camino de pago → **no deployar hasta hacer redeploy + smoke test + pago de prueba.**
 
+**Dominio + email (sesión tarde):** DNS y SSL de `im-consulting.me` activos (DNS autoritativo en
+**Cloudflare**, no Netlify pese al panel). Dominio verificado en **Resend** → `sendEmail()` cambiado
+a **Resend primario** desde `reportes@im-consulting.me` (Gmail ya no se necesita; queda como fallback
+opcional). Ver D-008. `.env.railway` listo con valores reales (sin Gmail). URLs del checkout pasadas
+a rutas relativas. Pendiente: setear vars en dashboards (ADMIN_SECRET igual en ambos) + push + test e2e.
+
 **Pendiente:** ver `docs/ROADMAP.md`.
 
 ---

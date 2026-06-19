@@ -29,7 +29,7 @@ public/checkout.html  (Netlify, sitio estático)
             - auditoría (api/audit-bloque.js, 8 criterios) con hasta 4 reintentos
        · buildPrintHtml() inline → generatePdf() (Puppeteer + Chromium del Dockerfile)
        · guarda en /tmp antes de enviar (nunca se pierde)
-       · sendEmail() Gmail/Nodemailer → fallback Resend, PDF adjunto + copia a Isaac
+       · sendEmail() Resend desde reportes@im-consulting.me (Gmail opcional fallback), PDF adjunto + copia a Isaac
 ```
 
 **Dos plataformas, dos roles:**
