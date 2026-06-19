@@ -6,6 +6,17 @@
 
 ---
 
+### D-009 · Stripe NO es viable — cuenta cerrada por categoría prohibida (2026-06-18) 🚫
+**Qué pasó:** Stripe cerró la cuenta clasificando IM Consulting como "servicios de videntes/
+adivinación" (astrología, numerología, Matriz del Destino), categoría prohibida en su contrato.
+Pagos suspendidos. **No reintentar Stripe ni PayPal/Square** — misma prohibición de categoría;
+reaplicar arriesga otro cierre + retención de fondos.
+**Implicación:** todo el cobro está bloqueado hasta migrar a un procesador "high-risk" que acepte
+la categoría (multi-moneda global). El motor de Railway es agnóstico al procesador → solo cambian
+`api/webhook.js` + `public/checkout.html`. Decisión de procesador: PENDIENTE (ver ROADMAP Fase 0).
+**Alcance portafolio:** misma categoría afecta a elohim-calculator (también Stripe) y a shem72 si
+monetiza. Elegir UN procesador para todo el portafolio espiritual.
+
 ### D-008 · Resend es el remitente primario desde `reportes@im-consulting.me` (revierte el orden de D-003)
 **Por qué:** Dominio `im-consulting.me` verificado en Resend (2026-06-18) → envío con marca propia
 y buena entregabilidad. Gmail desde `@gmail.com` no puede usar `from` del dominio sin Google

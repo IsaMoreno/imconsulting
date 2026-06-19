@@ -9,6 +9,12 @@ Este proyecto avanza a lo largo de varias sesiones. Por eso:
 - **Verifica el flujo en el código antes de asumir** que esta doc o un diagrama es correcto
   (esta doc ya estuvo gravemente desincronizada una vez — ver PROGRESS 2026-06-18).
 
+## 🚫 BLOQUEO ACTIVO — cobro caído (2026-06-18)
+Stripe **cerró la cuenta** por categoría prohibida (videntes/astrología). El flujo de pago de
+abajo describe la arquitectura, pero **el cobro con Stripe NO funciona** y no debe reintentarse.
+Migración a procesador "high-risk" pendiente (ver `docs/ROADMAP.md` Fase 0 y `DECISIONS.md` D-009).
+Cuando se elija procesador, solo cambian `api/webhook.js` + `public/checkout.html`.
+
 ## Qué es este proyecto
 Plataforma de reportes de autoconocimiento personalizados. El cliente paga en Stripe y el
 sistema genera un reporte con bloques narrativos (Claude Sonnet-4-6) y se lo envía por correo

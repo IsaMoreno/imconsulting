@@ -39,7 +39,13 @@ a **Resend primario** desde `reportes@im-consulting.me` (Gmail ya no se necesita
 opcional). Ver D-008. `.env.railway` listo con valores reales (sin Gmail). URLs del checkout pasadas
 a rutas relativas. Pendiente: setear vars en dashboards (ADMIN_SECRET igual en ambos) + push + test e2e.
 
-**Pendiente:** ver `docs/ROADMAP.md`.
+**🚫 BLOQUEO CRÍTICO (fin de sesión):** Stripe **cerró la cuenta** por categoría prohibida
+(videntes/astrología). Todo el cobro está caído. No reintentar Stripe/PayPal/Square. Se registró
+en D-009 y se creó ROADMAP Fase 0 (desbloquear cobro). Investigación de procesadores high-risk en
+curso (QuadraPay, Corepay, PayDiverse, etc.; alternativas: Gumroad/Payhip/cripto). Riesgo de
+portafolio: elohim-calculator (mismo Stripe) y shem72 si monetiza. Cobro interino: ninguno por ahora.
+
+**Pendiente:** ver `docs/ROADMAP.md` (Fase 0 es la máxima prioridad).
 
 ---
 

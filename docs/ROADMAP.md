@@ -3,8 +3,23 @@
 > Fases con checkboxes. Prioridad = qué desbloquea producción. Al completar un item, marca el
 > checkbox y registra el avance en `docs/PROGRESS.md`. Decisiones de arquitectura → `docs/DECISIONS.md`.
 
-**Estado general:** el flujo pago→reporte ya funciona end-to-end (checkout → Stripe → Railway →
-PDF por email). Lo que falta es confirmar producción, limpiar deuda y blindar el camino del dinero.
+**Estado general:** el flujo técnico funciona end-to-end, PERO el cobro está **BLOQUEADO**:
+Stripe cerró la cuenta por categoría prohibida (ver Fase 0). Hasta resolver el procesador, no hay
+go-live de pagos. El resto (dominio, email, limpieza) sí está listo.
+
+## Fase 0 — 🚫 DESBLOQUEAR EL COBRO (máxima prioridad — sin esto no hay negocio)
+
+> Stripe cerró la cuenta (videntes/astrología, prohibido). No reintentar Stripe/PayPal/Square.
+> Ver `docs/DECISIONS.md` D-009.
+
+- [ ] Verificar si **elohim-calculator** cobra por la misma cuenta de Stripe (estaría caído también)
+- [ ] Revisar si Stripe retiene fondos y cómo/cuándo se liberan
+- [ ] Elegir procesador "high-risk" que acepte la categoría con pagos globales (investigación en curso)
+- [ ] Confirmar de cada candidato: onboarding México · comisión+reserva · integración (API vs hosted) · payout
+- [ ] Integrar el nuevo procesador en `api/webhook.js` + `public/checkout.html` (motor Railway sin cambios)
+- [ ] Decidir si conviene checkout hosted (simplifica `checkout.html`) o API directa
+
+> ⚠️ Las fases 1-2 de Stripe abajo quedan EN PAUSA hasta resolver Fase 0.
 
 ---
 
