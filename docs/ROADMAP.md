@@ -14,10 +14,21 @@ go-live de pagos. El resto (dominio, email, limpieza) sí está listo.
 
 - [ ] Verificar si **elohim-calculator** cobra por la misma cuenta de Stripe (estaría caído también)
 - [ ] Revisar si Stripe retiene fondos y cómo/cuándo se liberan
-- [ ] Elegir procesador "high-risk" que acepte la categoría con pagos globales (investigación en curso)
-- [ ] Confirmar de cada candidato: onboarding México · comisión+reserva · integración (API vs hosted) · payout
-- [ ] Integrar el nuevo procesador en `api/webhook.js` + `public/checkout.html` (motor Railway sin cambios)
-- [ ] Decidir si conviene checkout hosted (simplifica `checkout.html`) o API directa
+- [ ] Integrar el procesador elegido en `api/webhook.js` + `public/checkout.html` (motor Railway sin cambios)
+- [ ] Tramitar RFC/entidad (prerrequisito del carril de tarjetas; cripto no lo exige)
+
+**Investigación de procesadores (2026-06-18) — conclusión:**
+- Tarjetas (US y MX) **todas prohíben la categoría**: Stripe, PayPal, Square, Gumroad, Lemon Squeezy,
+  **Conekta ("esoterismo")**. Mercado Pago/Openpay muy probable igual. Card rails = cerrado.
+- Excepciones (adquirente regional laxo / cuenta high-risk) **requieren entidad registrada** → bloqueadas
+  hasta tener RFC.
+- **Cripto = único carril abierto sin entidad.** Recomendado: **NOWPayments** (0.5-1%, sin KYC crypto-only,
+  IPN webhook + REST, encaja en webhook.js). Coinbase Commerce DESCARTADO (cerró México mar-2026).
+  BTCPay = gratis pero self-hosted.
+- Flujo: cliente paga USDT → NOWPayments IPN → Netlify → Railway → off-ramp a pesos vía **Bitso**.
+- Caveat: cripto encoge el mercado (audiencia en español, pocos pagan cripto). Plan híbrido:
+  cripto ya + tarjeta vía entidad+high-risk después.
+- Competencia destiny-matrix.online usa adquirente regional (MonoBank, ucraniano) → no replicable desde MX.
 
 > ⚠️ Las fases 1-2 de Stripe abajo quedan EN PAUSA hasta resolver Fase 0.
 
