@@ -10,8 +10,8 @@ PDF por email). Lo que falta es confirmar producción, limpiar deuda y blindar e
 
 ## Fase 1 — Confirmar que producción está viva (DESBLOQUEANTE)
 
-- [ ] Verificar deploy de Netlify (sitio + función `webhook`) en `imconsulting.netlify.app`
-- [ ] Verificar deploy de Railway (`/health` responde) y que `RAILWAY_URL` apunta ahí
+- [x] Verificar deploy de Netlify (sitio 200 + función `webhook` 405 a GET) en `imconsulting.netlify.app` — 2026-06-18
+- [x] Verificar deploy de Railway (`/health` → 200 `{"status":"ok"}`) y que el código apunta a `imconsulting-production.up.railway.app` — 2026-06-18
 - [ ] Confirmar variables de entorno en ambas plataformas:
       Netlify: `STRIPE_SECRET_KEY`, `ADMIN_SECRET`, `RAILWAY_URL` ·
       Railway: `ANTHROPIC_API_KEY`, `ADMIN_SECRET`, `GMAIL_USER`, `GMAIL_PASS`, `RESEND_API_KEY`, `ISAAC_EMAIL`
