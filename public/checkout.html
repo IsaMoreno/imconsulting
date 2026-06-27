@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout — IM Consulting</title>
-    <script src="https://js.stripe.com/v3/"></script>
     <style>
         * {
             margin: 0;
@@ -507,32 +506,18 @@
         <!-- Left: Plan selection and info -->
         <div class="main-content">
             <div class="plan-selector">
-                <!-- Plan Esencial -->
-                <div class="plan-card selected" data-plan="esencial" data-price="55">
-                    <div class="plan-name">Esencial</div>
-                    <div class="plan-description">Autoconocimiento profundo</div>
-                    <div class="plan-price">$55</div>
-                    <div class="plan-price-period">pago único</div>
-                    <ul class="plan-features">
-                        <li>14 bloques de análisis</li>
-                        <li>Perfil astro-numerológico completo</li>
-                        <li>Matriz del Destino básica</li>
-                        <li>PDF descargable personalizado</li>
-                    </ul>
-                </div>
-
-                <!-- Plan Completo -->
-                <div class="plan-card" data-plan="completo" data-price="111">
-                    <div class="plan-name">Completo</div>
+                <!-- Plan único -->
+                <div class="plan-card selected" data-plan="completo" data-price="111">
+                    <div class="plan-name">Reporte de Autoconocimiento</div>
                     <div class="plan-description">Transformación integral + sesión 1:1</div>
                     <div class="plan-price">$111</div>
                     <div class="plan-price-period">pago único</div>
                     <ul class="plan-features">
                         <li>20 bloques de análisis completo</li>
+                        <li>Numerología, carta natal, Kabbalah</li>
                         <li>Matriz del Destino avanzada</li>
-                        <li>Parte II: Transformación</li>
                         <li>Sesión 1:1 con Isaac (30 min)</li>
-                        <li>PDF premium + asesoría personalizada</li>
+                        <li>PDF premium personalizado por correo</li>
                     </ul>
                 </div>
             </div>
@@ -600,23 +585,11 @@
                     <div class="error-message"></div>
                 </div>
 
-                <!-- Información de pago -->
-                <div class="section-title" style="margin-top: 28px;">
-                    <div class="section-title-number">3</div>
-                    Información de pago
-                </div>
-
-                <div class="form-group">
-                    <label>Detalles de tarjeta *</label>
-                    <div id="cardElement" class="stripe-element"></div>
-                    <div id="cardErrors" class="error-message"></div>
-                </div>
-
                 <!-- Resumen -->
-                <div class="summary">
+                <div class="summary" style="margin-top: 28px;">
                     <div class="summary-row">
-                        <span id="planName">Plan Esencial</span>
-                        <span id="planPrice">$55.00</span>
+                        <span>Reporte de Autoconocimiento</span>
+                        <span>$111.00</span>
                     </div>
                     <div class="summary-row">
                         <span>Impuesto (0%)</span>
@@ -624,7 +597,7 @@
                     </div>
                     <div class="summary-row summary-total">
                         <span>Total</span>
-                        <span id="totalPrice">$55.00</span>
+                        <span>$111.00</span>
                     </div>
                 </div>
 
@@ -645,240 +618,91 @@
                 <!-- Buttons -->
                 <div class="button-group" id="buttonGroup">
                     <button type="button" class="btn-back" onclick="history.back()">Atrás</button>
-                    <button type="submit" class="btn-submit" id="submitBtn">Pagar $55.00</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">Continuar al pago →</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Configuración
-        const STRIPE_KEY = 'pk_test_51TXlFIQ89QS6kH0FJwsyLYaOpn8Rqh0s2Lxh7lQzfLO5XGBoy5n5MhRYqskxL2pT0PhcfCtkIy4DfjNkT2ORrrxS00XehPsj7v'; // Reemplazar con tu clave pública real
-        const WEBHOOK_URL = '/.netlify/functions/webhook';
-
-        let stripe, elements, cardElement;
-        let selectedPlan = 'esencial';
-        let selectedPrice = 55;
-
-        // Inicializar Stripe
-        function initStripe() {
-            stripe = Stripe(STRIPE_KEY);
-            elements = stripe.elements({
-                appearance: {
-                    theme: 'light',
-                    variables: {
-                        colorPrimary: '#C8B89A',
-                        colorText: '#1a1a1a',
-                        colorTextSecondary: '#666',
-                        colorBorder: '#ddd',
-                        borderRadius: '6px',
-                        fontSizeBase: '13px',
-                        fontFamily: 'inherit',
-                    }
-                }
-            });
-
-            cardElement = elements.create('card');
-            cardElement.mount('#cardElement');
-
-            // Event listeners para el card element
-            cardElement.on('change', function(event) {
-                const displayError = document.getElementById('cardErrors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                    displayError.classList.add('show');
-                    cardElement.parentElement.classList.add('error');
-                } else {
-                    displayError.textContent = '';
-                    displayError.classList.remove('show');
-                    cardElement.parentElement.classList.remove('error');
-                }
-            });
-
-            cardElement.on('focus', function() {
-                cardElement.parentElement.classList.add('focused');
-            });
-
-            cardElement.on('blur', function() {
-                cardElement.parentElement.classList.remove('focused');
-            });
-        }
-
-        // Plan selection
-        document.querySelectorAll('.plan-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                selectedPlan = this.dataset.plan;
-                selectedPrice = parseInt(this.dataset.price);
-
-                updateSummary();
-            });
-        });
-
-        // Update summary
-        function updateSummary() {
-            const planNames = {
-                'esencial': 'Plan Esencial',
-                'completo': 'Plan Completo'
-            };
-
-            document.getElementById('planName').textContent = planNames[selectedPlan];
-            document.getElementById('planPrice').textContent = `$${selectedPrice}.00`;
-            document.getElementById('totalPrice').textContent = `$${selectedPrice}.00`;
-            document.getElementById('submitBtn').textContent = `Pagar $${selectedPrice}.00`;
-        }
-
-        // Validación de formulario
         function validateForm() {
-            const inputs = document.querySelectorAll('input[required], select[required]');
+            const inputs = document.querySelectorAll('input[required]');
             let isValid = true;
 
             inputs.forEach(input => {
                 const errorDiv = input.parentElement.querySelector('.error-message');
-                
                 if (!input.value.trim()) {
                     input.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Este campo es obligatorio';
-                        errorDiv.classList.add('show');
-                    }
+                    if (errorDiv) { errorDiv.textContent = 'Este campo es obligatorio'; errorDiv.classList.add('show'); }
                     isValid = false;
                 } else {
                     input.classList.remove('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = '';
-                        errorDiv.classList.remove('show');
+                    if (errorDiv) { errorDiv.textContent = ''; errorDiv.classList.remove('show'); }
+
+                    if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                        input.classList.add('error');
+                        if (errorDiv) { errorDiv.textContent = 'Email inválido'; errorDiv.classList.add('show'); }
+                        isValid = false;
                     }
 
-                    // Validación de email
-                    if (input.type === 'email') {
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(input.value)) {
-                            input.classList.add('error');
-                            if (errorDiv) {
-                                errorDiv.textContent = 'Email inválido';
-                                errorDiv.classList.add('show');
-                            }
-                            isValid = false;
-                        }
-                    }
-
-                    // Validación de fecha
                     if (input.type === 'date') {
-                        const birthDate = new Date(input.value);
-                        const today = new Date();
-                        const age = today.getFullYear() - birthDate.getFullYear();
-                        
+                        const age = new Date().getFullYear() - new Date(input.value).getFullYear();
                         if (age < 18 || age > 120) {
                             input.classList.add('error');
-                            if (errorDiv) {
-                                errorDiv.textContent = 'Edad no válida (debes ser mayor de 18)';
-                                errorDiv.classList.add('show');
-                            }
+                            if (errorDiv) { errorDiv.textContent = 'Edad no válida (mayor de 18)'; errorDiv.classList.add('show'); }
                             isValid = false;
                         }
                     }
                 }
             });
 
-            // Validar términos
-            const termsCheckbox = document.getElementById('terms');
-            if (!termsCheckbox.checked) {
-                termsCheckbox.parentElement.style.borderColor = '#e74c3c';
+            if (!document.getElementById('terms').checked) {
+                document.getElementById('terms').parentElement.style.color = '#e74c3c';
                 isValid = false;
             }
 
             return isValid;
         }
 
-        // Submit form
         document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (!validateForm()) {
-                showError('Por favor, completa todos los campos correctamente');
+                const err = document.getElementById('errorMessage');
+                err.textContent = 'Por favor, completa todos los campos correctamente';
+                err.classList.add('show');
                 return;
             }
 
-            // Mostrar loading
             document.getElementById('loading').classList.add('show');
             document.getElementById('buttonGroup').style.display = 'none';
+            document.getElementById('loading').querySelector('p').textContent = 'Guardando tus datos...';
 
             try {
-                // Crear payment intent con Stripe
-                const paymentMethodResult = await stripe.createPaymentMethod({
-                    type: 'card',
-                    card: cardElement,
-                    billing_details: {
-                        name: document.getElementById('nombre').value,
-                        email: document.getElementById('email').value,
-                    }
-                });
-
-                if (paymentMethodResult.error) {
-                    throw new Error(paymentMethodResult.error.message);
-                }
-
-                // Enviar datos al webhook
-                const formData = {
-                    paymentMethodId: paymentMethodResult.paymentMethod.id,
-                    plan: selectedPlan,
-                    cliente: {
-                        nombre: document.getElementById('nombre').value,
-                        email: document.getElementById('email').value,
-                        fechaNacimiento: document.getElementById('fechaNacimiento').value,
-                        horaNacimiento: document.getElementById('horaNacimiento').value,
-                        ciudad: document.getElementById('ciudad').value,
-                    }
-                };
-
-                const response = await fetch(WEBHOOK_URL, {
+                const res = await fetch('/.netlify/functions/guardar-pedido', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre:          document.getElementById('nombre').value,
+                        email:           document.getElementById('email').value,
+                        fechaNacimiento: document.getElementById('fechaNacimiento').value,
+                        horaNacimiento:  document.getElementById('horaNacimiento').value,
+                        ciudad:          document.getElementById('ciudad').value,
+                    }),
                 });
 
-                const data = await response.json();
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error guardando datos');
 
-                if (data.success) {
-                    showSuccess('¡Pago procesado! Tu reporte se está generando...');
-                    
-                    // Redirigir a página de confirmación después de 2 segundos
-                    setTimeout(() => {
-                        window.location.href = '/confirmation.html?id=' + data.id_pedido;
-                    }, 2000);
-                } else {
-                    throw new Error(data.error || 'Error procesando pago');
-                }
+                window.location.href = data.hotmart_url;
 
-            } catch (error) {
-                showError('Error: ' + error.message);
+            } catch (err) {
+                document.getElementById('errorMessage').textContent = 'Error: ' + err.message;
+                document.getElementById('errorMessage').classList.add('show');
                 document.getElementById('loading').classList.remove('show');
                 document.getElementById('buttonGroup').style.display = 'flex';
             }
         });
-
-        // Helper functions
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            window.scrollTo(0, 0);
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
-            window.scrollTo(0, 0);
-        }
-
-        // Inicializar cuando carga la página
-        window.addEventListener('load', initStripe);
     </script>
 </body>
 </html>
