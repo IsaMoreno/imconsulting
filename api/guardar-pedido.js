@@ -32,6 +32,7 @@ exports.handler = async (event) => {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/pedidos`, {
     method: 'POST',
     headers: {
+      'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation',

@@ -49,7 +49,7 @@ exports.handler = async (event) => {
   // Buscar pedido pendiente en Supabase
   const query = `${SUPABASE_URL}/rest/v1/pedidos?email=eq.${encodeURIComponent(email)}&status=eq.pending&order=created_at.desc&limit=1`;
   const sbRes = await fetch(query, {
-    headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Accept': 'application/json' },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Accept': 'application/json' },
   });
 
   const pedidos = await sbRes.json();
@@ -102,6 +102,7 @@ async function actualizarStatus(id, status, transaction) {
   await fetch(`${SUPABASE_URL}/rest/v1/pedidos?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
+      'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
     },
