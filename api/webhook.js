@@ -25,6 +25,10 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // ponytail: log temporal para capturar payload de Hotmart — remover tras integración
+    console.log('[HOTMART_PAYLOAD] headers:', JSON.stringify(event.headers));
+    console.log('[HOTMART_PAYLOAD] body:', event.body);
+
     let body;
     try {
       body = JSON.parse(event.body || '{}');
