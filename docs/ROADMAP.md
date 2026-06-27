@@ -3,21 +3,23 @@
 > Fases con checkboxes. Prioridad = qué desbloquea producción. Al completar un item, marca el
 > checkbox y registra el avance en `docs/PROGRESS.md`. Decisiones de arquitectura → `docs/DECISIONS.md`.
 
-**Estado general:** el flujo técnico funciona end-to-end, PERO el cobro está **BLOQUEADO**:
-Stripe cerró la cuenta por categoría prohibida (ver Fase 0). Hasta resolver el procesador, no hay
-go-live de pagos. El resto (dominio, email, limpieza) sí está listo.
+**Estado general:** el flujo técnico funciona end-to-end. El cobro se **migró a Hotmart** (D-010,
+2026-06-26), superando el bloqueo de Stripe. Falta la verificación e2e real de un pago Hotmart.
+El resto (dominio, email, limpieza) está listo.
 
-## Fase 0 — 🚫 DESBLOQUEAR EL COBRO (máxima prioridad — sin esto no hay negocio)
+## Fase 0 — ✅ COBRO MIGRADO A HOTMART (D-010) — falta verificación e2e
 
-> Stripe cerró la cuenta (videntes/astrología, prohibido). No reintentar Stripe/PayPal/Square.
-> Ver `docs/DECISIONS.md` D-009.
+> Stripe cerró la cuenta (videntes/astrología). En vez del carril cripto/NOWPayments que se
+> recomendaba aquí, se eligió **Hotmart**. Ver `docs/DECISIONS.md` D-009 (Stripe) y D-010 (Hotmart).
 
-- [ ] Verificar si **elohim-calculator** cobra por la misma cuenta de Stripe (estaría caído también)
-- [ ] Revisar si Stripe retiene fondos y cómo/cuándo se liberan
-- [ ] Integrar el procesador elegido en `api/webhook.js` + `public/checkout.html` (motor Railway sin cambios)
-- [ ] Tramitar RFC/entidad (prerrequisito del carril de tarjetas; cripto no lo exige)
+- [x] Integrar el procesador en `api/webhook.js` + `public/checkout.html` — 2026-06-26 (Hotmart, commit f5c2c9a)
+- [x] Persistencia de pedidos en Supabase (`api/guardar-pedido.js`, tabla `pedidos`) — 2026-06-26
+- [ ] Setear env vars en Netlify: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `HOTMART_HOTTOK`
+- [ ] Configurar el producto/checkout en el dashboard de Hotmart + el webhook `PURCHASE_APPROVED`
+- [ ] **Prueba e2e real:** compra Hotmart (sandbox) → fila en `pedidos` → reporte llega por correo
+- [ ] Verificar si **elohim-calculator** (mismo Stripe) sigue caído y si migra también a Hotmart
 
-**Investigación de procesadores (2026-06-18) — conclusión:**
+**Investigación de procesadores previa (2026-06-18) — superada por D-010, se conserva como historia:**
 - Tarjetas (US y MX) **todas prohíben la categoría**: Stripe, PayPal, Square, Gumroad, Lemon Squeezy,
   **Conekta ("esoterismo")**. Mercado Pago/Openpay muy probable igual. Card rails = cerrado.
 - Excepciones (adquirente regional laxo / cuenta high-risk) **requieren entidad registrada** → bloqueadas
@@ -74,16 +76,22 @@ go-live de pagos. El resto (dominio, email, limpieza) sí está listo.
 - [ ] Evaluar si vale re-integrar caché de bloques (solo si hay volumen de clientes con mismo signo+edad)
 - [ ] `compress_dataset` no aplica: Railway arma el dataset inline y es pequeño → descartar
 
-## Fase 5 — Bugs conocidos de persistencia y seguimiento (entrega depende solo del email hoy)
+## Fase 5 — Vestíbulo web / descarga (persistencia parcial ya hecha; entrega depende del email hoy)
 
-- [ ] **ID desincronizado:** `webhook.js` da al cliente un `crypto.randomUUID()`, pero Railway
-      genera otro `admin-xxxxx` (`app.js:426`). El cliente nunca puede consultar su reporte por ID.
-- [ ] **`/tmp` efímero:** Railway guarda `reporte-{id}.{html,json,pdf}` en `/tmp`, que se borra en
-      cada redeploy/reinicio. Si el email falla, el reporte se pierde.
-- [ ] **`check-status.js`/`download-report.js` rotos:** leen el `/tmp` de Netlify, pero el reporte
-      vive en el `/tmp` de Railway → no encuentran nada.
-- [ ] Plan acordado previo: persistencia en Supabase + sync de ID + página web tokenizada de reporte
-      (en vez de depender 100% del email). Evaluar contra YAGNI según volumen real de clientes.
+> Actualizado 2026-06-27: la migración Hotmart ya metió Supabase (tabla `pedidos`) para la mitad
+> delantera del flujo. El plan `2026-06-12-persistencia-sync-vestibulo.md` quedó OBSOLETO (asumía
+> Stripe/SDK/`reports`); si se retoma, reescribir adaptado a Hotmart/REST/`pedidos`.
+
+- [ ] **Gap vivo — `pedido.id` no llega a Railway:** `webhook.js` (líneas 73-80) pasa los datos de
+      nacimiento a Railway pero no el `id` de la fila → Railway no puede actualizar el `pedido`. Es
+      el mismo desync de antes en versión Hotmart. **Bloquea cualquier descarga web.**
+- [ ] **`/tmp` efímero:** Railway guarda el PDF en `/tmp`, que se borra en cada redeploy. Si el
+      email falla, el reporte se pierde. (Lo resuelve subir el PDF al bucket `reportes`.)
+- [ ] **`check-status.js`/`download-report.js` rotos:** leen `/tmp` de Netlify. Reescribir a REST
+      sobre `pedidos` + bucket cuando se construya el vestíbulo.
+- [ ] Para el vestíbulo faltan: bucket privado `reportes`, columnas `progreso`/`pdf_path` en
+      `pedidos` (vía ALTER, NO drop), Railway subiendo el PDF + marcando `completed`, y `reporte.html`.
+- [ ] Evaluar contra YAGNI según volumen real: hoy el cliente ya recibe el PDF por correo.
 
 ## Fase 6 — Tests mínimos del camino del dinero
 

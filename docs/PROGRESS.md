@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-06-27 — Realidad: migración a Hotmart + Supabase ya hecha (no estaba documentada)
+
+**Contexto:** se entró a "ejecutar" el plan de persistencia `docs/superpowers/plans/2026-06-12-persistencia-sync-vestibulo.md` y, al verificar el código (regla de oro de este proyecto), se descubrió que **el código ya avanzó mucho más allá de lo que decían ROADMAP/PROGRESS**. La doc volvió a desincronizarse.
+
+**Lo que el código ya hace (commits `f5c2c9a` 06-26, `753badf` 06-27 — solo código, sin doc):**
+- **Stripe está fuera. El cobro es Hotmart.** `public/checkout.html` ya no usa Stripe.
+- **Supabase ya integrado vía REST** (no el SDK), tabla `pedidos`, env vars `SUPABASE_URL` + `SUPABASE_SECRET_KEY` (ojo: NO `SERVICE_ROLE_KEY`).
+- Flujo real nuevo:
+  ```
+  form → api/guardar-pedido.js → inserta pedido (status='pending') en Supabase → redirige a Hotmart
+  Hotmart PURCHASE_APPROVED → api/webhook.js → busca pedido por email+pending
+     → llama Railway /admin-report → marca status='processing' + guarda hotmart_transaction
+  ```
+- Tabla `pedidos` (creada por Isaac en dashboard): `id uuid`, datos de nacimiento, `plan`/`status` con checks, `hotmart_transaction`. Coincide con el código vivo.
+
+**El plan 2026-06-12 quedó OBSOLETO.** Asumía Stripe, SDK `@supabase/supabase-js`, `SERVICE_ROLE_KEY`, tabla `reports`, id generado en Netlify. Nada de eso aplica. No ejecutar tal cual; si se retoma el vestíbulo, reescribir adaptado a Hotmart/REST/`pedidos`.
+
+**Gap técnico que SIGUE vivo:** `webhook.js` (líneas 73-80) llama a Railway con los datos de nacimiento pero **NO le pasa `pedido.id`** → Railway no sabe qué fila actualizar. Es el mismo desync de la Fase 5, ahora en versión Hotmart. Bloquea cualquier descarga web futura.
+
+**Pendiente para el vestíbulo (descarga web, NO empezado):** bucket `reportes`; columnas `progreso`/`pdf_path` (paid es redundante con status); pasar `pedido.id` a Railway; Railway sube PDF + marca `completed`; reescribir `check-status.js`/`download-report.js` a REST; `reporte.html`. **No urgente** — hoy el cliente recibe el PDF por email.
+
+**⚠️ NO borrar la tabla `pedidos`:** está en uso en producción (`guardar-pedido.js` inserta en cada visita). Cambios de schema solo con `ALTER`.
+
+**Decisión registrada:** D-010 (Hotmart como procesador, revierte la recomendación cripto/NOWPayments del ROADMAP Fase 0).
+
+---
+
 ## 2026-06-18 — Auditoría de realidad y capa de proceso
 
 **Qué se hizo:**

@@ -6,6 +6,19 @@
 
 ---
 
+### D-010 · Hotmart es el procesador de cobro (revierte la recomendación cripto de Fase 0) (2026-06-26)
+**Qué pasó:** se migró el cobro a **Hotmart** (plataforma de infoproductos que acepta la categoría),
+en vez del carril cripto/NOWPayments que el ROADMAP Fase 0 recomendaba el 2026-06-18. Hotmart no
+exige RFC/entidad propia y cobra con tarjeta, así que recupera el mercado en español que el cripto
+encogía. Implementado en `api/guardar-pedido.js` (nuevo: guarda datos + redirige a checkout Hotmart)
+y `api/webhook.js` (reescrito: recibe `PURCHASE_APPROVED`, valida `x-hotmart-hottok`, busca el pedido
+en Supabase por email). `public/checkout.html` ya no usa Stripe.
+**Implicación:** supera D-009 (Stripe). El motor de Railway sigue agnóstico. Env vars nuevas en
+Netlify: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `HOTMART_HOTTOK`. Verificación e2e real (pago Hotmart
+sandbox → reporte) aún pendiente.
+**Nota de persistencia:** se introdujo Supabase (tabla `pedidos`) vía **REST API directa**, no el SDK
+`@supabase/supabase-js`. El plan `2026-06-12-persistencia-sync-vestibulo.md` quedó obsoleto por esto.
+
 ### D-009 · Stripe NO es viable — cuenta cerrada por categoría prohibida (2026-06-18) 🚫
 **Qué pasó:** Stripe cerró la cuenta clasificando IM Consulting como "servicios de videntes/
 adivinación" (astrología, numerología, Matriz del Destino), categoría prohibida en su contrato.

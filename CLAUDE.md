@@ -9,24 +9,30 @@ Este proyecto avanza a lo largo de varias sesiones. Por eso:
 - **Verifica el flujo en el código antes de asumir** que esta doc o un diagrama es correcto
   (esta doc ya estuvo gravemente desincronizada una vez — ver PROGRESS 2026-06-18).
 
-## 🚫 BLOQUEO ACTIVO — cobro caído (2026-06-18)
-Stripe **cerró la cuenta** por categoría prohibida (videntes/astrología). El flujo de pago de
-abajo describe la arquitectura, pero **el cobro con Stripe NO funciona** y no debe reintentarse.
-Migración a procesador "high-risk" pendiente (ver `docs/ROADMAP.md` Fase 0 y `DECISIONS.md` D-009).
-Cuando se elija procesador, solo cambian `api/webhook.js` + `public/checkout.html`.
+## Estado del cobro — migrado a Hotmart (2026-06-26, D-010)
+Stripe cerró la cuenta por categoría prohibida (videntes/astrología) — ver `DECISIONS.md` D-009.
+El cobro **se migró a Hotmart** (D-010); el flujo de abajo ya es el real. Falta la verificación
+e2e de un pago Hotmart real y setear env vars en Netlify (`SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
+`HOTMART_HOTTOK`). Ver `docs/ROADMAP.md` Fase 0. **No reintentar Stripe.**
 
 ## Qué es este proyecto
-Plataforma de reportes de autoconocimiento personalizados. El cliente paga en Stripe y el
+Plataforma de reportes de autoconocimiento personalizados. El cliente paga en Hotmart y el
 sistema genera un reporte con bloques narrativos (Claude Sonnet-4-6) y se lo envía por correo
 en PDF. Isaac no interviene en el flujo automatizado.
 
-## Flujo real (VERIFICADO en código — 2026-06-18)
+## Flujo real (VERIFICADO en código — 2026-06-27)
 ```
 public/checkout.html  (Netlify, sitio estático)
+  └─ POST /.netlify/functions/guardar-pedido     [api/guardar-pedido.js — Netlify]
+       · valida datos de nacimiento + email
+       · inserta fila en Supabase tabla `pedidos` (status='pending')  [REST, no SDK]
+       · responde { hotmart_url } → el browser redirige al checkout de Hotmart
+  └─ Hotmart procesa el pago → envía webhook PURCHASE_APPROVED
   └─ POST /.netlify/functions/webhook            [api/webhook.js — Netlify]
-       · valida plan+email · cobra Stripe PaymentIntent server-side ($55=5500 / $111=11100)
+       · valida header x-hotmart-hottok
+       · busca el pedido en Supabase por email + status=pending
        · handoff → POST {RAILWAY_URL}/admin-report  (header X-Admin-Secret)
-       · responde 200 {id_pedido}
+       · marca status='processing' + guarda hotmart_transaction
   └─ POST /admin-report                           [railway/app.js — Railway, el MOTOR]
        · responde 202 inmediato, procesa en background (sin timeout)
        · buildDataset() inline: signo solar + numerología en JS puro (NO usa Python)
@@ -39,11 +45,14 @@ public/checkout.html  (Netlify, sitio estático)
 ```
 
 **Dos plataformas, dos roles:**
-- **Netlify** = sitio estático (checkout) + cobro Stripe. Timeout corto → solo cobra.
+- **Netlify** = sitio estático (checkout) + funciones de cobro (guardar-pedido + webhook Hotmart). Timeout corto.
 - **Railway** = motor de generación pesada (Express + Docker + Chromium). Sin timeout.
 
-**Importante:** NO hay listener de webhook de Stripe. El cobro es síncrono dentro de
-`api/webhook.js` (el nombre es heredado y engañoso). Ver `docs/DECISIONS.md` D-006.
+**Importante:** el cobro lo hace **Hotmart** (plataforma externa); Netlify solo guarda el pedido
+y reacciona al webhook `PURCHASE_APPROVED`. El "webhook" de Stripe síncrono (D-006) ya NO existe.
+
+**Gap conocido (Fase 5):** `webhook.js` no le pasa el `id` del pedido a Railway → Railway no puede
+actualizar la fila de `pedidos`. Bloquea la descarga web futura (vestíbulo). Hoy la entrega es solo email.
 
 ## Dos planes
 - **$55 Esencial** — 14 bloques (`SECUENCIA_55` en railway/app.js)
@@ -51,24 +60,27 @@ public/checkout.html  (Netlify, sitio estático)
 
 ## Stack técnico
 - **Railway** (Express + Docker) — `railway/app.js`, el motor real
-- **Netlify** — sitio estático `public/` + función `api/webhook.js` (cobro Stripe)
+- **Netlify** — sitio estático `public/` + funciones `guardar-pedido.js` + `webhook.js` (cobro Hotmart)
+- **Supabase** — tabla `pedidos` (persistencia de pedidos), vía REST API directa (NO el SDK)
+- **Hotmart** — procesador de cobro (checkout externo + webhook `PURCHASE_APPROVED`)
 - **Claude API Sonnet-4-6** con prompt caching + auditoría de voz
-- **Stripe** — cobro síncrono · **Puppeteer + Chromium** — PDF · **Gmail/Resend** — email
+- **Puppeteer + Chromium** — PDF · **Gmail/Resend** — email
 
 ## Archivos clave (flujo de producción)
 | Archivo | Rol | Estado |
 |---|---|---|
 | railway/app.js | Motor: dataset + bloques + auditoría + PDF + email | ✅ Vivo (canónico) |
-| api/webhook.js | Netlify: cobra Stripe y hace handoff a Railway | ✅ Vivo (tiene código muerto adentro) |
+| api/guardar-pedido.js | Netlify: guarda pedido en Supabase + redirige a Hotmart | ✅ Vivo |
+| api/webhook.js | Netlify: recibe PURCHASE_APPROVED de Hotmart + handoff a Railway | ✅ Vivo |
 | api/audit-bloque.js | Auditoría de bloques (8 criterios), la usa Railway | ✅ Vivo |
-| public/checkout.html | Página de pago, llama a la función webhook | ✅ Vivo |
+| public/checkout.html | Página de captura de datos, llama a guardar-pedido | ✅ Vivo |
 | prompts/*.md, prompts/03_ARBOL.json | Capas del prompt (CORE, ZOHAR, KABBALAH, TRANSFORMACION, árbol) | ✅ Vivo |
 
 ## Código muerto / legacy (NO es el flujo real — pendiente de limpieza, ver ROADMAP Fase 3)
 - Flujo Netlify viejo en `api/`: `template-injector.js`, `html-to-pdf.js`, `send-email.js`,
   `admin-report.js`, `admin-report-background.js`, `generate-report.js`, `compute_dataset/`
-- Dentro de `api/webhook.js`: imports líneas 17-19 + funciones `buildDataset`/`geocodificar`/
-  `resolverTimezone`/`generarHtmlDeBloques`/`esc` que el handler ya no llama
+- `api/check-status.js` + `api/download-report.js`: rotos (leen `/tmp` de Netlify). Se reescriben
+  si se construye el vestíbulo (ROADMAP Fase 5), si no, candidatos a borrar.
 - Solo para uso local (script manual `generate-elizabeth.js`): `api/cache-bloques.js`, `api/track-tokens.js`
 - Scripts sueltos en raíz: `patch-*.js`, `generate-pdf-local.js(.bak)`, `integrar-graficos.js`, etc.
 
