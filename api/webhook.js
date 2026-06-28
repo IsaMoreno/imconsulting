@@ -10,16 +10,40 @@ const SUPABASE_KEY  = process.env.SUPABASE_SECRET_KEY;
 const RAILWAY_URL   = process.env.RAILWAY_URL || 'https://imconsulting-production.up.railway.app';
 const ADMIN_SECRET  = process.env.ADMIN_SECRET;
 const HOTTOK        = process.env.HOTMART_HOTTOK;
+const RESEND_KEY    = process.env.RESEND_API_KEY;
+const ISAAC_EMAIL   = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
+const EMAIL_FROM    = process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev';
+
+// Aviso al admin cuando algo falla en el camino del dinero. No-op sin RESEND_API_KEY.
+async function alertarIsaac(asunto, detalle) {
+  if (!RESEND_KEY) return;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: ISAAC_EMAIL,
+        subject: `⚠️ IM Consulting — ${asunto}`,
+        html: `<pre style="font-family:monospace;font-size:13px;white-space:pre-wrap">${detalle}</pre>`,
+      }),
+    });
+  } catch (err) {
+    console.error(`[ALERTA] No se pudo avisar a Isaac: ${err.message}`);
+  }
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  // Validar hottok de Hotmart
-  const hottok = event.headers['x-hotmart-hottok'];
-  if (!hottok || hottok !== HOTTOK) {
-    console.error('Hottok inválido:', hottok);
+  // Validar hottok de Hotmart (comparación timing-safe)
+  const hottok = event.headers['x-hotmart-hottok'] || '';
+  const hottokOk = HOTTOK && hottok.length === HOTTOK.length &&
+    crypto.timingSafeEqual(Buffer.from(hottok), Buffer.from(HOTTOK));
+  if (!hottokOk) {
+    console.error('Hottok inválido');
     return { statusCode: 401, body: 'Unauthorized' };
   }
 
@@ -56,7 +80,14 @@ exports.handler = async (event) => {
 
   if (!pedidos?.length) {
     console.error(`[${transaction}] No se encontró pedido pendiente para ${email}`);
-    return { statusCode: 404, body: 'Pedido no encontrado' };
+    // Cliente pagó pero no hay fila pending con ese email (probable: usó otro email en Hotmart).
+    // Avisar a Isaac para resolución manual y devolver 200 para que Hotmart no reintente (evita spam).
+    await alertarIsaac('Pago sin pedido — cliente NO recibirá su reporte',
+      `transaction: ${transaction}\nbuyer email (Hotmart): ${email}\nnombre: ${nombre}\n\n` +
+      `No existe fila 'pending' en 'pedidos' con ese email. Probablemente el comprador usó un email ` +
+      `distinto al del checkout. Acción manual: buscar la compra en Hotmart y generar el reporte vía ` +
+      `POST /admin-report en Railway con los datos correctos.`);
+    return { statusCode: 200, body: 'Pedido no encontrado — admin notificado' };
   }
 
   const pedido = pedidos[0];
@@ -71,6 +102,7 @@ exports.handler = async (event) => {
         'X-Admin-Secret': ADMIN_SECRET || '',
       },
       body: JSON.stringify({
+        id:      pedido.id,
         nombre:  pedido.nombre || nombre,
         email:   pedido.email,
         fecha:   pedido.fecha_nacimiento,
@@ -99,7 +131,7 @@ exports.handler = async (event) => {
 };
 
 async function actualizarStatus(id, status, transaction) {
-  await fetch(`${SUPABASE_URL}/rest/v1/pedidos?id=eq.${id}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/pedidos?id=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: {
       'apikey': SUPABASE_KEY,

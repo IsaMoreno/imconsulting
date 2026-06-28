@@ -6,6 +6,53 @@
 
 ---
 
+## 2026-06-27 (tarde) — Keystone del pedido.id + persistencia del PDF (rama `feat/persistencia-pedido-id`)
+
+**Decisión de alcance (llm-council, D-011):** NO se construye el vestíbulo web completo. El email ya
+entrega el PDF; el portal es YAGNI hasta que haya demanda real. Se hace solo lo de alto valor:
+cerrar el gap del `id` + durabilidad del PDF. Veredicto del council = misma ruta lazy que ya se proponía.
+
+**Hecho (código, rama `feat/persistencia-pedido-id`, sin commitear aún):**
+- **Gap del `id` cerrado en los dos lados** (la doc solo mencionaba el emisor):
+  - `api/webhook.js`: ahora manda `id: pedido.id` a Railway.
+  - `railway/app.js`: la ruta `/admin-report` **antes generaba su propio `admin-xxxx` e ignoraba
+    cualquier id entrante**. Ahora usa el `id` del body si viene (uuid de `pedidos`); si no, fallback
+    al generado para llamadas admin manuales.
+- **Railway ahora habla con Supabase (REST, como webhook.js) — antes no lo hacía en absoluto:**
+  - Sube el PDF al bucket `reportes/{id}.pdf` (resuelve el `/tmp` efímero; path determinístico, sin ALTER).
+  - Marca `status='completed'` si el PDF existe, `'failed'` si no / error fatal. **Antes la fila
+    quedaba en `processing` para siempre tras un pago exitoso.**
+- Verificado: `node --check` OK en ambos. Lógica nueva = one-liners triviales + REST estático.
+
+**Pendiente (solo Isaac, dashboards) para cerrar e2e:**
+- Railway: env vars `SUPABASE_URL` + `SUPABASE_SECRET_KEY`.
+- Supabase: crear bucket **privado** `reportes`.
+- Luego: deploy de ambos + 1 pago Hotmart sandbox → verificar fila `completed` + objeto en el bucket.
+
+**No tocado / descartado por D-011:** `check-status.js`/`download-report.js` (siguen rotos, leen `/tmp`),
+`reporte.html`, columna `pdf_path`. Se retoman solo si se dispara el trigger del council (≈10% de
+clientes piden portal, o el email se vuelve problema de soporte).
+
+**Alertas de fallo del money path (mismo commit):**
+- `webhook.js`: si llega un pago y NO hay fila `pending` con ese email (probable: el comprador usó
+  otro email en Hotmart), avisa a Isaac por correo (Resend REST) y devuelve 200 (evita reintentos +
+  spam). Antes el cliente pagaba y nadie se enteraba.
+- `railway/app.js`: si el reporte termina `failed` (PDF falló o error fatal), avisa a Isaac.
+- Ambos helpers `alertarIsaac` son no-op si falta `RESEND_API_KEY` (no rompen el flujo).
+- **Env nueva en Netlify:** `RESEND_API_KEY` (+ opcional `REPORT_EMAIL_FROM`, `ISAAC_EMAIL`). Railway ya las tiene.
+
+**Hardening de seguridad (security-reviewer, mismo commit):**
+- `timingSafeEqual` para `ADMIN_SECRET` (Railway) y `HOTMART_HOTTOK` (webhook) — con guard de longitud
+  y de secret vacío (un `timingSafeEqual("","")` daba `true` = bypass; cubierto + self-check de 9 asserts).
+- Validación de formato uuid del `id` en `/admin-report` + `encodeURIComponent` en las URLs de Supabase
+  (el `id` se usaba en `writeFileSync` y en la ruta del bucket → cerraba traversal).
+- Quitado el fallback de `secret` por body en `/admin-report` (solo header; el body se loguea).
+- **Descartado a propósito:** rate limiting en `/admin-report`. El check del secret corta ANTES de
+  cualquier llamada a Anthropic, y el secret es de alta entropía → brute-force inviable. Sumar
+  `express-rate-limit` era dependencia nueva por riesgo marginal. Reabrir solo si hay abuso real.
+
+---
+
 ## 2026-06-27 — Realidad: migración a Hotmart + Supabase ya hecha (no estaba documentada)
 
 **Contexto:** se entró a "ejecutar" el plan de persistencia `docs/superpowers/plans/2026-06-12-persistencia-sync-vestibulo.md` y, al verificar el código (regla de oro de este proyecto), se descubrió que **el código ya avanzó mucho más allá de lo que decían ROADMAP/PROGRESS**. La doc volvió a desincronizarse.

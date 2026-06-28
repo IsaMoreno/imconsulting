@@ -6,6 +6,19 @@
 
 ---
 
+### D-011 · Vestíbulo web descartado (YAGNI) — email-only + persistencia del PDF en bucket (2026-06-27)
+**Qué pasó:** se llevó al llm-council la decisión "¿construir el vestíbulo web de descarga o el email
+basta?". Veredicto: **NO construir el portal**. El PDF ya llega por email end-to-end; un portal es
+sobre-ingeniería sin demanda probada para un fundador solo en pre-lanzamiento. En su lugar se hizo lo
+de alto valor: cerrar el gap del `pedido.id` (Railway ya no genera/ignora el id; lo recibe del webhook
+y actualiza la fila) y dar durabilidad al PDF subiéndolo al bucket `reportes/{id}.pdf` (resuelve el
+`/tmp` efímero). Railway pasó de no tocar Supabase a marcar `status` (`completed`/`failed`).
+**Implicación:** quedan DESCARTADOS hasta nuevo aviso `check-status.js`/`download-report.js`,
+`reporte.html` y la columna `pdf_path` (el path es determinístico desde el id, no requiere `ALTER`).
+Env nuevas en **Railway**: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. Falta bucket privado `reportes` + e2e.
+**Trigger para reabrir el vestíbulo:** ≈10% de clientes pidan descarga web, o el email se vuelva un
+problema recurrente de soporte/entregabilidad. Implementado en rama `feat/persistencia-pedido-id`.
+
 ### D-010 · Hotmart es el procesador de cobro (revierte la recomendación cripto de Fase 0) (2026-06-26)
 **Qué pasó:** se migró el cobro a **Hotmart** (plataforma de infoproductos que acepta la categoría),
 en vez del carril cripto/NOWPayments que el ROADMAP Fase 0 recomendaba el 2026-06-18. Hotmart no

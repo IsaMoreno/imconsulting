@@ -15,6 +15,62 @@ const nodemailer = require('nodemailer');
 const { auditarBloque } = require('../api/audit-bloque');
 const puppeteer = require('puppeteer-core');
 
+// ── Persistencia en Supabase (REST directo, como api/webhook.js) ────────────────
+// Solo actúa si el pedido vino del webhook (uuid real) y las env vars están seteadas.
+// ponytail: path determinístico reportes/{id}.pdf — sin columna pdf_path ni ALTER.
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
+
+async function subirPdfABucket(pedidoId, pdfBuffer) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !pedidoId || !pdfBuffer) return;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/reportes/${encodeURIComponent(pedidoId)}.pdf`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/pdf',
+      'x-upsert': 'true',
+    },
+    body: pdfBuffer,
+  });
+  if (!res.ok) throw new Error(`Storage ${res.status}: ${await res.text()}`);
+}
+
+async function actualizarStatusPedido(pedidoId, status) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !pedidoId) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/pedidos?id=eq.${encodeURIComponent(pedidoId)}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+  } catch (err) {
+    console.error(`Status update falló (${pedidoId} → ${status}): ${err.message}`);
+  }
+}
+
+// Aviso al admin cuando un reporte falla (la fila queda 'failed' pero nadie la mira). No-op sin Resend.
+async function alertarIsaac(asunto, detalle) {
+  const isaacEmail = process.env.ISAAC_EMAIL || 'its.isaacmoreno@gmail.com';
+  if (!process.env.RESEND_API_KEY) return;
+  try {
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: process.env.REPORT_EMAIL_FROM || 'onboarding@resend.dev',
+      to: isaacEmail,
+      subject: `⚠️ IM Consulting — ${asunto}`,
+      html: `<pre style="font-family:monospace;font-size:13px;white-space:pre-wrap">${detalle}</pre>`,
+    });
+  } catch (err) {
+    console.error(`[ALERTA] No se pudo avisar a Isaac: ${err.message}`);
+  }
+}
+
 // ── PDF con Chromium del sistema (Dockerfile lo instala en /usr/bin/chromium) ──
 async function generatePdf(html) {
   const browser = await puppeteer.launch({
@@ -348,7 +404,7 @@ async function sendEmail(to, nombreDestinatario, nombreCliente, plan, id_pedido,
 }
 
 // ── Proceso completo en background ────────────────────────────────────────────
-async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedido) {
+async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedido, supabaseId) {
   try {
     console.log(`[${id_pedido}] 🚀 Iniciando generación...`);
     const dataset   = buildDataset(nombre, fecha, hora, ciudad);
@@ -383,6 +439,12 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
       pdfBuffer = await generatePdf(printHtml);
       fs.writeFileSync(`/tmp/reporte-${id_pedido}.pdf`, pdfBuffer);
       console.log(`[${id_pedido}] 📑 PDF generado: ${(pdfBuffer.length / 1024).toFixed(0)} KB`);
+      try {
+        await subirPdfABucket(supabaseId, pdfBuffer);
+        if (supabaseId) console.log(`[${id_pedido}] ☁️ PDF en bucket reportes/${supabaseId}.pdf`);
+      } catch (upErr) {
+        console.error(`[${id_pedido}] ⚠️ Subida a bucket falló: ${upErr.message}`);
+      }
     } catch (pdfErr) {
       console.error(`[${id_pedido}] ⚠️ PDF falló (${pdfErr.message}) — se enviará sin adjunto`);
     }
@@ -404,17 +466,34 @@ async function procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedi
       console.warn(`[${id_pedido}] ⚠️ Copia a Isaac falló: ${copyErr.message}`);
     }
 
+    // status final: completed si el PDF existe (deliverable durable en bucket); si no, failed.
+    // El fallo de email no marca failed: el reporte existe y es recuperable del bucket.
+    const statusFinal = pdfBuffer ? 'completed' : 'failed';
+    await actualizarStatusPedido(supabaseId, statusFinal);
+    if (statusFinal === 'failed') {
+      await alertarIsaac('Reporte sin PDF',
+        `id_pedido: ${id_pedido}\ncliente: ${nombre} <${email}>\nplan: ${plan}\n\n` +
+        `El reporte se generó pero el PDF falló. Revisar logs de Railway.`);
+    }
+
   } catch (err) {
     console.error(`[${id_pedido}] ❌ Error fatal:`, err.message);
+    await actualizarStatusPedido(supabaseId, 'failed');
+    await alertarIsaac('Error fatal generando reporte',
+      `id_pedido: ${id_pedido}\ncliente: ${nombre} <${email}>\nplan: ${plan}\nerror: ${err.message}`);
   }
 }
 
 // ── Endpoint ──────────────────────────────────────────────────────────────────
 app.post('/admin-report', (req, res) => {
-  const { secret, nombre, email, fecha, hora = '12:00', ciudad, plan = 'esencial' } = req.body;
+  const { id, nombre, email, fecha, hora = '12:00', ciudad, plan = 'esencial' } = req.body;
 
-  const secretEnviado = req.headers['x-admin-secret'] || secret;
-  if (secretEnviado !== process.env.ADMIN_SECRET) {
+  // Auth solo por header (no por body: el body se loguea), comparación timing-safe.
+  const secretEnviado = req.headers['x-admin-secret'] || '';
+  const adminSecret   = process.env.ADMIN_SECRET || '';
+  const authOk = adminSecret.length > 0 && secretEnviado.length === adminSecret.length &&
+    crypto.timingSafeEqual(Buffer.from(secretEnviado), Buffer.from(adminSecret));
+  if (!authOk) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
@@ -426,7 +505,14 @@ app.post('/admin-report', (req, res) => {
     return res.status(400).json({ error: 'Plan inválido' });
   }
 
-  const id_pedido = `admin-${crypto.randomUUID().slice(0, 8)}`;
+  // id viene del webhook (uuid de `pedidos`); sin él es admin manual. Validar formato:
+  // el id se usa en writeFileSync y en la URL del bucket → un id con `/` o `&` sería traversal.
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (id != null && !UUID_RE.test(id)) {
+    return res.status(400).json({ error: 'id inválido' });
+  }
+  const supabaseId = id || null;
+  const id_pedido  = id || `admin-${crypto.randomUUID().slice(0, 8)}`;
   console.log(`[${id_pedido}] 🎙️ ${nombre} | ${plan} | ${ciudad}`);
 
   // Responder inmediato y procesar en background
@@ -436,7 +522,7 @@ app.post('/admin-report', (req, res) => {
     mensaje:  `Procesando reporte para ${nombre}. Llegará al correo en 2-3 minutos.`,
   });
 
-  procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedido);
+  procesarReporte(nombre, email, fecha, hora, ciudad, plan, id_pedido, supabaseId);
 });
 
 app.get('/health', (_, res) => res.json({ status: 'ok' }));

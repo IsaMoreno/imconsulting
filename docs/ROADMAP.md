@@ -82,16 +82,17 @@ El resto (dominio, email, limpieza) está listo.
 > delantera del flujo. El plan `2026-06-12-persistencia-sync-vestibulo.md` quedó OBSOLETO (asumía
 > Stripe/SDK/`reports`); si se retoma, reescribir adaptado a Hotmart/REST/`pedidos`.
 
-- [ ] **Gap vivo — `pedido.id` no llega a Railway:** `webhook.js` (líneas 73-80) pasa los datos de
-      nacimiento a Railway pero no el `id` de la fila → Railway no puede actualizar el `pedido`. Es
-      el mismo desync de antes en versión Hotmart. **Bloquea cualquier descarga web.**
-- [ ] **`/tmp` efímero:** Railway guarda el PDF en `/tmp`, que se borra en cada redeploy. Si el
-      email falla, el reporte se pierde. (Lo resuelve subir el PDF al bucket `reportes`.)
-- [ ] **`check-status.js`/`download-report.js` rotos:** leen `/tmp` de Netlify. Reescribir a REST
-      sobre `pedidos` + bucket cuando se construya el vestíbulo.
-- [ ] Para el vestíbulo faltan: bucket privado `reportes`, columnas `progreso`/`pdf_path` en
-      `pedidos` (vía ALTER, NO drop), Railway subiendo el PDF + marcando `completed`, y `reporte.html`.
-- [ ] Evaluar contra YAGNI según volumen real: hoy el cliente ya recibe el PDF por correo.
+> **Resuelto 2026-06-27 (D-011, llm-council):** el vestíbulo web completo se DESCARTA por YAGNI
+> (el email ya entrega). Se hizo solo el keystone + persistencia. Rama `feat/persistencia-pedido-id`.
+
+- [x] **Gap del `pedido.id` cerrado (los dos lados):** `webhook.js` manda `id`; `railway/app.js`
+      lo usa en vez de generar el suyo (que ignoraba el entrante) — 2026-06-27
+- [x] **`/tmp` efímero mitigado:** Railway sube el PDF al bucket `reportes/{id}.pdf` — 2026-06-27
+- [x] **Railway marca `status` en `pedidos`** (`completed`/`failed`; antes quedaba en `processing`) — 2026-06-27
+- [ ] **tú (dashboards) para cerrar e2e:** Railway env `SUPABASE_URL`+`SUPABASE_SECRET_KEY`; Supabase
+      bucket privado `reportes`; luego deploy + 1 pago sandbox → verificar fila `completed` + objeto en bucket
+- [ ] ~~`check-status.js`/`download-report.js` + `reporte.html` + columna `pdf_path`~~ **DESCARTADO (D-011)**
+      — retomar solo si ≈10% de clientes piden portal o el email se vuelve problema de soporte
 
 ## Fase 6 — Tests mínimos del camino del dinero
 
